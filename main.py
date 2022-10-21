@@ -1,5 +1,7 @@
 import math
+import os
 import random
+import webbrowser
 
 import cv2
 import numpy as np
@@ -45,27 +47,6 @@ def detectAproxPoly(img):
     cv2.imshow("Edged image", edged)
     cv2.imshow("contours", image_copy)
 
-def blopDetect(img):
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    image_copy = img.copy()
-
-    params = cv2.SimpleBlobDetector_Params()
-
-    #params.filterByCircularity = True
-    #params.minCircularity = 0.75
-
-    params.filterByInertia = True
-    params.minInertiaRatio = 0
-    params.maxInertiaRatio = 0.8
-
-    detector = cv2.SimpleBlobDetector_create(params)
-
-    #detect blops
-    keypoints = detector.detect(gray)
-
-    imgKeyPoints = cv2.drawKeypoints(gray, keypoints, np.array([]), (0, 0, 255), cv2.DrawMatchesFlags_DRAW_RICH_KEYPOINTS)
-
-    cv2.imshow("Keypoints", imgKeyPoints)
 
 def boundBox(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -151,6 +132,22 @@ def detectCorners(img, lines):
     cv2.imshow("Corners", img_copy)
 
 
+def getAllImages():
+    folder_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
+    all_images = os.listdir(folder_dir)
+    #print(all_images)
+    #first = folder_dir + "/" + all_images[0]
+    #print(first)
+
+    for image_name in all_images:
+        path = folder_dir + '/' + image_name
+        img = cv2.imread(path)
+        cv2.imshow("img", img)
+        cv2.waitKey(700)
+
+def showResultsHTML():
+    webbrowser.open('Results.html')
+
 if __name__ == '__main__':
     # load image
     img = cv2.imread('C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1/ElCerrito.jpg')
@@ -168,11 +165,15 @@ if __name__ == '__main__':
 
     #boundBox(img)
 
-    detectLines(img)
+    #detectLines(img)
 
     #detectCorners(img)
 
     #cv2.imshow("Original image", img)
+
+    #getAllImages()
+
+    showResultsHTML()
 
     # wait until key is pressed
     cv2.waitKey(0)
