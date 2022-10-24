@@ -6,6 +6,8 @@ import webbrowser
 import cv2
 import numpy as np
 
+from outputs import showResultsHTML
+
 
 def detectAproxPoly(img):
     # convert to grayscale
@@ -76,13 +78,15 @@ def boundBox(img):
     cv2.imshow("Bounding Rectangle", img)
 
 
-def detectLines(img):
+def detectLinesHough(img):
     img_copy = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    '''
+
     blurred = cv2.GaussianBlur(gray, (3, 3), 0)
     edged = cv2.Canny(blurred, 10, 100)
-    edged = cv2.dilate(edged, np.ones((3, 3), dtype=np.uint8))
+    # edged = cv2.dilate(edged, np.ones((3, 3), dtype=np.uint8))
+    edged = cv2.dilate(edged, np.ones((10, 10), dtype=np.uint8))
+    edged = cv2.erode(edged, np.ones((10, 10), dtype=np.uint8))
 
     rho = 1  # distance resolution in pixels of the Hough grid
     theta = np.pi / 180  # The resolution of the parameter theta in radians: 1 degree
@@ -96,14 +100,31 @@ def detectLines(img):
         for x1, y1, x2, y2 in line:
             cv2.line(img_copy, (x1, y1), (x2, y2), (255, 0, 0), 2)
 
-    cv2.imshow("Edged image", edged)
-    cv2.imshow("Lines", img_copy)
-    '''
+    #cv2.imshow("Edged image", edged)
+    #cv2.imshow("Lines", img_copy)
+
+    return img_copy
+
+def detectLines(img):
+    img_copy = img.copy()
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    ### Seconds try
+
     # Create default parametrization LSD
     lsd = cv2.createLineSegmentDetector(0)
 
+    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+    thresholded = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    bw_swap = cv2.bitwise_not(thresholded)
+    # dilated = cv2.dilate(bw_swap, np.ones((3, 3), dtype=np.uint8))
+    eroded = cv2.erode(bw_swap, np.ones((2, 6), dtype=np.uint8))
+    edged = eroded
+
+    cv2.imshow("title", eroded)
+
     # Detect lines in the image
-    lines = lsd.detect(gray)[0]  # Position 0 of the returned tuple are the detected lines
+    lines = lsd.detect(edged)[0]  # Position 0 of the returned tuple are the detected lines
 
     # Draw detected lines in the image
     drawn_img = lsd.drawSegments(img, lines)
@@ -112,10 +133,10 @@ def detectLines(img):
 
     # Show image
     cv2.imshow("LSD", drawn_img)
-    detectCorners(img, lines)
+    return drawLines(img, lines)
 
 
-def detectCorners(img, lines):
+def drawLines(img, lines):
     img_copy = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -129,33 +150,46 @@ def detectCorners(img, lines):
         color = (b, r, g)
         cv2.line(img_copy, (x1, y1), (x2, y2), color, 2)
 
-    cv2.imshow("Corners", img_copy)
+    #cv2.imshow("Corners", img_copy)
+    return img_copy
+
+def saveImage(img_name, description, res_img):
+    directory = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines"
+    start = len(img_name) - 6
+    exten_index = img_name.find('.', start)
+    result_name = img_name[:exten_index] + '_' + description + img_name[exten_index:]
+    #print(result_name)
+    all_images = os.listdir(directory)
+    if result_name in all_images:
+        return
+
+    result_path = directory + '/' + result_name
+    cv2.imwrite(result_path, res_img)
 
 
 def getAllImages():
     folder_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
     all_images = os.listdir(folder_dir)
-    #print(all_images)
-    #first = folder_dir + "/" + all_images[0]
-    #print(first)
 
     for image_name in all_images:
         path = folder_dir + '/' + image_name
         img = cv2.imread(path)
-        cv2.imshow("img", img)
-        cv2.waitKey(700)
+        img_hlines = detectLinesHough(img)
+        saveImage(image_name, 'hough_lines', img_hlines)
+        # cv2.imshow("img", img_hlines)
+        # cv2.waitKey(600)
 
-def showResultsHTML():
-    webbrowser.open('Results.html')
+    #cv2.waitKey(600)
 
 if __name__ == '__main__':
     # load image
-    img = cv2.imread('C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1/ElCerrito.jpg')
-    #img = cv2.imread('images/ERD_basic1_dig.png')
-    #img = cv2.imread('images/shapes_hndw.png')
-    #img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
-    #img = cv2.imread('images/shapes.png')
+    # img = cv2.imread('C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1/ElCerrito.jpg')
+    img = cv2.imread('images/ERD_basic1_dig.png')
+    # img = cv2.imread('images/shapes_hndw.png')
+    # img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
+    # img = cv2.imread('images/shapes.png')
     #img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
+
     # resize to half of the size
     img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
 
@@ -165,15 +199,17 @@ if __name__ == '__main__':
 
     #boundBox(img)
 
-    #detectLines(img)
+    #img_mod = detectLines(img)
 
-    #detectCorners(img)
+    # detectCorners(img)
 
     #cv2.imshow("Original image", img)
 
     #getAllImages()
 
     showResultsHTML()
+
+    #saveImage('ERD_basic1_dig.png', 'lines', img_mod)
 
     # wait until key is pressed
     cv2.waitKey(0)
