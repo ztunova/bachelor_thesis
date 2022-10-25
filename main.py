@@ -98,14 +98,19 @@ def detectLinesHough(img):
 
     for line in lines:
         for x1, y1, x2, y2 in line:
-            cv2.line(img_copy, (x1, y1), (x2, y2), (255, 0, 0), 2)
+            b = random.randint(0, 255)
+            r = random.randint(0, 255)
+            g = random.randint(0, 255)
+            cv2.line(img_copy, (x1, y1), (x2, y2), (b, g, r), 2)
 
     #cv2.imshow("Edged image", edged)
     #cv2.imshow("Lines", img_copy)
 
+    doHistogram(lines)
     return img_copy
+    #return drawLines(img, lines)
 
-def detectLines(img):
+def detectLinesLSD(img):
     img_copy = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -121,7 +126,7 @@ def detectLines(img):
     eroded = cv2.erode(bw_swap, np.ones((2, 6), dtype=np.uint8))
     edged = eroded
 
-    cv2.imshow("title", eroded)
+    #cv2.imshow("title", eroded)
 
     # Detect lines in the image
     lines = lsd.detect(edged)[0]  # Position 0 of the returned tuple are the detected lines
@@ -132,8 +137,9 @@ def detectLines(img):
     #print(lines)
 
     # Show image
-    cv2.imshow("LSD", drawn_img)
-    return drawLines(img, lines)
+    #cv2.imshow("LSD", drawn_img)
+    return drawn_img
+    #return drawLines(img, lines)
 
 
 def drawLines(img, lines):
@@ -153,33 +159,61 @@ def drawLines(img, lines):
     #cv2.imshow("Corners", img_copy)
     return img_copy
 
-def saveImage(img_name, description, res_img):
-    directory = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines"
+def distanceOfPoints(x1, y1, x2, y2):
+    return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+
+def doHistogram(lines_points):
+    # https://stackoverflow.com/questions/9141732/how-does-numpy-histogram-work
+    # https://realpython.com/python-histograms/
+    # lines points: [[x_start1, y_start1, x_end1, y_end1], [x_start2, y_start2, x_end2, y_end2]...]
+    lines_points = lines_points.ravel()
+    #print(lines_points)
+    start = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    end = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    all_distances = []
+
+    for start_point in range(0, len(lines_points), 2):
+        for end_point in range(start_point + 2, len(lines_points), 2):
+            #print(f"distance from start point {start_point} {start_point +1} to end point {end_point} {end_point+1}")
+            x1 = lines_points[start_point]
+            y1 = lines_points[start_point + 1]
+            x2 = lines_points[end_point]
+            y2 = lines_points[end_point + 1]
+            distance = distanceOfPoints(x1, y1 , x2, y2)
+            all_distances.append(distance)
+            #print("save dst")
+
+    print(all_distances)
+    print(len(all_distances))
+
+def saveImage(dst_dir, img_name, description, res_img):
     start = len(img_name) - 6
     exten_index = img_name.find('.', start)
     result_name = img_name[:exten_index] + '_' + description + img_name[exten_index:]
     #print(result_name)
-    all_images = os.listdir(directory)
-    if result_name in all_images:
-        return
+    all_images = os.listdir(dst_dir)
 
-    result_path = directory + '/' + result_name
+    result_path = dst_dir + '/' + result_name
+    if result_name in all_images:
+        os.remove(result_path)
+
     cv2.imwrite(result_path, res_img)
 
 
 def getAllImages():
     folder_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
+    dst_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines"
+    #dst_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_LSDlines"
     all_images = os.listdir(folder_dir)
 
     for image_name in all_images:
         path = folder_dir + '/' + image_name
         img = cv2.imread(path)
         img_hlines = detectLinesHough(img)
-        saveImage(image_name, 'hough_lines', img_hlines)
-        # cv2.imshow("img", img_hlines)
-        # cv2.waitKey(600)
+        saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
+        # img_LSDlines = detectLinesLSD(img)
+        # saveImage(dst_dir, image_name, 'hough_lines', img_LSDlines)
 
-    #cv2.waitKey(600)
 
 if __name__ == '__main__':
     # load image
@@ -193,13 +227,7 @@ if __name__ == '__main__':
     # resize to half of the size
     img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
 
-    #detectAproxPoly(img)
-
-    #blopDetect(img)
-
-    #boundBox(img)
-
-    #img_mod = detectLines(img)
+    img_mod = detectLinesHough(img)
 
     # detectCorners(img)
 
@@ -207,9 +235,11 @@ if __name__ == '__main__':
 
     #getAllImages()
 
-    showResultsHTML()
+    #showResultsHTML()
 
     #saveImage('ERD_basic1_dig.png', 'lines', img_mod)
+
+    #computeHistogram(0)
 
     # wait until key is pressed
     cv2.waitKey(0)
