@@ -4,6 +4,7 @@ import random
 import webbrowser
 
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 
 from outputs import showResultsHTML
@@ -183,8 +184,12 @@ def doHistogram(lines_points):
             all_distances.append(distance)
             #print("save dst")
 
-    print(all_distances)
-    print(len(all_distances))
+    # print(all_distances)
+    #
+    # hist, bin_edges = np.histogram(all_distances)
+    # print(len(all_distances))
+    plt.hist(all_distances, edgecolor="white", bins='scott')
+    plt.show()
 
 def saveImage(dst_dir, img_name, description, res_img):
     start = len(img_name) - 6
