@@ -107,8 +107,8 @@ def detectLinesHough(img):
     #cv2.imshow("Edged image", edged)
     #cv2.imshow("Lines", img_copy)
 
-    doHistogram(lines)
-    return img_copy
+    # doHistogram(lines)
+    return img_copy, lines
     #return drawLines(img, lines)
 
 def detectLinesLSD(img):
@@ -143,52 +143,28 @@ def detectLinesLSD(img):
     #return drawLines(img, lines)
 
 
-def drawLines(img, lines):
-    img_copy = img.copy()
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    lines = np.int0(lines)
-
-    for line in lines:
-        x1, y1, x2, y2 = line.ravel()
-        b = random.randint(0, 255)
-        r = random.randint(0, 255)
-        g = random.randint(0, 255)
-        color = (b, r, g)
-        cv2.line(img_copy, (x1, y1), (x2, y2), color, 2)
-
-    #cv2.imshow("Corners", img_copy)
-    return img_copy
-
 def distanceOfPoints(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
 
 def doHistogram(lines_points):
-    # https://stackoverflow.com/questions/9141732/how-does-numpy-histogram-work
-    # https://realpython.com/python-histograms/
     # lines points: [[x_start1, y_start1, x_end1, y_end1], [x_start2, y_start2, x_end2, y_end2]...]
     lines_points = lines_points.ravel()
-    #print(lines_points)
-    start = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    end = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     all_distances = []
 
     for start_point in range(0, len(lines_points), 2):
         for end_point in range(start_point + 2, len(lines_points), 2):
-            #print(f"distance from start point {start_point} {start_point +1} to end point {end_point} {end_point+1}")
             x1 = lines_points[start_point]
             y1 = lines_points[start_point + 1]
             x2 = lines_points[end_point]
             y2 = lines_points[end_point + 1]
             distance = distanceOfPoints(x1, y1 , x2, y2)
             all_distances.append(distance)
-            #print("save dst")
 
-    # print(all_distances)
-    #
-    # hist, bin_edges = np.histogram(all_distances)
-    # print(len(all_distances))
-    plt.hist(all_distances, edgecolor="white", bins='scott')
+    n, bins, _ = plt.hist(all_distances, edgecolor="white", bins='auto')
+    x = bins[1] - bins[0]
+    plt.xlabel(f'Distance: interval {x: .4f}, min_dst: {min(all_distances): .4f}, max_dst: {max(all_distances): .4f}')
+    plt.ylabel('Frequency')
+    plt.title('Distances of line points')
     plt.show()
 
 def saveImage(dst_dir, img_name, description, res_img):
@@ -214,7 +190,8 @@ def getAllImages():
     for image_name in all_images:
         path = folder_dir + '/' + image_name
         img = cv2.imread(path)
-        img_hlines = detectLinesHough(img)
+        img_hlines, lines = detectLinesHough(img)
+        # TODO: zavolat histogram a ulozit ho v tej funkcii, poslat aj meno suboru
         saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
         # img_LSDlines = detectLinesLSD(img)
         # saveImage(dst_dir, image_name, 'hough_lines', img_LSDlines)
@@ -232,7 +209,8 @@ if __name__ == '__main__':
     # resize to half of the size
     img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
 
-    img_mod = detectLinesHough(img)
+    img_hl, lines = detectLinesHough(img)
+    doHistogram(lines)
 
     # detectCorners(img)
 
