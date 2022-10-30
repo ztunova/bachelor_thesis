@@ -14,14 +14,14 @@ def detectLinesHough(img):
     img_copy = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
 
     thresholded = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
     bw_swap = cv2.bitwise_not(thresholded)
 
-    dilated = cv2.dilate(bw_swap, np.ones((3, 3), dtype=np.uint8))
+    dilated = cv2.dilate(bw_swap, np.ones((4, 4), dtype=np.uint8)) # 3,3
     #cv2.imshow("dilated", dilated)
-    eroded = cv2.erode(dilated, np.ones((2, 3), dtype=np.uint8))
+    eroded = cv2.erode(dilated, np.ones((4, 4), dtype=np.uint8)) #aj 2,2 alebo 3,3
     #cv2.imshow("eroded", eroded)
 
     edged = eroded
@@ -46,8 +46,8 @@ def detectLinesHough(img):
             g = random.randint(0, 255)
             cv2.line(img_copy, (x1, y1), (x2, y2), (b, g, r), 2)
 
-    cv2.imshow("Edged image", edged)
-    cv2.imshow("Lines", img_copy)
+    # cv2.imshow("Edged image", edged)
+    # cv2.imshow("Lines", img_copy)
 
     # doHistogram(lines)
     return img_copy, lines
@@ -135,13 +135,13 @@ if __name__ == '__main__':
     # resize to half of the size
     img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
     #
-    img_hl, lines = detectLinesHough(img)
+    #img_hl, lines = detectLinesHough(img)
     # doHistogram(lines, "pokus")
 
     #cv2.imshow("Original image", img)
 
-    # getAllImages()
-    # showResultsHTML()
+    getAllImages()
+    showResultsHTML()
 
     # wait until key is pressed
     cv2.waitKey(0)
