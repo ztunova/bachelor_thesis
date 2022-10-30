@@ -8,7 +8,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from outputs import showResultsHTML
+from numpy import linalg as LA
 
+def distanceLinePoint(line, point):
+    line_start = [line[0], line[1]]
+    line_end = [line[2], line[3]]
+    line_vect = [line_end[0] - line_start[0], line_end[1] - line_start[1]]
+    line_point_vec = [line_start[0] - point[0], line_start[1] - point[1]]
+
+    print("start: ", line_start)
+    print("end: ", line_end)
+    dist = LA.norm(np.cross(line_vect, line_point_vec))/LA.norm(line_vect)
+    print("distance: ", dist)
+
+def connectLines(all_lines):
+    pass
 
 def detectLinesHough(img):
     img_copy = img.copy()
@@ -46,8 +60,8 @@ def detectLinesHough(img):
             g = random.randint(0, 255)
             cv2.line(img_copy, (x1, y1), (x2, y2), (b, g, r), 2)
 
-    # cv2.imshow("Edged image", edged)
-    # cv2.imshow("Lines", img_copy)
+    cv2.imshow("Edged image", edged)
+    cv2.imshow("Lines", img_copy)
 
     # doHistogram(lines)
     return img_copy, lines
@@ -140,8 +154,11 @@ if __name__ == '__main__':
 
     #cv2.imshow("Original image", img)
 
-    getAllImages()
-    showResultsHTML()
+    # getAllImages()
+    # showResultsHTML()
+
+    #distanceLinePoint((1,1,5,5), [7,7])
+    #print(30 <= 25 <= 20)
 
     # wait until key is pressed
     cv2.waitKey(0)
