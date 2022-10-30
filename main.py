@@ -21,7 +21,7 @@ def detectLinesHough(img):
 
     dilated = cv2.dilate(bw_swap, np.ones((3, 3), dtype=np.uint8))
     #cv2.imshow("dilated", dilated)
-    eroded = cv2.erode(dilated, np.ones((2, 4), dtype=np.uint8))
+    eroded = cv2.erode(dilated, np.ones((2, 3), dtype=np.uint8))
     #cv2.imshow("eroded", eroded)
 
     edged = eroded
@@ -31,10 +31,10 @@ def detectLinesHough(img):
     # edged = cv2.dilate(edged, np.ones((10, 10), dtype=np.uint8))
     # edged = cv2.erode(edged, np.ones((10, 10), dtype=np.uint8))
 
-    rho = 1  # distance resolution in pixels of the Hough grid
-    theta = np.pi / 180  # The resolution of the parameter theta in radians: 1 degree
-    threshold = 35  # minimum number of votes (intersections in Hough grid cell)
-    min_line_length = 20  # minimum number of pixels making up a line
+    rho = 0.7  # distance resolution in pixels of the Hough grid
+    theta = 3*np.pi / 180  # The resolution of the parameter theta in radians: 1 degree
+    threshold = 15  # minimum number of votes (intersections in Hough grid cell)
+    min_line_length = 10  # minimum number of pixels making up a line
     max_line_gap = 5  # maximum gap in pixels between connectable line segments
 
     lines = cv2.HoughLinesP(edged, rho, theta, threshold, np.array([]), min_line_length, max_line_gap)
@@ -46,48 +46,11 @@ def detectLinesHough(img):
             g = random.randint(0, 255)
             cv2.line(img_copy, (x1, y1), (x2, y2), (b, g, r), 2)
 
-    # cv2.imshow("Edged image", edged)
-    # cv2.imshow("Lines", img_copy)
+    cv2.imshow("Edged image", edged)
+    cv2.imshow("Lines", img_copy)
 
     # doHistogram(lines)
     return img_copy, lines
-    #return drawLines(img, lines)
-
-def detectLinesLSD(img):
-    img_copy = img.copy()
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    ### Seconds try
-
-    # Create default parametrization LSD
-    lsd = cv2.createLineSegmentDetector(0)
-
-    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
-    thresholded = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    bw_swap = cv2.bitwise_not(thresholded)
-    # dilated = cv2.dilate(bw_swap, np.ones((3, 3), dtype=np.uint8))
-    eroded = cv2.erode(bw_swap, np.ones((2, 6), dtype=np.uint8))
-    edged = eroded
-
-    #cv2.imshow("title", eroded)
-
-    # Detect lines in the image
-    lines = lsd.detect(edged)[0]  # Position 0 of the returned tuple are the detected lines
-
-    # Draw detected lines in the image
-    #drawn_img = lsd.drawSegments(img, lines)
-    for line in lines:
-        for x1, y1, x2, y2 in line:
-            b = random.randint(0, 255)
-            r = random.randint(0, 255)
-            g = random.randint(0, 255)
-            cv2.line(img_copy, (x1, y1), (x2, y2), (b, g, r), 2)
-
-    #print(lines)
-
-    # Show image
-    cv2.imshow("LSD", img_copy)
-    # return drawn_img
     #return drawLines(img, lines)
 
 
@@ -170,17 +133,15 @@ if __name__ == '__main__':
     #img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
 
     # resize to half of the size
-    #img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
     #
-    #img_hl, lines = detectLinesHough(img)
+    img_hl, lines = detectLinesHough(img)
     # doHistogram(lines, "pokus")
-
-    # detectCorners(img)
 
     #cv2.imshow("Original image", img)
 
-    getAllImages()
-    showResultsHTML()
+    # getAllImages()
+    # showResultsHTML()
 
     # wait until key is pressed
     cv2.waitKey(0)
