@@ -60,11 +60,11 @@ def detectLinesHough(img):
             g = random.randint(0, 255)
             cv2.line(img_copy, (x1, y1), (x2, y2), (b, g, r), 2)
 
-    cv2.imshow("Edged image", edged)
-    cv2.imshow("Lines", img_copy)
+    # cv2.imshow("Edged image", edged)
+    # cv2.imshow("Lines", img_copy)
 
     # doHistogram(lines)
-    return img_copy, lines
+    return img_copy, lines, edged
     #return drawLines(img, lines)
 
 
@@ -124,17 +124,16 @@ def saveImage(dst_dir, img_name, description, res_img):
 def getAllImages():
     folder_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
     dst_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines"
-    #dst_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_LSDlines"
+    input_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines_input"
     all_images = os.listdir(folder_dir)
 
     for image_name in all_images:
         path = folder_dir + '/' + image_name
         img = cv2.imread(path)
-        img_hlines, lines = detectLinesHough(img)
+        img_hlines, lines, input_img = detectLinesHough(img)
         saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
+        saveImage(input_dir, image_name, 'input', input_img)
         # doHistogram(lines, image_name)
-        # img_LSDlines = detectLinesLSD(img)
-        # saveImage(dst_dir, image_name, 'hough_lines', img_LSDlines)
 
 
 if __name__ == '__main__':
@@ -149,13 +148,14 @@ if __name__ == '__main__':
     # resize to half of the size
     img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
     #
-    #img_hl, lines = detectLinesHough(img)
+    # img_hl, lines, _ = detectLinesHough(img)
+    # cv2.imshow("hlines1", img_hl)
     # doHistogram(lines, "pokus")
 
     #cv2.imshow("Original image", img)
 
-    # getAllImages()
-    # showResultsHTML()
+    getAllImages()
+    showResultsHTML()
 
     #distanceLinePoint((1,1,5,5), [7,7])
     #print(30 <= 25 <= 20)

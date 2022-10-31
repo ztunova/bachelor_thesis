@@ -5,11 +5,11 @@ import webbrowser
 def showResultsHTML():
     original_images_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
     hlines_images_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines"
-    hist_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines_histogram"
-    #hlines_images_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_LSDlines"
+    hlines_input_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines_input"
+
     original_images = os.listdir(original_images_dir)
     hlines_images = os.listdir(hlines_images_dir)
-    histograms = os.listdir(hist_dir)
+    hlines_input_images = os.listdir(hlines_input_dir)
 
     html_head = """
     <head>
@@ -35,9 +35,11 @@ def showResultsHTML():
     for i in range(len(original_images)):
         original_img_path = original_images_dir + '/' + original_images[i]
         hlines_img_path = hlines_images_dir + '/' + hlines_images[i]
+        hlines_input_path = hlines_input_dir + '/' + hlines_input_images[i]
         table_rov = "<tr>" \
                         "<td><img src= \"" + original_img_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + hlines_img_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
+                        "<td><img src=\"" + hlines_input_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                     "</tr>\n"
         html_table = html_table + table_rov
 
