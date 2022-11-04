@@ -1,6 +1,8 @@
 import os
 import webbrowser
 
+import cv2
+
 
 def showResultsHTML():
     original_images_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
@@ -27,7 +29,7 @@ def showResultsHTML():
     html_table = """
     <table>
     <thead>
-        <tr><th>Original</th><th>Hough Lines</th><th>Name</th></tr>
+        <tr><th>Original</th><th>Hough Lines</th><th>Hlines input</th></tr>
     </thead>
     <tbody>
     """
@@ -36,12 +38,18 @@ def showResultsHTML():
         original_img_path = original_images_dir + '/' + original_images[i]
         hlines_img_path = hlines_images_dir + '/' + hlines_images[i]
         hlines_input_path = hlines_input_dir + '/' + hlines_input_images[i]
+
+        img = cv2.imread(original_img_path)
+        height, width = img.shape[:2]
+        table_rov_info = "<tr>" \
+                            "<td>" + original_images[i] + "\n hxw: "+ str(height) + " x " + str(width) + "</td>"\
+                         "</tr>"
         table_rov = "<tr>" \
                         "<td><img src= \"" + original_img_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + hlines_img_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + hlines_input_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                     "</tr>\n"
-        html_table = html_table + table_rov
+        html_table = html_table + table_rov_info + "\n" + table_rov
 
     html_table = html_table + "</tbody>\n</table>"
     html_all = html_head + "\n" + html_table
