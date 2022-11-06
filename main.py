@@ -61,7 +61,7 @@ def detectLinesHough(img):
             cv2.line(img_copy, (x1, y1), (x2, y2), (b, g, r), 2)
 
     # cv2.imshow("Edged image", edged)
-    # cv2.imshow("Lines", img_copy)
+    cv2.imshow("Lines", img_copy)
 
     # doHistogram(lines)
     return img_copy, lines, edged
@@ -138,24 +138,24 @@ def getAllImages():
 
 if __name__ == '__main__':
     # load image
-    img = cv2.imread('C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1/ElCerrito.jpg')
+    #img = cv2.imread('C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1/ElCerrito.jpg')
     #img = cv2.imread('images/ERD_basic1_dig.png')
     # img = cv2.imread('images/shapes_hndw.png')
-    # img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
+    img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
     # img = cv2.imread('images/shapes.png')
     #img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
 
     # resize to half of the size
     img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
     #
-    # img_hl, lines, _ = detectLinesHough(img)
+    img_hl, lines, _ = detectLinesHough(img)
+
     # cv2.imshow("hlines1", img_hl)
     # doHistogram(lines, "pokus")
-
     #cv2.imshow("Original image", img)
 
-    getAllImages()
-    showResultsHTML()
+    # getAllImages()
+    # showResultsHTML()
 
     #distanceLinePoint((1,1,5,5), [7,7])
     #print(30 <= 25 <= 20)
