@@ -21,8 +21,6 @@ def distanceLinePoint(line, point):
     dist = LA.norm(np.cross(line_vect, line_point_vec))/LA.norm(line_vect)
     print("distance: ", dist)
 
-def connectLines(all_lines):
-    pass
 
 def detectLinesHough(img):
     img_copy = img.copy()
@@ -68,41 +66,6 @@ def detectLinesHough(img):
     #return drawLines(img, lines)
 
 
-def distanceOfPoints(x1, y1, x2, y2):
-    return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
-
-def doHistogram(lines_points, img_name):
-    dst_folder = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines_histogram"
-    folder_content = os.listdir(dst_folder)
-    # lines points: [[x_start1, y_start1, x_end1, y_end1], [x_start2, y_start2, x_end2, y_end2]...]
-    lines_points = lines_points.ravel()
-    all_distances = []
-
-    for start_point in range(0, len(lines_points), 2):
-        for end_point in range(start_point + 2, len(lines_points), 2):
-            x1 = lines_points[start_point]
-            y1 = lines_points[start_point + 1]
-            x2 = lines_points[end_point]
-            y2 = lines_points[end_point + 1]
-            distance = distanceOfPoints(x1, y1 , x2, y2)
-            all_distances.append(distance)
-
-    n, bins, _ = plt.hist(all_distances, edgecolor="white", bins='auto')
-    x = bins[1] - bins[0]
-    plt.xlabel(f'Distance: interval {x: .4f}, min_dst: {min(all_distances): .4f}, max_dst: {max(all_distances): .4f}')
-    plt.ylabel('Frequency')
-    plt.title('Distances of line points')
-    #plt.show()
-
-    res_name = getResultName(img_name, "histogram")
-    res_path = dst_folder + '/' + res_name
-    # print(res_name)
-    # print(res_path)
-    if res_name in folder_content:
-        os.remove(res_path)
-
-    plt.savefig(res_path)
-
 def getResultName(img_name, description):
     start = len(img_name) - 6
     exten_index = img_name.find('.', start)
@@ -122,9 +85,14 @@ def saveImage(dst_dir, img_name, description, res_img):
 
 
 def getAllImages():
-    folder_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
-    dst_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines"
-    input_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines_input"
+    # folder_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
+    # dst_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines"
+    # input_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines_input"
+
+    folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
+    dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines"
+    input_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines_input"
+
     all_images = os.listdir(folder_dir)
 
     for image_name in all_images:
@@ -139,17 +107,17 @@ def getAllImages():
 
 if __name__ == '__main__':
     # load image
-    img = cv2.imread('C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1/ElCerrito.jpg')
+    #img = cv2.imread('C:\\Users\\zofka\\OneDrive\\Počítač\\zofka\\FEI_STU\\bakalarka\\dbs2022_riadna_uloha1\\ElCerrito.jpg')
     #img = cv2.imread('images/ERD_basic1_dig.png')
     # img = cv2.imread('images/shapes_hndw.png')
-    img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
+    #img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
     # img = cv2.imread('images/shapes.png')
     #img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
 
     # resize to half of the size
-    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    #img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
     #
-    #img_hl, lines, _ = detectLinesHough(img)
+    # img_hl, lines, _ = detectLinesHough(img)
     # cv2.imshow("hlines1", img_hl)
     # doHistogram(lines, "pokus")
 
@@ -162,5 +130,6 @@ if __name__ == '__main__':
     #print(30 <= 25 <= 20)
 
     # wait until key is pressed
+    #cv2.imshow("pomoc", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
