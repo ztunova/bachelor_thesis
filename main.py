@@ -21,6 +21,31 @@ def distanceLinePoint(line, point):
     dist = LA.norm(np.cross(line_vect, line_point_vec))/LA.norm(line_vect)
     print("distance: ", dist)
 
+def drawLines(img_copy, lines):
+    if lines is not None:
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+            b = random.randint(0, 255)
+            r = random.randint(0, 255)
+            g = random.randint(0, 255)
+            cv2.line(img_copy, (x1, y1), (x2, y2), (b, g, r), 2)
+
+    return img_copy
+def tutorialLines(img):
+    copy = img.copy()
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    edges = cv2.Canny(gray, 50, 150, apertureSize=3)
+
+    blurred = cv2.GaussianBlur(edges, (7, 7), 0)
+    dilated = cv2.dilate(blurred, np.ones((4, 4), dtype=np.uint8))
+
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 100, minLineLength=100, maxLineGap=10)
+    copy = drawLines(copy, lines)
+
+    cv2.imshow("blurred", dilated)
+
+    return copy, edges
 
 def detectLinesHough(img):
     img_copy = img.copy()
@@ -51,12 +76,7 @@ def detectLinesHough(img):
 
     lines = cv2.HoughLinesP(edged, rho, theta, threshold, np.array([]), min_line_length, max_line_gap)
 
-    for line in lines:
-        for x1, y1, x2, y2 in line:
-            b = random.randint(0, 255)
-            r = random.randint(0, 255)
-            g = random.randint(0, 255)
-            cv2.line(img_copy, (x1, y1), (x2, y2), (b, g, r), 2)
+    img_copy = drawLines(img_copy, lines)
 
     # cv2.imshow("Edged image", edged)
     #cv2.imshow("Lines", img_copy)
@@ -92,6 +112,8 @@ def getAllImages():
     folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
     dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines"
     input_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines_input"
+    tutorial_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines_tutorial"
+    input_tutorial = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_ru1_tutorial_hlines_input"
 
     all_images = os.listdir(folder_dir)
 
@@ -102,29 +124,29 @@ def getAllImages():
         img_hlines, lines, input_img = detectLinesHough(img)
         saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
         saveImage(input_dir, image_name, 'input', input_img)
+        tut_hlines, tut_input = tutorialLines(img)
+        saveImage(tutorial_dir, image_name, 'tutorial', tut_hlines)
+        saveImage(input_tutorial, image_name, 'tut_input', tut_input)
         # doHistogram(lines, image_name)
 
 
 if __name__ == '__main__':
     # load image
-    #img = cv2.imread('C:\\Users\\zofka\\OneDrive\\Počítač\\zofka\\FEI_STU\\bakalarka\\dbs2022_riadna_uloha1\\ElCerrito.jpg')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/ElCerrito.jpg')
     #img = cv2.imread('images/ERD_basic1_dig.png')
-    # img = cv2.imread('images/shapes_hndw.png')
+    #img = cv2.imread('images/sudoku.png')
     #img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
-    # img = cv2.imread('images/shapes.png')
-    #img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
+    #img = cv2.imread('images/sampleLines.png')
 
     # resize to half of the size
-    #img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
     #
-    # img_hl, lines, _ = detectLinesHough(img)
-    # cv2.imshow("hlines1", img_hl)
-    # doHistogram(lines, "pokus")
+    tutHlines, tut_input = tutorialLines(img)
+    cv2.imshow("tutorial hlines", tutHlines)
+    cv2.imshow("tut hlines input", tut_input)
 
-    #cv2.imshow("Original image", img)
-
-    getAllImages()
-    showResultsHTML()
+    # getAllImages()
+    # showResultsHTML()
 
     #distanceLinePoint((1,1,5,5), [7,7])
     #print(30 <= 25 <= 20)
