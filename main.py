@@ -5,6 +5,7 @@ import webbrowser
 
 import cv2
 import matplotlib.pyplot as plt
+import math
 import numpy as np
 
 from outputs import showResultsHTML
@@ -21,6 +22,56 @@ def distanceLinePoint(line, point):
     dist = LA.norm(np.cross(line_vect, line_point_vec))/LA.norm(line_vect)
     print("distance: ", dist)
 
+def distancePointToLineSegment(line, point):
+    line_start = [line[0], line[1]]
+    line_end = [line[2], line[3]]
+
+    line_vector = [None, None]
+    line_vector[0] = line_end[0] - line_start[0]
+    line_vector[1] = line_end[1] - line_start[1]
+
+    line_end_point_vector = [None, None]
+    line_end_point_vector[0] = point[0] - line_end[0]
+    line_end_point_vector[1] = point[1] - line_end[1]
+
+    line_start_point_vector = [None, None]
+    line_start_point_vector[0] = point[0] - line_start[0]
+    line_start_point_vector[1] = point[1] - line_start[1]
+
+    # dot product of line vector and vector line_end to point
+    dot_linev_end_point = line_vector[0] * line_end_point_vector[0] + line_vector[1] * line_end_point_vector[1]
+    # dot product of line vector and vector from line_start to point
+    dot_linev_start_point = line_vector[0] * line_start_point_vector[0] + line_vector[1] * line_start_point_vector[1]
+
+    dst_point_to_line = 0
+
+    if dot_linev_end_point > 0:
+        # bod je niekde za koncovym bodom usecky (v smere vektoru usecky, dalej za koncom)
+        x = point[0] - line_end[0]
+        y = point[1] - line_end[1]
+        dst_point_to_line = math.sqrt(x*x + y*y)
+        print("za koncom")
+
+    elif dot_linev_start_point < 0:
+        # bod je pred zaciatocnym bodom usecky (proti smeru vektoru usecky, pred zaciatocnym bodom usecky)
+        x = point[0] - line_start[0]
+        y = point[1] - line_start[1]
+        dst_point_to_line = math.sqrt(x * x + y * y)
+        print("pred zaciatkom")
+
+    else:
+        # bod je niekde medzi koncovymi bodmi usecky
+        line_vec_x = line_vector[0]
+        line_vec_y = line_vector[1]
+        line_length = math.sqrt(line_vec_x * line_vec_x + line_vec_y * line_vec_y)
+
+        line_start_point_x = line_start_point_vector[0]
+        line_start_point_y = line_start_point_vector[1]
+
+        dst_point_to_line = abs(line_vec_x * line_start_point_y - line_start_point_x * line_vec_y) / line_length
+        print("medzi koncami usecky")
+
+    return dst_point_to_line
 def drawLines(img_copy, lines):
     if lines is not None:
         for line in lines:
@@ -31,19 +82,64 @@ def drawLines(img_copy, lines):
             cv2.line(img_copy, (x1, y1), (x2, y2), (b, g, r), 2)
 
     return img_copy
+
+def conComp(img):
+    copy = img.copy()
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+    threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
+
+    bw_swap = cv2.bitwise_not(threshold)
+    dilated = cv2.dilate(bw_swap, np.ones((4, 4), dtype=np.uint8))
+    eroded = cv2.erode(dilated, np.ones((4, 4), dtype=np.uint8))
+
+    analysis = cv2.connectedComponentsWithStats(bw_swap, 8, cv2.CV_32S)
+    (totalLabels, label_ids, values, centroid) = analysis
+
+    for i in range(1, totalLabels):
+        x1 = values[i, cv2.CC_STAT_LEFT]
+        y1 = values[i, cv2.CC_STAT_TOP]
+        w = values[i, cv2.CC_STAT_WIDTH]
+        h = values[i, cv2.CC_STAT_HEIGHT]
+
+        # Coordinate of the bounding box
+        pt1 = (x1, y1)
+        pt2 = (x1 + w, y1 + h)
+        (X, Y) = centroid[i]
+
+        # Bounding boxes for each component
+        cv2.rectangle(copy, pt1, pt2,(0, 255, 0), 3)
+        cv2.circle(copy, (int(X),int(Y)), 4, (0, 0, 255), -1)
+
+    cv2.imshow("concomp", copy)
+    cv2.imshow("tresh", eroded)
+
+
 def tutorialLines(img):
     copy = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
 
-    edges = cv2.Canny(gray, 50, 150, apertureSize=3)
+    v = np.median(blurred)
+    sigma = 0.33
+    # apply automatic Canny edge detection using the computed median
+    lower = int(max(0, (1.0 - sigma) * v))
+    upper = int(min(255, (1.0 + sigma) * v))
 
-    blurred = cv2.GaussianBlur(edges, (7, 7), 0)
-    dilated = cv2.dilate(blurred, np.ones((4, 4), dtype=np.uint8))
+    edges = cv2.Canny(blurred, lower, upper)
 
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 100, minLineLength=100, maxLineGap=10)
+    rho = 0.7  # distance resolution in pixels of the Hough grid
+    theta = 3 * np.pi / 180  # The resolution of the parameter theta in radians: 1 degree
+    threshold = 15  # minimum number of votes (intersections in Hough grid cell)
+    min_line_length = 10  # minimum number of pixels making up a line
+    max_line_gap = 5  # maximum gap in pixels between connectab
+
+    #lines = cv2.HoughLines(edges, rho, theta, threshold, minLineLength= min_line_length, maxLineGap= max_line_gap)
+
+    lines = cv2.HoughLinesP(edges, 0.5, 0.5*np.pi / 180, 20, minLineLength=30, maxLineGap=5)
     copy = drawLines(copy, lines)
 
-    cv2.imshow("blurred", dilated)
+    #cv2.imshow("blurred", copy)
 
     return copy, edges
 
@@ -121,9 +217,9 @@ def getAllImages():
         path = folder_dir + '/' + image_name
         img = cv2.imread(path)
         #print(image_name)
-        img_hlines, lines, input_img = detectLinesHough(img)
-        saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
-        saveImage(input_dir, image_name, 'input', input_img)
+        # img_hlines, lines, input_img = detectLinesHough(img)
+        # saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
+        # saveImage(input_dir, image_name, 'input', input_img)
         tut_hlines, tut_input = tutorialLines(img)
         saveImage(tutorial_dir, image_name, 'tutorial', tut_hlines)
         saveImage(input_tutorial, image_name, 'tut_input', tut_input)
@@ -132,23 +228,25 @@ def getAllImages():
 
 if __name__ == '__main__':
     # load image
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/ElCerrito.jpg')
+    #img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/ElCerrito.jpg')
     #img = cv2.imread('images/ERD_basic1_dig.png')
     #img = cv2.imread('images/sudoku.png')
     #img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
     #img = cv2.imread('images/sampleLines.png')
 
-    # resize to half of the size
-    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
-    #
-    tutHlines, tut_input = tutorialLines(img)
-    cv2.imshow("tutorial hlines", tutHlines)
-    cv2.imshow("tut hlines input", tut_input)
+    # # resize to half of the size
+    #img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    # #detectLinesHough(img)
+    # tutHlines, tut_input = tutorialLines(img)
+    # cv2.imshow("tutorial hlines", tutHlines)
+    # cv2.imshow("tut hlines input", tut_input)
 
     # getAllImages()
     # showResultsHTML()
 
-    #distanceLinePoint((1,1,5,5), [7,7])
+    #conComp(img)
+
+    distanceLinePoint((1,1,5,5), [7,7])
     #print(30 <= 25 <= 20)
 
     # wait until key is pressed
