@@ -11,16 +11,43 @@ import numpy as np
 from outputs import showResultsHTML
 from numpy import linalg as LA
 
-def distanceLinePoint(line, point):
-    line_start = [line[0], line[1]]
-    line_end = [line[2], line[3]]
-    line_vect = [line_end[0] - line_start[0], line_end[1] - line_start[1]]
-    line_point_vec = [line_start[0] - point[0], line_start[1] - point[1]]
+def lineLength(line):
+    x1, y1, x2, y2 = line
+    # print(x1, y1, x2, y2)
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-    print("start: ", line_start)
-    print("end: ", line_end)
-    dist = LA.norm(np.cross(line_vect, line_point_vec))/LA.norm(line_vect)
-    print("distance: ", dist)
+def paralelLines(orig_line, cmp_line):
+    x1_orig, y1_orig, x2_orig, y2_orig = orig_line
+    x1_cmp, y1_cmp, x2_cmp, y2_cmp = cmp_line
+
+    con_l1_start = [x1_orig, y1_orig, x1_cmp, y1_cmp]
+    dst_l1_start = lineLength(con_l1_start)
+    con_l1_end = [x2_orig, y2_orig, x2_cmp, y2_cmp]
+    dst_l1_end = lineLength(con_l1_end)
+    con_l2_start = [x1_orig, y1_orig, x2_cmp, y2_cmp]
+    dst_l2_start = lineLength(con_l2_start)
+    con_l2_end = [x2_orig, y2_orig, x1_cmp, y1_cmp]
+    dst_l2_end = lineLength(con_l2_end)
+
+    diff = 3
+
+    if (dst_l1_start <= diff) and (dst_l1_end <= diff):
+        print("orig: ", orig_line, " paralel with cmp: ", cmp_line, " dst strat: ", dst_l1_start, " dst end: ", dst_l1_end )
+    elif (dst_l2_start <= diff) and (dst_l2_end <= diff):
+        print("orig: ", orig_line, " paralel with cmp: ", cmp_line, " dst strat: ", dst_l2_start, " dst end: ", dst_l2_end )
+    else:
+        print("orig: ", orig_line, " NOT paralel with cmp: ", cmp_line, " dst strat: ", dst_l2_start, " dst end: ", dst_l1_end )
+
+
+def filterLines(all_lines):
+    filtered_lines = []
+    for i in range(len(all_lines)):
+        orig_line = all_lines[i]
+        for j in range(i, len(all_lines)):
+            cmp_line = all_lines[j]
+
+
+
 
 def distancePointToLineSegment(line, point):
     line_start = [line[0], line[1]]
@@ -208,8 +235,8 @@ def getAllImages():
     folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
     dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines"
     input_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines_input"
-    tutorial_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines_tutorial"
-    input_tutorial = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_ru1_tutorial_hlines_input"
+    # tutorial_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines_tutorial"
+    # input_tutorial = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_ru1_tutorial_hlines_input"
 
     all_images = os.listdir(folder_dir)
 
@@ -217,12 +244,12 @@ def getAllImages():
         path = folder_dir + '/' + image_name
         img = cv2.imread(path)
         #print(image_name)
-        # img_hlines, lines, input_img = detectLinesHough(img)
-        # saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
-        # saveImage(input_dir, image_name, 'input', input_img)
-        tut_hlines, tut_input = tutorialLines(img)
-        saveImage(tutorial_dir, image_name, 'tutorial', tut_hlines)
-        saveImage(input_tutorial, image_name, 'tut_input', tut_input)
+        img_hlines, lines, input_img = detectLinesHough(img)
+        saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
+        saveImage(input_dir, image_name, 'input', input_img)
+        # tut_hlines, tut_input = tutorialLines(img)
+        # saveImage(tutorial_dir, image_name, 'tutorial', tut_hlines)
+        # saveImage(input_tutorial, image_name, 'tut_input', tut_input)
         # doHistogram(lines, image_name)
 
 
@@ -232,13 +259,13 @@ if __name__ == '__main__':
     #img = cv2.imread('images/ERD_basic1_dig.png')
     #img = cv2.imread('images/sudoku.png')
     #img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
-    #img = cv2.imread('images/sampleLines.png')
+    img = cv2.imread('images/sampleLines.png')
 
     # # resize to half of the size
-    #img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
-    # #detectLinesHough(img)
-    # tutHlines, tut_input = tutorialLines(img)
-    # cv2.imshow("tutorial hlines", tutHlines)
+    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    hlines, lines, edges = detectLinesHough(img)
+    # # tutHlines, tut_input = tutorialLines(img)
+    cv2.imshow("hlines", hlines)
     # cv2.imshow("tut hlines input", tut_input)
 
     # getAllImages()
@@ -246,10 +273,24 @@ if __name__ == '__main__':
 
     #conComp(img)
 
-    distanceLinePoint((1,1,5,5), [7,7])
-    #print(30 <= 25 <= 20)
+    #distanceLinePoint((1,1,5,5), [7,7])
+    # line = [0,0,8,0]
+    # point = [7,4]
+    # print(distancePointToLineSegment(line, point))
 
     # wait until key is pressed
     #cv2.imshow("pomoc", img)
+
+    # print(lineLength([3,0,9,0]))
+
+    # p = ['a', 'b', 'c', 'd', 'e']
+    # c = ['1','2','3','4','5']
+    # for i in range(len(p)):
+    #     for j in range(i, len(c)):
+    #         print(p[i], c[j])
+
+    paralelLines([1,1,7,7], [2,2,9,4])
+
+
     cv2.waitKey(0)
     cv2.destroyAllWindows()
