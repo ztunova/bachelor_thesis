@@ -1,3 +1,4 @@
+import copy
 import math
 import os
 import random
@@ -33,20 +34,46 @@ def paralelLines(orig_line, cmp_line):
 
     if (dst_l1_start <= diff) and (dst_l1_end <= diff):
         print("orig: ", orig_line, " paralel with cmp: ", cmp_line, " dst strat: ", dst_l1_start, " dst end: ", dst_l1_end )
+        return True
     elif (dst_l2_start <= diff) and (dst_l2_end <= diff):
         print("orig: ", orig_line, " paralel with cmp: ", cmp_line, " dst strat: ", dst_l2_start, " dst end: ", dst_l2_end )
+        return True
     else:
         print("orig: ", orig_line, " NOT paralel with cmp: ", cmp_line, " dst strat: ", dst_l2_start, " dst end: ", dst_l1_end )
+        return False
 
 
 def filterLines(all_lines):
     filtered_lines = []
+    #longest_paralel = copy.deepcopy(all_lines[0])
     for i in range(len(all_lines)):
-        orig_line = all_lines[i]
-        for j in range(i, len(all_lines)):
-            cmp_line = all_lines[j]
+        orig_line = copy.deepcopy(all_lines[i])
+        longest_paralel = copy.deepcopy(orig_line)
+        if orig_line[0] > 0:
+            for j in range(i, len(all_lines)):
+                cmp_line = copy.deepcopy(all_lines[j])
+                if cmp_line[0] > 0:
+                    is_paralel = paralelLines(orig_line, cmp_line)
+                    if is_paralel and i != j:
+                        length_orig = lineLength(orig_line)
+                        length_cmp = lineLength(cmp_line)
+                        if length_orig >= length_cmp:
+                            all_lines[j][0] = -(all_lines[j][0])
+                            #filtered_lines.remove(cmp_line)
+                            length_longes = lineLength(longest_paralel)
+                            if length_orig > length_longes:
+                                longest_paralel = orig_line
+                        else:
+                            all_lines[i][0] = -(all_lines[i][0])
+                            #filtered_lines.remove(orig_line)
+                            length_longes = lineLength(longest_paralel)
+                            if length_cmp > length_longes:
+                                longest_paralel = cmp_line
 
+            if longest_paralel not in filtered_lines:
+                filtered_lines.append(longest_paralel)
 
+    return filtered_lines
 
 
 def distancePointToLineSegment(line, point):
@@ -289,7 +316,11 @@ if __name__ == '__main__':
     #     for j in range(i, len(c)):
     #         print(p[i], c[j])
 
-    paralelLines([1,1,7,7], [2,2,9,4])
+    #paralelLines([1,1,7,7], [2,2,9,4])
+
+    pokus = [[3,0,9,0],[2,1,10,0],[2,7,4,2],[2,0,8,0],[2,7,3,2],[4,5,7,6],[2,8,4,2]]
+    res = filterLines(pokus)
+    print(res)
 
 
     cv2.waitKey(0)
