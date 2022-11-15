@@ -33,13 +33,13 @@ def paralelLines(orig_line, cmp_line):
     diff = 3
 
     if (dst_l1_start <= diff) and (dst_l1_end <= diff):
-        print("orig: ", orig_line, " paralel with cmp: ", cmp_line, " dst strat: ", dst_l1_start, " dst end: ", dst_l1_end )
+        #print("orig: ", orig_line, " paralel with cmp: ", cmp_line, " dst strat: ", dst_l1_start, " dst end: ", dst_l1_end )
         return True
     elif (dst_l2_start <= diff) and (dst_l2_end <= diff):
-        print("orig: ", orig_line, " paralel with cmp: ", cmp_line, " dst strat: ", dst_l2_start, " dst end: ", dst_l2_end )
+        #print("orig: ", orig_line, " paralel with cmp: ", cmp_line, " dst strat: ", dst_l2_start, " dst end: ", dst_l2_end )
         return True
     else:
-        print("orig: ", orig_line, " NOT paralel with cmp: ", cmp_line, " dst strat: ", dst_l2_start, " dst end: ", dst_l1_end )
+        #print("orig: ", orig_line, " NOT paralel with cmp: ", cmp_line, " dst strat: ", dst_l2_start, " dst end: ", dst_l1_end )
         return False
 
 
@@ -47,11 +47,11 @@ def filterLines(all_lines):
     filtered_lines = []
     #longest_paralel = copy.deepcopy(all_lines[0])
     for i in range(len(all_lines)):
-        orig_line = copy.deepcopy(all_lines[i])
+        orig_line = copy.deepcopy(all_lines[i])[0]
         longest_paralel = copy.deepcopy(orig_line)
         if orig_line[0] > 0:
             for j in range(i, len(all_lines)):
-                cmp_line = copy.deepcopy(all_lines[j])
+                cmp_line = copy.deepcopy(all_lines[j])[0]
                 if cmp_line[0] > 0:
                     is_paralel = paralelLines(orig_line, cmp_line)
                     if is_paralel and i != j:
@@ -71,6 +71,7 @@ def filterLines(all_lines):
                                 longest_paralel = cmp_line
 
             if longest_paralel not in filtered_lines:
+            #if not(longest_paralel.isin(filtered_lines)):
                 filtered_lines.append(longest_paralel)
 
     return filtered_lines
@@ -137,65 +138,55 @@ def drawLines(img_copy, lines):
 
     return img_copy
 
-def conComp(img):
-    copy = img.copy()
+def minRec(img):
+    copy1 = img.copy()
+    copy2 = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+    blurred = cv2.GaussianBlur(gray, (9, 9), 0)
     threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
 
     bw_swap = cv2.bitwise_not(threshold)
-    dilated = cv2.dilate(bw_swap, np.ones((4, 4), dtype=np.uint8))
-    eroded = cv2.erode(dilated, np.ones((4, 4), dtype=np.uint8))
+    dilated = cv2.dilate(bw_swap, np.ones((4, 1), dtype=np.uint8)) # vodorovne: 4,1
+    eroded = cv2.erode(dilated, np.ones((1, 9), dtype=np.uint8)) # vodorovne: 1, 9
 
-    analysis = cv2.connectedComponentsWithStats(bw_swap, 8, cv2.CV_32S)
-    (totalLabels, label_ids, values, centroid) = analysis
+    contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    for cnt in contours:
+        b = random.randint(0, 255)
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        # x, y, w, h = cv2.boundingRect(cnt)
+        # cv2.drawContours(copy1, [cnt], 0, (b, g, r), 2)
+        # cv2.rectangle(copy1, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    for i in range(1, totalLabels):
-        x1 = values[i, cv2.CC_STAT_LEFT]
-        y1 = values[i, cv2.CC_STAT_TOP]
-        w = values[i, cv2.CC_STAT_WIDTH]
-        h = values[i, cv2.CC_STAT_HEIGHT]
-
-        # Coordinate of the bounding box
-        pt1 = (x1, y1)
-        pt2 = (x1 + w, y1 + h)
-        (X, Y) = centroid[i]
-
-        # Bounding boxes for each component
-        cv2.rectangle(copy, pt1, pt2,(0, 255, 0), 3)
-        cv2.circle(copy, (int(X),int(Y)), 4, (0, 0, 255), -1)
-
-    cv2.imshow("concomp", copy)
-    cv2.imshow("tresh", eroded)
+        rect = cv2.minAreaRect(cnt)
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+        #cv2.drawContours(copy2, [cnt], 0, (b, g, r), 2)
+        cv2.drawContours(copy2, [box], 0, (0, 0, 255), 2)
 
 
-def tutorialLines(img):
-    copy = img.copy()
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+    bw_swap = cv2.bitwise_not(threshold)
+    dilated = cv2.dilate(bw_swap, np.ones((1, 4), dtype=np.uint8))  # vodorovne: 4,1
+    eroded = cv2.erode(dilated, np.ones((9, 1), dtype=np.uint8))  # vodorovne: 1, 9
 
-    v = np.median(blurred)
-    sigma = 0.33
-    # apply automatic Canny edge detection using the computed median
-    lower = int(max(0, (1.0 - sigma) * v))
-    upper = int(min(255, (1.0 + sigma) * v))
+    contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    for cnt in contours:
+        b = random.randint(0, 255)
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        # x, y, w, h = cv2.boundingRect(cnt)
+        # cv2.drawContours(copy1, [cnt], 0, (b, g, r), 2)
+        # cv2.rectangle(copy1, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    edges = cv2.Canny(blurred, lower, upper)
+        rect = cv2.minAreaRect(cnt)
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+        #cv2.drawContours(copy2, [cnt], 0, (b, g, r), 2)
+        cv2.drawContours(copy2, [box], 0, (0, 255, 0), 2)
 
-    rho = 0.7  # distance resolution in pixels of the Hough grid
-    theta = 3 * np.pi / 180  # The resolution of the parameter theta in radians: 1 degree
-    threshold = 15  # minimum number of votes (intersections in Hough grid cell)
-    min_line_length = 10  # minimum number of pixels making up a line
-    max_line_gap = 5  # maximum gap in pixels between connectab
-
-    #lines = cv2.HoughLines(edges, rho, theta, threshold, minLineLength= min_line_length, maxLineGap= max_line_gap)
-
-    lines = cv2.HoughLinesP(edges, 0.5, 0.5*np.pi / 180, 20, minLineLength=30, maxLineGap=5)
-    copy = drawLines(copy, lines)
-
-    #cv2.imshow("blurred", copy)
-
-    return copy, edges
+    cv2.imshow("minrec", copy2)
+    #cv2.imshow("boundrec", copy1)
+    cv2.imshow("input", eroded)
 
 def detectLinesHough(img):
     img_copy = img.copy()
@@ -282,23 +273,25 @@ def getAllImages():
 
 if __name__ == '__main__':
     # load image
-    #img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/ElCerrito.jpg')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/ElCerrito.jpg')
     #img = cv2.imread('images/ERD_basic1_dig.png')
     #img = cv2.imread('images/sudoku.png')
     #img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
-    img = cv2.imread('images/sampleLines.png')
+    #img = cv2.imread('images/sampleLines.png')
 
     # # resize to half of the size
     img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
-    hlines, lines, edges = detectLinesHough(img)
-    # # tutHlines, tut_input = tutorialLines(img)
-    cv2.imshow("hlines", hlines)
-    # cv2.imshow("tut hlines input", tut_input)
+    # hlines, lines, edges = detectLinesHough(img)
+    # # # # tutHlines, tut_input = tutorialLines(img)
+    # cv2.imshow("hlines", hlines)
+    # filtered = filterLines(lines)
+    # filimg = drawLines(img.copy(), filtered)
+    # cv2.imshow("filtered", filimg)
 
     # getAllImages()
     # showResultsHTML()
 
-    #conComp(img)
+    minRec(img)
 
     #distanceLinePoint((1,1,5,5), [7,7])
     # line = [0,0,8,0]
@@ -318,9 +311,9 @@ if __name__ == '__main__':
 
     #paralelLines([1,1,7,7], [2,2,9,4])
 
-    pokus = [[3,0,9,0],[2,1,10,0],[2,7,4,2],[2,0,8,0],[2,7,3,2],[4,5,7,6],[2,8,4,2]]
-    res = filterLines(pokus)
-    print(res)
+    # pokus = [[3,0,9,0],[2,1,10,0],[2,7,4,2],[2,0,8,0],[2,7,3,2],[4,5,7,6],[2,8,4,2]]
+    # res = filterLines(pokus)
+    # print(res)
 
 
     cv2.waitKey(0)
