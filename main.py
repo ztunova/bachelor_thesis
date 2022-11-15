@@ -138,32 +138,36 @@ def drawLines(img_copy, lines):
 
     return img_copy
 
-def minRec(img):
-    copy1 = img.copy()
-    copy2 = img.copy()
+def detect_horizontal_lines(img, copy = None):
+    if copy is None:
+        copy = img.copy()
+
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (9, 9), 0)
+    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
     threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
 
     bw_swap = cv2.bitwise_not(threshold)
-    dilated = cv2.dilate(bw_swap, np.ones((4, 1), dtype=np.uint8)) # vodorovne: 4,1
-    eroded = cv2.erode(dilated, np.ones((1, 9), dtype=np.uint8)) # vodorovne: 1, 9
+    dilated = cv2.dilate(bw_swap, np.ones((4, 1), dtype=np.uint8))  # vodorovne: 4,1
+    eroded = cv2.erode(dilated, np.ones((1, 9), dtype=np.uint8))  # vodorovne: 1, 9
 
     contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
-        b = random.randint(0, 255)
-        r = random.randint(0, 255)
-        g = random.randint(0, 255)
-        # x, y, w, h = cv2.boundingRect(cnt)
-        # cv2.drawContours(copy1, [cnt], 0, (b, g, r), 2)
-        # cv2.rectangle(copy1, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
         rect = cv2.minAreaRect(cnt)
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-        #cv2.drawContours(copy2, [cnt], 0, (b, g, r), 2)
-        cv2.drawContours(copy2, [box], 0, (0, 0, 255), 2)
+        # cv2.drawContours(copy2, [cnt], 0, (b, g, r), 2)
+        cv2.drawContours(copy, [box], 0, (0, 255, 0), 2)
 
+    return copy, eroded
+
+
+def detect_vertical_lines(img, copy = None):
+    if copy is None:
+        copy = img.copy()
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+    threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
 
     bw_swap = cv2.bitwise_not(threshold)
     dilated = cv2.dilate(bw_swap, np.ones((1, 4), dtype=np.uint8))  # vodorovne: 4,1
@@ -171,22 +175,13 @@ def minRec(img):
 
     contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
-        b = random.randint(0, 255)
-        r = random.randint(0, 255)
-        g = random.randint(0, 255)
-        # x, y, w, h = cv2.boundingRect(cnt)
-        # cv2.drawContours(copy1, [cnt], 0, (b, g, r), 2)
-        # cv2.rectangle(copy1, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
         rect = cv2.minAreaRect(cnt)
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-        #cv2.drawContours(copy2, [cnt], 0, (b, g, r), 2)
-        cv2.drawContours(copy2, [box], 0, (0, 255, 0), 2)
+        # cv2.drawContours(copy2, [cnt], 0, (b, g, r), 2)
+        cv2.drawContours(copy, [box], 0, (0, 0, 255), 2)
 
-    cv2.imshow("minrec", copy2)
-    #cv2.imshow("boundrec", copy1)
-    cv2.imshow("input", eroded)
+    return copy, eroded
 
 def detectLinesHough(img):
     img_copy = img.copy()
@@ -253,8 +248,14 @@ def getAllImages():
     folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
     dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines"
     input_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines_input"
-    # tutorial_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines_tutorial"
-    # input_tutorial = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_ru1_tutorial_hlines_input"
+
+    horizontal_lines_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_horizontalLines"
+    horizontal_input_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_horizontalLines_input"
+
+    vertical_lines_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_verticalLines"
+    vertical_input_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_verticalLines_input"
+
+    horizontal_vertical_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_horizontal_vertical"
 
     all_images = os.listdir(folder_dir)
 
@@ -265,10 +266,17 @@ def getAllImages():
         img_hlines, lines, input_img = detectLinesHough(img)
         saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
         saveImage(input_dir, image_name, 'input', input_img)
-        # tut_hlines, tut_input = tutorialLines(img)
-        # saveImage(tutorial_dir, image_name, 'tutorial', tut_hlines)
-        # saveImage(input_tutorial, image_name, 'tut_input', tut_input)
-        # doHistogram(lines, image_name)
+
+        horizontal_lines, horizontal_lines_input = detect_horizontal_lines(img)
+        saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
+        saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
+
+        vertical_lines, vertical_lines_input = detect_vertical_lines(img)
+        saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
+        saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
+
+        horizontal_vertical, _ = detect_vertical_lines(img, horizontal_lines)
+        saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
 
 
 if __name__ == '__main__':
@@ -288,10 +296,10 @@ if __name__ == '__main__':
     # filimg = drawLines(img.copy(), filtered)
     # cv2.imshow("filtered", filimg)
 
-    # getAllImages()
-    # showResultsHTML()
+    getAllImages()
+    showResultsHTML()
 
-    minRec(img)
+    #minRec(img)
 
     #distanceLinePoint((1,1,5,5), [7,7])
     # line = [0,0,8,0]
