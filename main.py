@@ -138,17 +138,68 @@ def drawLines(img_copy, lines):
 
     return img_copy
 
-def detect_horizontal_lines(img, copy = None):
+
+def plot_histogram(horizontal_rect_box, vertical_rect_box):
+    longer_side = []
+
+    for rectangle in horizontal_rect_box:
+        rectangle_size = rectangle[1]
+        rec_width = rectangle_size[0]
+        rec_height = rectangle_size[1]
+        if rec_width > rec_height:
+            longer_side.append(rec_width)
+        elif rec_width == rec_height:
+            longer_side.append(rec_width)
+            longer_side.append(rec_height)
+        else:
+            longer_side.append(rec_height)
+
+    for rectangle in vertical_rect_box:
+        rectangle_size = rectangle[1]
+        rec_width = rectangle_size[0]
+        rec_height = rectangle_size[1]
+        if rec_width > rec_height:
+            longer_side.append(rec_width)
+        elif rec_width == rec_height:
+            longer_side.append(rec_width)
+            longer_side.append(rec_height)
+        else:
+            longer_side.append(rec_height)
+
+    hist, bin_edges = np.histogram(longer_side)
+    #print(len(longer_side), len(horizontal_rect_box))
+    #plt.hist(longer_side, edgecolor="white", bins='scott')
+    #n, bins, _ = plt.hist(longer_side, edgecolor="white", bins='auto')
+    binwidth = 3
+    n, bins, _ = plt.hist(longer_side, bins=np.arange(min(longer_side), max(longer_side) + binwidth, binwidth))
+    x = bins[1] - bins[0]
+    plt.xlabel(f'Distance: interval {x: .4f}, min_dst: {min(longer_side): .4f}, max_dst: {max(longer_side): .4f}')
+    plt.ylabel('Frequency')
+    plt.title('Distances of line points')
+    plt.show()
+
+def pokus_horizontal_lines(img, copy = None):
     if copy is None:
         copy = img.copy()
+
+    #cv2.imshow("orig", img)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (7, 7), 0)
     threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
 
     bw_swap = cv2.bitwise_not(threshold)
-    dilated = cv2.dilate(bw_swap, np.ones((4, 1), dtype=np.uint8))  # vodorovne: 4,1
-    eroded = cv2.erode(dilated, np.ones((1, 9), dtype=np.uint8))  # vodorovne: 1, 9
+
+    #cv2.imshow("bw swap", bw_swap)
+
+    sobelx = cv2.Sobel(bw_swap, cv2.CV_8UC1, 0, 1, ksize=3)
+
+    cv2.imshow("sobelx", sobelx)
+
+    dilated = cv2.dilate(sobelx, np.ones((4, 1), dtype=np.uint8))  # vodorovne: 4,1
+    eroded = cv2.erode(dilated, np.ones((1, 15), dtype=np.uint8))  # vodorovne: 1, 9
+
+    cv2.imshow("eroded", eroded)
 
     contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
@@ -158,10 +209,47 @@ def detect_horizontal_lines(img, copy = None):
         # cv2.drawContours(copy2, [cnt], 0, (b, g, r), 2)
         cv2.drawContours(copy, [box], 0, (0, 255, 0), 2)
 
+    cv2.imshow("rect", copy)
+
     return copy, eroded
+
+def detect_horizontal_lines(img, copy = None):
+    all_rect_points = []
+    all_rect_box = []  # (center(x,y), (width, height), angle of rotation)
+
+    if copy is None:
+        copy = img.copy()
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+    threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
+
+    bw_swap = cv2.bitwise_not(threshold)
+    dilated = cv2.dilate(bw_swap, np.ones((4, 1), dtype=np.uint8))  # vodorovne: 4,1
+    eroded = cv2.erode(dilated, np.ones((1, 13), dtype=np.uint8))  # vodorovne: 1, 9
+
+    contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    min_length = 3
+    for cnt in contours:
+        rect = cv2.minAreaRect(cnt)
+
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+
+        if rect[1][0] > min_length and rect[1][1] > min_length:
+            all_rect_box.append(rect)
+            all_rect_points.append(box)
+            cv2.drawContours(copy, [box], 0, (0, 255, 0), 2)
+
+    all_rect = [all_rect_points, all_rect_box]
+
+    return copy, eroded, all_rect
 
 
 def detect_vertical_lines(img, copy = None):
+    all_rect_points = []
+    all_rect_box = []  # (center(x,y), (width, height), angle of rotation)
     if copy is None:
         copy = img.copy()
 
@@ -171,17 +259,24 @@ def detect_vertical_lines(img, copy = None):
 
     bw_swap = cv2.bitwise_not(threshold)
     dilated = cv2.dilate(bw_swap, np.ones((1, 4), dtype=np.uint8))  # vodorovne: 4,1
-    eroded = cv2.erode(dilated, np.ones((9, 1), dtype=np.uint8))  # vodorovne: 1, 9
+    eroded = cv2.erode(dilated, np.ones((13, 1), dtype=np.uint8))  # vodorovne: 1, 9, ... 9-15
 
     contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    min_length = 3
     for cnt in contours:
         rect = cv2.minAreaRect(cnt)
+
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-        # cv2.drawContours(copy2, [cnt], 0, (b, g, r), 2)
-        cv2.drawContours(copy, [box], 0, (0, 0, 255), 2)
 
-    return copy, eroded
+        if rect[1][0] > min_length and rect[1][1] > min_length:
+            all_rect_box.append(rect)
+            all_rect_points.append(box)
+            cv2.drawContours(copy, [box], 0, (0, 0, 255), 2)
+
+    all_rect = [all_rect_points, all_rect_box]
+    return copy, eroded, all_rect
 
 def detectLinesHough(img):
     img_copy = img.copy()
@@ -257,6 +352,8 @@ def getAllImages():
 
     horizontal_vertical_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_horizontal_vertical"
 
+    rect_hist_all_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_all"
+
     all_images = os.listdir(folder_dir)
 
     for image_name in all_images:
@@ -267,49 +364,46 @@ def getAllImages():
         saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
         saveImage(input_dir, image_name, 'input', input_img)
 
-        horizontal_lines, horizontal_lines_input = detect_horizontal_lines(img)
+        horizontal_lines, horizontal_lines_input, _ = detect_horizontal_lines(img)
         saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
         saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
 
-        vertical_lines, vertical_lines_input = detect_vertical_lines(img)
+        vertical_lines, vertical_lines_input, _ = detect_vertical_lines(img)
         saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
         saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
 
-        horizontal_vertical, _ = detect_vertical_lines(img, horizontal_lines)
+        horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
         saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
 
 
 if __name__ == '__main__':
     # load image
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/ElCerrito.jpg')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/AlexanderCity.jpg')
     #img = cv2.imread('images/ERD_basic1_dig.png')
     #img = cv2.imread('images/sudoku.png')
     #img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
     #img = cv2.imread('images/sampleLines.png')
 
     # # resize to half of the size
-    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
-    # hlines, lines, edges = detectLinesHough(img)
-    # # # # tutHlines, tut_input = tutorialLines(img)
-    # cv2.imshow("hlines", hlines)
-    # filtered = filterLines(lines)
-    # filimg = drawLines(img.copy(), filtered)
-    # cv2.imshow("filtered", filimg)
+    # img = cv2.resize(img, (0, 0), fx=0.25, fy=0.25)
+    #
+    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+    # hor_all_rec_points = hor_all_rec[0]
+    # hor_all_rec_box = hor_all_rec[1]
+    #
+    # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(img)
+    # ver_all_rec_points = ver_all_rec[0]
+    # ver_all_rec_box = ver_all_rec[1]
+    #
+    # plot_histogram(hor_all_rec_box, ver_all_rec_box)
 
     getAllImages()
     showResultsHTML()
 
-    #minRec(img)
-
-    #distanceLinePoint((1,1,5,5), [7,7])
-    # line = [0,0,8,0]
-    # point = [7,4]
-    # print(distancePointToLineSegment(line, point))
-
     # wait until key is pressed
     #cv2.imshow("pomoc", img)
 
-    # print(lineLength([3,0,9,0]))
+    #print(lineLength([3,0,9,0]))
 
     # p = ['a', 'b', 'c', 'd', 'e']
     # c = ['1','2','3','4','5']
