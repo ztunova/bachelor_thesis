@@ -21,6 +21,8 @@ def showResultsHTML():
 
     horizontal_vertical_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_horizontal_vertical"
 
+    rect_hist_all_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_all"
+
     original_images = os.listdir(original_images_dir)
     hlines_images = os.listdir(hlines_images_dir)
     hlines_input_images = os.listdir(hlines_input_dir)
@@ -32,6 +34,8 @@ def showResultsHTML():
     vertical_input_images = os.listdir(vertical_input_dir)
 
     horizontal_vertical_images = os.listdir(horizontal_vertical_dir)
+
+    hist_all_images = os.listdir(rect_hist_all_dir)
 
     html_head = """
     <head>
@@ -67,6 +71,8 @@ def showResultsHTML():
 
         horizontal_vertical_path = horizontal_vertical_dir + '/' + horizontal_vertical_images[i]
 
+        hist_path = rect_hist_all_dir + '/' + hist_all_images[i]
+
         img = cv2.imread(original_img_path)
         height, width = img.shape[:2]
         table_rov_info = "<tr>" \
@@ -76,6 +82,7 @@ def showResultsHTML():
                         "<td><img src= \"" + original_img_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + hlines_img_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + hlines_input_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
+                        "<td><img src=\"" + hist_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + horizontal_vertical_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + horizontal_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + horizontal_input_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
