@@ -205,7 +205,7 @@ def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
         # max_length = max(longer_side)
         plt.xlabel(f'min_len: {min(longer_side): .3f}, max_len: {max(longer_side): .3f}')
         plt.ylabel('Frequency')
-        plt.title('Distances of line points')
+        plt.title('')
     else:
         plt.plot([])
 
@@ -215,7 +215,7 @@ def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
     save_dst = rect_hist_all_dir + '/' + name
 
     all_images = os.listdir(rect_hist_all_dir)
-    if save_dst in all_images:
+    if name in all_images:
         os.remove(save_dst)
 
     plt.savefig(save_dst)
@@ -270,7 +270,7 @@ def detect_horizontal_lines(img, copy = None):
     threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
 
     bw_swap = cv2.bitwise_not(threshold)
-    dilated = cv2.dilate(bw_swap, np.ones((4, 2), dtype=np.uint8))  # vodorovne: 4,1
+    dilated = cv2.dilate(bw_swap, np.ones((4, 1), dtype=np.uint8))  # vodorovne: 4,1
     eroded = cv2.erode(dilated, np.ones((1, 15), dtype=np.uint8))  # vodorovne: 1, 9
 
     contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -278,6 +278,7 @@ def detect_horizontal_lines(img, copy = None):
     min_length = 3
     height, width = img.shape[:2]
     max_length = max(height, width)/2
+
     for cnt in contours:
         rect = cv2.minAreaRect(cnt)
 
@@ -303,7 +304,7 @@ def detect_vertical_lines(img, copy = None):
         copy = img.copy()
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (9, 9), 0)
+    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
     threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
 
     bw_swap = cv2.bitwise_not(threshold)
@@ -313,13 +314,16 @@ def detect_vertical_lines(img, copy = None):
     contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     min_length = 3
+    height, width = img.shape[:2]
+    max_length = max(height, width) / 2
+
     for cnt in contours:
         rect = cv2.minAreaRect(cnt)
 
         box = cv2.boxPoints(rect)
         box = np.int0(box)
 
-        if rect[1][0] > min_length and rect[1][1] > min_length:
+        if (rect[1][0] > min_length and rect[1][1] > min_length) and (rect[1][0] < max_length and rect[1][1] < max_length):
             all_rect_box.append(rect)
             all_rect_points.append(box)
             #cv2.drawContours(copy, [box], 0, (0, 0, 255), 2)
@@ -455,12 +459,7 @@ if __name__ == '__main__':
     # cv2.imshow("hor", hor_lines)
     #cv2.imshow("ver", ver_lines)
     #
-    #plot_histogram(hor_all_rec_box, ver_all_rec_box, 'ElCerrito.jpg')
-
-    # if height >= width:
-    #     plot_histogram(hor_all_rec_box, ver_all_rec_box, height)
-    # else:
-    #     plot_histogram(hor_all_rec_box, ver_all_rec_box, width)
+    # plot_histogram(hor_all_rec_box, ver_all_rec_box, 'ElCerrito.jpg')
 
     getAllImages()
     showResultsHTML()
@@ -469,18 +468,6 @@ if __name__ == '__main__':
     #cv2.imshow("pomoc", img)
 
     #print(lineLength([3,0,9,0]))
-
-    # p = ['a', 'b', 'c', 'd', 'e']
-    # c = ['1','2','3','4','5']
-    # for i in range(len(p)):
-    #     for j in range(i, len(c)):
-    #         print(p[i], c[j])
-
-    #paralelLines([1,1,7,7], [2,2,9,4])
-
-    # pokus = [[3,0,9,0],[2,1,10,0],[2,7,4,2],[2,0,8,0],[2,7,3,2],[4,5,7,6],[2,8,4,2]]
-    # res = filterLines(pokus)
-    # print(res)
 
 
     cv2.waitKey(0)
