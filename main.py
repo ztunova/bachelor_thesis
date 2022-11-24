@@ -160,6 +160,52 @@ def reject_outliers(data, m=6.):
     return data[s < m].tolist()
 
 
+def plot_histogram_area(horizontal_rect_box, vertical_rect_box, img_name):
+    rect_hist_area_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_area"
+
+    area = []
+
+    for rectangle in horizontal_rect_box:
+        rectangle_size = rectangle[1]
+        rec_width = rectangle_size[0]
+        rec_height = rectangle_size[1]
+        rect_area = rec_width * rec_height
+        area.append(rect_area)
+
+    for rectangle in vertical_rect_box:
+        rectangle_size = rectangle[1]
+        rec_width = rectangle_size[0]
+        rec_height = rectangle_size[1]
+        rect_area = rec_width * rec_height
+        area.append(rect_area)
+
+    # longer_side = reject_outliers(longer_side)
+
+    if len(horizontal_rect_box) > 0 or len(vertical_rect_box) > 0:
+        binwidth = 3
+        n, bins, _ = plt.hist(area, bins=np.arange(min(area), max(area) + binwidth, binwidth))
+
+        plt.xlabel(f'min_len: {min(area): .3f}, max_len: {max(area): .3f}')
+        plt.ylabel('Frequency')
+        plt.title('Area of rect')
+    else:
+        plt.plot([])
+
+    # plt.show()
+
+    name = getResultName(img_name, "hist_area")
+    save_dst = rect_hist_area_dir + '/' + name
+
+    all_images = os.listdir(rect_hist_area_dir)
+    if name in all_images:
+        os.remove(save_dst)
+
+    plt.savefig(save_dst)
+    plt.clf()
+
+def plot_histogram_angle():
+    pass
+
 def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
 
     rect_hist_all_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_all"
@@ -190,22 +236,15 @@ def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
         else:
             longer_side.append(rec_height)
 
-    #hist, bin_edges = np.histogram(longer_side)
-    #print(len(longer_side), len(horizontal_rect_box))
-    #plt.hist(longer_side, edgecolor="white", bins='scott')
-    #n, bins, _ = plt.hist(longer_side, edgecolor="white", bins='auto')
-
     #longer_side = reject_outliers(longer_side)
 
     if len(horizontal_rect_box) > 0 or len(vertical_rect_box) > 0:
         binwidth = 3
         n, bins, _ = plt.hist(longer_side, bins=np.arange(min(longer_side), max(longer_side) + binwidth, binwidth))
-        #x = bins[1] - bins[0]
-        # min_length = min(longer_side)
-        # max_length = max(longer_side)
+
         plt.xlabel(f'min_len: {min(longer_side): .3f}, max_len: {max(longer_side): .3f}')
         plt.ylabel('Frequency')
-        plt.title('')
+        plt.title('Length of rect (longer side)')
     else:
         plt.plot([])
 
@@ -270,8 +309,8 @@ def detect_horizontal_lines(img, copy = None):
     threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
 
     bw_swap = cv2.bitwise_not(threshold)
-    dilated = cv2.dilate(bw_swap, np.ones((4, 1), dtype=np.uint8))  # vodorovne: 4,1
-    eroded = cv2.erode(dilated, np.ones((1, 15), dtype=np.uint8))  # vodorovne: 1, 9
+    dilated = cv2.dilate(bw_swap, np.ones((4, 2), dtype=np.uint8))  # vodorovne: 4,1
+    eroded = cv2.erode(dilated, np.ones((1, 13), dtype=np.uint8))  # vodorovne: 1, 9
 
     contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -309,7 +348,7 @@ def detect_vertical_lines(img, copy = None):
 
     bw_swap = cv2.bitwise_not(threshold)
     dilated = cv2.dilate(bw_swap, np.ones((2, 4), dtype=np.uint8))  # vodorovne: 4,1
-    eroded = cv2.erode(dilated, np.ones((15, 1), dtype=np.uint8))  # vodorovne: 1, 9, ... 9-15
+    eroded = cv2.erode(dilated, np.ones((13, 1), dtype=np.uint8))  # vodorovne: 1, 9, ... 9-15
 
     contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -430,14 +469,16 @@ def getAllImages():
         horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
         saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
 
-        hor_rect_points = horiz_data[0]
-        ver_rect_points = vertical_data[0]
-        plot_histogram(hor_rect_points, ver_rect_points, image_name)
+        hor_rect_box = horiz_data[1]
+        ver_rect_box = vertical_data[1]
+        plot_histogram(hor_rect_box, ver_rect_box, image_name)
+
+        x= 0
 
 
 if __name__ == '__main__':
     # load image
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Alameda.jpg')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Douglas.jpg')
     #img = cv2.imread('images/ERD_basic1_dig.png')
     #img = cv2.imread('images/sudoku.png')
     #img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
@@ -459,7 +500,7 @@ if __name__ == '__main__':
     # cv2.imshow("hor", hor_lines)
     #cv2.imshow("ver", ver_lines)
     #
-    # plot_histogram(hor_all_rec_box, ver_all_rec_box, 'ElCerrito.jpg')
+    # plot_histogram(hor_all_rec_box, ver_all_rec_box, 'Douglas.jpg')
 
     getAllImages()
     showResultsHTML()
