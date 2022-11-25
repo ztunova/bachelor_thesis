@@ -185,7 +185,7 @@ def plot_histogram_area(horizontal_rect_box, vertical_rect_box, img_name):
         binwidth = 3
         n, bins, _ = plt.hist(area, bins=np.arange(min(area), max(area) + binwidth, binwidth))
 
-        plt.xlabel(f'min_len: {min(area): .3f}, max_len: {max(area): .3f}')
+        plt.xlabel(f'min_area: {min(area): .3f}, max_area: {max(area): .3f}')
         plt.ylabel('Frequency')
         plt.title('Area of rect')
     else:
@@ -261,41 +261,41 @@ def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
     plt.clf()
 
 
+def reorder_rect_points(rect):
+    max_x = []
+    reordered_rect = []
 
-def pokus_horizontal_lines(img, copy = None):
-    if copy is None:
-        copy = img.copy()
+    max_x1 = max(rect, key=lambda x: x[0])
+    max_x.append(max_x1)
+    index = np.where(np.all(rect == max_x1, axis=1))
+    rect = np.delete(rect, index, axis=0)
+    max_x2 = max(rect, key=lambda x: x[0])
+    max_x.append(max_x2)
+    index = np.where(np.all(rect == max_x2, axis=1))
+    min_x = np.delete(rect, index, axis=0)
 
-    #cv2.imshow("orig", img)
+    if min_x[0][1] <= min_x[1][1]:
+        min_x_min_y = min_x[0]
+        min_x_max_y = min_x[1]
+    else:
+        min_x_min_y = min_x[1]
+        min_x_max_y = min_x[0]
 
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
-    threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
+    if max_x1[1] <= max_x2[1]:
+        max_x_min_y = max_x1
+        max_x_max_y = max_x2
+    else:
+        max_x_min_y = max_x2
+        max_x_max_y = max_x1
 
-    bw_swap = cv2.bitwise_not(threshold)
+    return [min_x_min_y, max_x_min_y, max_x_max_y, min_x_max_y]
 
-    cv2.imshow("bw swap", bw_swap)
 
-    sobelx = cv2.Sobel(bw_swap, cv2.CV_8UC1, 0, 1, ksize=3)
+def dst_points():
+    pass
 
-    cv2.imshow("sobelx", sobelx)
-
-    dilated = cv2.dilate(sobelx, np.ones((4, 2), dtype=np.uint8))  # vodorovne: 4,1
-    eroded = cv2.erode(dilated, np.ones((1, 15), dtype=np.uint8))  # vodorovne: 1, 9
-
-    cv2.imshow("eroded", eroded)
-
-    contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    for cnt in contours:
-        rect = cv2.minAreaRect(cnt)
-        box = cv2.boxPoints(rect)
-        box = np.int0(box)
-        # cv2.drawContours(copy2, [cnt], 0, (b, g, r), 2)
-        cv2.drawContours(copy, [box], 0, (0, 255, 0), 2)
-
-    cv2.imshow("rect", copy)
-
-    return copy, eroded
+def connect_closest_horizontal_rect(all_hor_rect):
+    pass
 
 def detect_horizontal_lines(img, copy = None):
     all_rect_points = []
@@ -472,13 +472,14 @@ def getAllImages():
         hor_rect_box = horiz_data[1]
         ver_rect_box = vertical_data[1]
         plot_histogram(hor_rect_box, ver_rect_box, image_name)
+        #plot_histogram_area(hor_rect_box, ver_rect_box, image_name)
 
         x= 0
 
 
 if __name__ == '__main__':
     # load image
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Douglas.jpg')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Alameda.jpg')
     #img = cv2.imread('images/ERD_basic1_dig.png')
     #img = cv2.imread('images/sudoku.png')
     #img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
@@ -489,21 +490,23 @@ if __name__ == '__main__':
     # #
     # # #pokus_horizontal_lines(img)
     # #
-    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
-    # hor_all_rec_points = hor_all_rec[0]
-    # hor_all_rec_box = hor_all_rec[1]
-    #
-    # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(img)
-    # ver_all_rec_points = ver_all_rec[0]
-    # ver_all_rec_box = ver_all_rec[1]
+    hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+    hor_all_rec_points = hor_all_rec[0]
+    hor_all_rec_box = hor_all_rec[1]
+
+    ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(img)
+    ver_all_rec_points = ver_all_rec[0]
+    ver_all_rec_box = ver_all_rec[1]
     # #
     # cv2.imshow("hor", hor_lines)
     #cv2.imshow("ver", ver_lines)
     #
     # plot_histogram(hor_all_rec_box, ver_all_rec_box, 'Douglas.jpg')
 
-    getAllImages()
-    showResultsHTML()
+    print(reorder_rect_points(hor_all_rec_points[0]))
+
+    #getAllImages()
+    #showResultsHTML()
 
     # wait until key is pressed
     #cv2.imshow("pomoc", img)
