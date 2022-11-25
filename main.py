@@ -291,11 +291,34 @@ def reorder_rect_points(rect):
     return [min_x_min_y, max_x_min_y, max_x_max_y, min_x_max_y]
 
 
-def dst_points():
+def get_middle_point(upper_point, lower_point):
+    upper_x, upper_y = upper_point
+    lower_x, lower_y = lower_point
+    middle_x = int((upper_x + lower_x)/2)
+    middle_y = int((upper_y + lower_y) / 2)
+    return [middle_x, middle_y]
+
+
+def weighted_dst_horizontal(start_point, end_point):
+    x_start, y_start = start_point
+    x_end, y_end = end_point
+
+    x_diff = x_end - x_start
+    y_diff = y_end - y_start
+
+    weight = 5
+    weighted_dst = math.sqrt(x_diff ** 2 + (y_diff * weight) ** 2)
+
+    return weighted_dst
+
+
+def find_closest_horizontal_rect():
     pass
+
 
 def connect_closest_horizontal_rect(all_hor_rect):
     pass
+
 
 def detect_horizontal_lines(img, copy = None):
     all_rect_points = []
@@ -503,7 +526,15 @@ if __name__ == '__main__':
     #
     # plot_histogram(hor_all_rec_box, ver_all_rec_box, 'Douglas.jpg')
 
-    print(reorder_rect_points(hor_all_rec_points[0]))
+    reord = reorder_rect_points(hor_all_rec_points[0])
+    mid_start = get_middle_point([18, 20], [20, 30])
+    mid_end = get_middle_point([40, 25], [38, 40])
+    mid_trick = get_middle_point([22, 40], [18, 45])
+    print(mid_start, mid_end, mid_trick)
+    dst_cor = weighted_dst_horizontal(mid_start, mid_end)
+    dst_trick = weighted_dst_horizontal(mid_start, mid_trick)
+    print(dst_cor)
+    print(dst_trick)
 
     #getAllImages()
     #showResultsHTML()
