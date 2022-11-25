@@ -127,6 +127,8 @@ def distancePointToLineSegment(line, point):
         print("medzi koncami usecky")
 
     return dst_point_to_line
+
+
 def drawLines(img_copy, lines):
     if lines is not None:
         for line in lines:
@@ -312,8 +314,28 @@ def weighted_dst_horizontal(start_point, end_point):
     return weighted_dst
 
 
-def find_closest_horizontal_rect():
-    pass
+def find_closest_horizontal_rect(all_hor_rect):
+    closest_results = {}
+    closest_rect = None
+
+    for start_rec in all_hor_rect:
+        mid_start = get_middle_point(start_rec[1], start_rec[2])
+        #closest_rect = all_hor_rect[0]
+        #mid_closest = get_middle_point(closest_rect[0], closest_rect[3])
+        #min_dst = weighted_dst_horizontal(mid_start, mid_closest)
+        min_dst = 10000
+        for end_rec in all_hor_rect:
+            if (start_rec != end_rec).all():
+                mid_end = get_middle_point(end_rec[0], end_rec[3])
+                dst_act = weighted_dst_horizontal(mid_start, mid_end)
+                if dst_act < min_dst:
+                    closest_rect = end_rec
+                    min_dst = dst_act
+        key = tuple(map(tuple, start_rec))
+        value = tuple(map(tuple, closest_rect))
+        closest_results[key] = [value, min_dst]
+
+    return closest_results
 
 
 def connect_closest_horizontal_rect(all_hor_rect):
@@ -535,6 +557,9 @@ if __name__ == '__main__':
     dst_trick = weighted_dst_horizontal(mid_start, mid_trick)
     print(dst_cor)
     print(dst_trick)
+
+    closest = find_closest_horizontal_rect(hor_all_rec_points)
+    print(closest)
 
     #getAllImages()
     #showResultsHTML()
