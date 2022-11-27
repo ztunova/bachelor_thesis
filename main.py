@@ -12,6 +12,10 @@ import numpy as np
 from outputs import showResultsHTML
 from numpy import linalg as LA
 
+
+def identical_lists(l1, l2):
+    pass
+
 def lineLength(line):
     x1, y1, x2, y2 = line
     # print(x1, y1, x2, y2)
@@ -129,6 +133,13 @@ def distancePointToLineSegment(line, point):
     return dst_point_to_line
 
 
+def random_color():
+    b = random.randint(0, 255)
+    r = random.randint(0, 255)
+    g = random.randint(0, 255)
+
+    return b, g, r
+
 def drawLines(img_copy, lines):
     if lines is not None:
         for line in lines:
@@ -148,6 +159,36 @@ def draw_rectangles(draw_img, rect_points, horizontal):
                 cv2.drawContours(draw_img, [rect], 0, (0, 255, 0), 2)
             else:
                 cv2.drawContours(draw_img, [rect], 0, (0, 0, 255), 2)
+
+    return draw_img
+
+
+def draw_connected_middle_points(draw_img, closest_rect):
+    radius = 2
+    color_start = (255, 0, 0)
+    thickness = 2
+
+    for start_rec, end_rec in closest_rect.items():
+        start_rec_right_upper = start_rec[1]
+        start_rec_right_lower = start_rec[2]
+
+        end_rec_left_upper = end_rec[0][0]
+        end_rec_left_lower = end_rec[0][3]
+
+        start_point = get_middle_point(start_rec_right_upper, start_rec_right_lower)
+        end_point = get_middle_point(end_rec_left_upper, end_rec_left_lower)
+
+        #color = random_color()
+
+        draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
+        # if start_point[0] < end_point[0]:
+        #     draw_img = cv2.circle(draw_img, end_point, radius, color, thickness)
+        #     draw_img = cv2.line(draw_img, start_point, end_point, color, thickness)
+
+        draw_img = cv2.circle(draw_img, end_point, radius, (255, 51, 255), thickness)
+        draw_img = cv2.line(draw_img, start_point, end_point, (255, 51, 255), thickness)
+
+        #cv2.imshow("connected", draw_img)
 
     return draw_img
 
@@ -277,18 +318,18 @@ def reorder_rect_points(rect):
     min_x = np.delete(rect, index, axis=0)
 
     if min_x[0][1] <= min_x[1][1]:
-        min_x_min_y = min_x[0]
-        min_x_max_y = min_x[1]
+        min_x_min_y = min_x[0].tolist()
+        min_x_max_y = min_x[1].tolist()
     else:
-        min_x_min_y = min_x[1]
-        min_x_max_y = min_x[0]
+        min_x_min_y = min_x[1].tolist()
+        min_x_max_y = min_x[0].tolist()
 
     if max_x1[1] <= max_x2[1]:
-        max_x_min_y = max_x1
-        max_x_max_y = max_x2
+        max_x_min_y = max_x1.tolist()
+        max_x_max_y = max_x2.tolist()
     else:
-        max_x_min_y = max_x2
-        max_x_max_y = max_x1
+        max_x_min_y = max_x2.tolist()
+        max_x_max_y = max_x1.tolist()
 
     return [min_x_min_y, max_x_min_y, max_x_max_y, min_x_max_y]
 
@@ -319,21 +360,25 @@ def find_closest_horizontal_rect(all_hor_rect):
     closest_rect = None
 
     for start_rec in all_hor_rect:
+        start_rec = reorder_rect_points(start_rec)
         mid_start = get_middle_point(start_rec[1], start_rec[2])
         #closest_rect = all_hor_rect[0]
         #mid_closest = get_middle_point(closest_rect[0], closest_rect[3])
         #min_dst = weighted_dst_horizontal(mid_start, mid_closest)
         min_dst = 10000
         for end_rec in all_hor_rect:
-            if (start_rec != end_rec).all():
+            end_rec = reorder_rect_points(end_rec)
+            if start_rec != end_rec:
                 mid_end = get_middle_point(end_rec[0], end_rec[3])
                 dst_act = weighted_dst_horizontal(mid_start, mid_end)
                 if dst_act < min_dst:
                     closest_rect = end_rec
                     min_dst = dst_act
-        key = tuple(map(tuple, start_rec))
-        value = tuple(map(tuple, closest_rect))
-        closest_results[key] = [value, min_dst]
+        mid_closest = get_middle_point(closest_rect[0], closest_rect[3])
+        if mid_start[0] < mid_closest[0]:
+            key = tuple(map(tuple, start_rec))
+            value = tuple(map(tuple, closest_rect))
+            closest_results[key] = [value, min_dst]
 
     return closest_results
 
@@ -504,65 +549,71 @@ def getAllImages():
         # saveImage(input_dir, image_name, 'input', input_img)
 
         horizontal_lines, horizontal_lines_input, horiz_data = detect_horizontal_lines(img)
+        closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
+        horizontal_lines = draw_connected_middle_points(horizontal_lines, closest_horizontal)
         saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
         saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
 
-        vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
-        saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
-        saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
+        # vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
+        # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
+        # saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
+        #
+        # horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
+        # saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
 
-        horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
-        saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
-
-        hor_rect_box = horiz_data[1]
-        ver_rect_box = vertical_data[1]
-        plot_histogram(hor_rect_box, ver_rect_box, image_name)
+        # hor_rect_box = horiz_data[1]
+        # ver_rect_box = vertical_data[1]
+        # plot_histogram(hor_rect_box, ver_rect_box, image_name)
         #plot_histogram_area(hor_rect_box, ver_rect_box, image_name)
-
-        x= 0
 
 
 if __name__ == '__main__':
     # load image
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Alameda.jpg')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Alhambra.jpg')
     #img = cv2.imread('images/ERD_basic1_dig.png')
     #img = cv2.imread('images/sudoku.png')
     #img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
     #img = cv2.imread('images/sampleLines.png')
 
     # resize to half of the size
-    # img = cv2.resize(img, (0, 0), fx=0.20, fy=0.20)
+    #img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
     # #
     # # #pokus_horizontal_lines(img)
     # #
-    hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
-    hor_all_rec_points = hor_all_rec[0]
-    hor_all_rec_box = hor_all_rec[1]
-
-    ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(img)
-    ver_all_rec_points = ver_all_rec[0]
-    ver_all_rec_box = ver_all_rec[1]
-    # #
-    # cv2.imshow("hor", hor_lines)
-    #cv2.imshow("ver", ver_lines)
+    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+    # hor_all_rec_points = hor_all_rec[0]
+    # hor_all_rec_box = hor_all_rec[1]
     #
-    # plot_histogram(hor_all_rec_box, ver_all_rec_box, 'Douglas.jpg')
+    # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(img)
+    # ver_all_rec_points = ver_all_rec[0]
+    # ver_all_rec_box = ver_all_rec[1]
+    # # #
+    #cv2.imshow("hor", hor_lines)
+    # #cv2.imshow("ver", ver_lines)
+    # #
+    # # plot_histogram(hor_all_rec_box, ver_all_rec_box, 'Douglas.jpg')
+    #
+    # reord = reorder_rect_points(hor_all_rec_points[0])
+    # mid_start = get_middle_point([18, 20], [20, 30])
+    # mid_end = get_middle_point([40, 25], [38, 40])
+    # mid_trick = get_middle_point([22, 40], [18, 45])
+    # print(mid_start, mid_end, mid_trick)
+    # dst_cor = weighted_dst_horizontal(mid_start, mid_end)
+    # dst_trick = weighted_dst_horizontal(mid_start, mid_trick)
+    # print(dst_cor)
+    # print(dst_trick)
+    #
+    # closest = find_closest_horizontal_rect(hor_all_rec_points)
+    # hor_lines_points = draw_connected_middle_points(hor_lines, closest)
+    #cv2.imshow("hor with points", hor_lines_points)
+    # print(closest)
+    #
+    # print('---------')
+    # print("len input: ", len(hor_all_rec_points))
+    # print("number of keys: ", len(closest.keys()))
 
-    reord = reorder_rect_points(hor_all_rec_points[0])
-    mid_start = get_middle_point([18, 20], [20, 30])
-    mid_end = get_middle_point([40, 25], [38, 40])
-    mid_trick = get_middle_point([22, 40], [18, 45])
-    print(mid_start, mid_end, mid_trick)
-    dst_cor = weighted_dst_horizontal(mid_start, mid_end)
-    dst_trick = weighted_dst_horizontal(mid_start, mid_trick)
-    print(dst_cor)
-    print(dst_trick)
-
-    closest = find_closest_horizontal_rect(hor_all_rec_points)
-    print(closest)
-
-    #getAllImages()
-    #showResultsHTML()
+    getAllImages()
+    showResultsHTML()
 
     # wait until key is pressed
     #cv2.imshow("pomoc", img)
