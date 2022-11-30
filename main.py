@@ -16,10 +16,12 @@ from numpy import linalg as LA
 def identical_lists(l1, l2):
     pass
 
+
 def lineLength(line):
     x1, y1, x2, y2 = line
     # print(x1, y1, x2, y2)
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
 
 def paralelLines(orig_line, cmp_line):
     x1_orig, y1_orig, x2_orig, y2_orig = orig_line
@@ -37,19 +39,19 @@ def paralelLines(orig_line, cmp_line):
     diff = 3
 
     if (dst_l1_start <= diff) and (dst_l1_end <= diff):
-        #print("orig: ", orig_line, " paralel with cmp: ", cmp_line, " dst strat: ", dst_l1_start, " dst end: ", dst_l1_end )
+        # print("orig: ", orig_line, " paralel with cmp: ", cmp_line, " dst strat: ", dst_l1_start, " dst end: ", dst_l1_end )
         return True
     elif (dst_l2_start <= diff) and (dst_l2_end <= diff):
-        #print("orig: ", orig_line, " paralel with cmp: ", cmp_line, " dst strat: ", dst_l2_start, " dst end: ", dst_l2_end )
+        # print("orig: ", orig_line, " paralel with cmp: ", cmp_line, " dst strat: ", dst_l2_start, " dst end: ", dst_l2_end )
         return True
     else:
-        #print("orig: ", orig_line, " NOT paralel with cmp: ", cmp_line, " dst strat: ", dst_l2_start, " dst end: ", dst_l1_end )
+        # print("orig: ", orig_line, " NOT paralel with cmp: ", cmp_line, " dst strat: ", dst_l2_start, " dst end: ", dst_l1_end )
         return False
 
 
 def filterLines(all_lines):
     filtered_lines = []
-    #longest_paralel = copy.deepcopy(all_lines[0])
+    # longest_paralel = copy.deepcopy(all_lines[0])
     for i in range(len(all_lines)):
         orig_line = copy.deepcopy(all_lines[i])[0]
         longest_paralel = copy.deepcopy(orig_line)
@@ -63,19 +65,19 @@ def filterLines(all_lines):
                         length_cmp = lineLength(cmp_line)
                         if length_orig >= length_cmp:
                             all_lines[j][0] = -(all_lines[j][0])
-                            #filtered_lines.remove(cmp_line)
+                            # filtered_lines.remove(cmp_line)
                             length_longes = lineLength(longest_paralel)
                             if length_orig > length_longes:
                                 longest_paralel = orig_line
                         else:
                             all_lines[i][0] = -(all_lines[i][0])
-                            #filtered_lines.remove(orig_line)
+                            # filtered_lines.remove(orig_line)
                             length_longes = lineLength(longest_paralel)
                             if length_cmp > length_longes:
                                 longest_paralel = cmp_line
 
             if longest_paralel not in filtered_lines:
-            #if not(longest_paralel.isin(filtered_lines)):
+                # if not(longest_paralel.isin(filtered_lines)):
                 filtered_lines.append(longest_paralel)
 
     return filtered_lines
@@ -108,7 +110,7 @@ def distancePointToLineSegment(line, point):
         # bod je niekde za koncovym bodom usecky (v smere vektoru usecky, dalej za koncom)
         x = point[0] - line_end[0]
         y = point[1] - line_end[1]
-        dst_point_to_line = math.sqrt(x*x + y*y)
+        dst_point_to_line = math.sqrt(x * x + y * y)
         print("za koncom")
 
     elif dot_linev_start_point < 0:
@@ -140,6 +142,7 @@ def random_color():
 
     return b, g, r
 
+
 def drawLines(img_copy, lines):
     if lines is not None:
         for line in lines:
@@ -164,6 +167,8 @@ def draw_rectangles(draw_img, rect_points, horizontal):
 
 
 def draw_connected_middle_points_closest_horizontal_vertical(draw_img, closest_rect):
+    if closest_rect == None:
+        return draw_img
     radius = 2
     color_start = (255, 0, 0)
     thickness = 2
@@ -178,7 +183,7 @@ def draw_connected_middle_points_closest_horizontal_vertical(draw_img, closest_r
         start_point = get_middle_point_of_side(start_rec_right_upper, start_rec_right_lower)
         end_point = get_middle_point_of_side(end_rec_upper_left, end_rec_upper_right)
 
-        #color = random_color()
+        # color = random_color()
 
         draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
         if start_point[0] < end_point[0]:
@@ -188,7 +193,7 @@ def draw_connected_middle_points_closest_horizontal_vertical(draw_img, closest_r
         draw_img = cv2.circle(draw_img, end_point, radius, (51, 255, 255), thickness)
         draw_img = cv2.line(draw_img, start_point, end_point, (51, 255, 255), thickness)
 
-        #cv2.imshow("connected", draw_img)
+        # cv2.imshow("connected", draw_img)
 
     return draw_img
 
@@ -208,7 +213,7 @@ def draw_connected_middle_points_closest_horizontal(draw_img, closest_rect):
         start_point = get_middle_point_of_side(start_rec_right_upper, start_rec_right_lower)
         end_point = get_middle_point_of_side(end_rec_left_upper, end_rec_left_lower)
 
-        #color = random_color()
+        # color = random_color()
 
         draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
         if start_point[0] < end_point[0]:
@@ -218,7 +223,7 @@ def draw_connected_middle_points_closest_horizontal(draw_img, closest_rect):
         draw_img = cv2.circle(draw_img, end_point, radius, (255, 51, 255), thickness)
         draw_img = cv2.line(draw_img, start_point, end_point, (255, 51, 255), thickness)
 
-        #cv2.imshow("connected", draw_img)
+        # cv2.imshow("connected", draw_img)
 
     return draw_img
 
@@ -276,11 +281,12 @@ def plot_histogram_area(horizontal_rect_box, vertical_rect_box, img_name):
     plt.savefig(save_dst)
     plt.clf()
 
+
 def plot_histogram_angle():
     pass
 
-def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
 
+def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
     rect_hist_all_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_all"
 
     longer_side = []
@@ -309,7 +315,7 @@ def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
         else:
             longer_side.append(rec_height)
 
-    #longer_side = reject_outliers(longer_side)
+    # longer_side = reject_outliers(longer_side)
 
     if len(horizontal_rect_box) > 0 or len(vertical_rect_box) > 0:
         binwidth = 3
@@ -321,7 +327,7 @@ def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
     else:
         plt.plot([])
 
-    #plt.show()
+    # plt.show()
 
     name = getResultName(img_name, "hist_all")
     save_dst = rect_hist_all_dir + '/' + name
@@ -334,7 +340,37 @@ def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
     plt.clf()
 
 
-def reorder_rect_points(rect):
+def reorder_rect_points_vertical_rec(rect):
+    min_y = []
+    reordered_rect = []
+
+    min_y1 = min(rect, key=lambda rec: rec[1])
+    min_y.append(min_y1)
+    index = np.where(np.all(rect == min_y1, axis=1))
+    rect = np.delete(rect, index, axis=0)
+    min_y2 = min(rect, key=lambda rec: rec[1])
+    min_y.append(min_y2)
+    index = np.where(np.all(rect == min_y2, axis=1))
+    max_y = np.delete(rect, index, axis=0)
+
+    if max_y[0][0] <= max_y[1][0]:
+        min_x_max_y = max_y[0].tolist()
+        max_x_max_y = max_y[1].tolist()
+    else:
+        max_x_max_y = max_y[0].tolist()
+        min_x_max_y = max_y[1].tolist()
+
+    if min_y1[0] <= min_y2[0]:
+        min_x_min_y = min_y1.tolist()
+        max_x_min_y = min_y2.tolist()
+    else:
+        min_x_min_y = min_y2.tolist()
+        max_x_min_y = min_y1.tolist()
+
+    return [min_x_min_y, max_x_min_y, max_x_max_y, min_x_max_y]
+
+
+def reorder_rect_points_horizontal_rec(rect):
     max_x = []
     reordered_rect = []
 
@@ -367,7 +403,7 @@ def reorder_rect_points(rect):
 def get_middle_point_of_side(upper_point, lower_point):
     upper_x, upper_y = upper_point
     lower_x, lower_y = lower_point
-    middle_x = int((upper_x + lower_x)/2)
+    middle_x = int((upper_x + lower_x) / 2)
     middle_y = int((upper_y + lower_y) / 2)
     return [middle_x, middle_y]
 
@@ -397,16 +433,18 @@ def weighted_dst_horizontal(start_point, end_point):
 
 
 def find_closest_vertical_to_horizontal_rec(all_hor_rect, all_ver_rect):
+    if all_hor_rect == None or all_ver_rect == None:
+        return None
     closest_results = {}
     closest_rect_right = None
     closest_rect_left = None
 
     for start_rec in all_hor_rect:
-        start_rec = reorder_rect_points(start_rec)
+        start_rec = reorder_rect_points_horizontal_rec(start_rec)
         mid_start_left = get_middle_point_of_side(start_rec[1], start_rec[2])
         min_dst = 10000
         for end_rec in all_ver_rect:
-            end_rec = reorder_rect_points(end_rec)
+            end_rec = reorder_rect_points_vertical_rec(end_rec)
             if start_rec != end_rec:
                 mid_end_upper = get_middle_point_of_side(end_rec[0], end_rec[1])
                 dst_act = dst_of_points(mid_start_left, mid_end_upper)
@@ -427,11 +465,11 @@ def find_closest_horizontal_rect(all_hor_rect):
     closest_rect = None
 
     for start_rec in all_hor_rect:
-        start_rec = reorder_rect_points(start_rec)
+        start_rec = reorder_rect_points_horizontal_rec(start_rec)
         mid_start = get_middle_point_of_side(start_rec[1], start_rec[2])
         min_dst = 10000
         for end_rec in all_hor_rect:
-            end_rec = reorder_rect_points(end_rec)
+            end_rec = reorder_rect_points_horizontal_rec(end_rec)
             if start_rec != end_rec:
                 mid_end = get_middle_point_of_side(end_rec[0], end_rec[3])
                 dst_act = weighted_dst_horizontal(mid_start, mid_end)
@@ -451,7 +489,7 @@ def connect_closest_horizontal_rect(all_hor_rect):
     pass
 
 
-def detect_horizontal_lines(img, copy = None):
+def detect_horizontal_lines(img, copy=None):
     all_rect_points = []
     all_rect_box = []  # (center(x,y), (width, height), angle of rotation)
 
@@ -470,7 +508,7 @@ def detect_horizontal_lines(img, copy = None):
 
     min_length = 3
     height, width = img.shape[:2]
-    max_length = max(height, width)/2
+    max_length = max(height, width) / 2
 
     for cnt in contours:
         rect = cv2.minAreaRect(cnt)
@@ -478,10 +516,11 @@ def detect_horizontal_lines(img, copy = None):
         box = cv2.boxPoints(rect)
         box = np.int0(box)
 
-        if (rect[1][0] > min_length and rect[1][1] > min_length) and (rect[1][0] < max_length and rect[1][1] < max_length):
+        if (rect[1][0] > min_length and rect[1][1] > min_length) and (
+                rect[1][0] < max_length and rect[1][1] < max_length):
             all_rect_box.append(rect)
             all_rect_points.append(box)
-            #cv2.drawContours(copy, [box], 0, (0, 255, 0), 2)
+            # cv2.drawContours(copy, [box], 0, (0, 255, 0), 2)
 
     all_rect = [all_rect_points, all_rect_box]
 
@@ -490,7 +529,7 @@ def detect_horizontal_lines(img, copy = None):
     return copy, eroded, all_rect
 
 
-def detect_vertical_lines(img, copy = None):
+def detect_vertical_lines(img, copy=None):
     all_rect_points = []
     all_rect_box = []  # (center(x,y), (width, height), angle of rotation)
     if copy is None:
@@ -516,16 +555,18 @@ def detect_vertical_lines(img, copy = None):
         box = cv2.boxPoints(rect)
         box = np.int0(box)
 
-        if (rect[1][0] > min_length and rect[1][1] > min_length) and (rect[1][0] < max_length and rect[1][1] < max_length):
+        if (rect[1][0] > min_length and rect[1][1] > min_length) and (
+                rect[1][0] < max_length and rect[1][1] < max_length):
             all_rect_box.append(rect)
             all_rect_points.append(box)
-            #cv2.drawContours(copy, [box], 0, (0, 0, 255), 2)
+            # cv2.drawContours(copy, [box], 0, (0, 0, 255), 2)
 
     all_rect = [all_rect_points, all_rect_box]
 
     copy = draw_rectangles(copy, all_rect_points, False)
 
     return copy, eroded, all_rect
+
 
 def detectLinesHough(img):
     img_copy = img.copy()
@@ -536,10 +577,10 @@ def detectLinesHough(img):
     thresholded = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
     bw_swap = cv2.bitwise_not(thresholded)
 
-    dilated = cv2.dilate(bw_swap, np.ones((4, 4), dtype=np.uint8)) # 3,3
-    #cv2.imshow("dilated", dilated)
-    eroded = cv2.erode(dilated, np.ones((4, 4), dtype=np.uint8)) #aj 2,2 alebo 3,3
-    #cv2.imshow("eroded", eroded)
+    dilated = cv2.dilate(bw_swap, np.ones((4, 4), dtype=np.uint8))  # 3,3
+    # cv2.imshow("dilated", dilated)
+    eroded = cv2.erode(dilated, np.ones((4, 4), dtype=np.uint8))  # aj 2,2 alebo 3,3
+    # cv2.imshow("eroded", eroded)
 
     edged = eroded
 
@@ -549,7 +590,7 @@ def detectLinesHough(img):
     # edged = cv2.erode(edged, np.ones((10, 10), dtype=np.uint8))
 
     rho = 0.7  # distance resolution in pixels of the Hough grid
-    theta = 3*np.pi / 180  # The resolution of the parameter theta in radians: 1 degree
+    theta = 3 * np.pi / 180  # The resolution of the parameter theta in radians: 1 degree
     threshold = 15  # minimum number of votes (intersections in Hough grid cell)
     min_line_length = 10  # minimum number of pixels making up a line
     max_line_gap = 5  # maximum gap in pixels between connectable line segments
@@ -559,11 +600,11 @@ def detectLinesHough(img):
     img_copy = drawLines(img_copy, lines)
 
     # cv2.imshow("Edged image", edged)
-    #cv2.imshow("Lines", img_copy)
+    # cv2.imshow("Lines", img_copy)
 
     # doHistogram(lines)
     return img_copy, lines, edged
-    #return drawLines(img, lines)
+    # return drawLines(img, lines)
 
 
 def getResultName(img_name, description):
@@ -572,9 +613,10 @@ def getResultName(img_name, description):
     result_name = img_name[:exten_index] + '_' + description + img_name[exten_index:]
     return result_name
 
+
 def saveImage(dst_dir, img_name, description, res_img):
     result_name = getResultName(img_name, description)
-    #print(result_name)
+    # print(result_name)
     all_images = os.listdir(dst_dir)
 
     result_path = dst_dir + '/' + result_name
@@ -606,7 +648,7 @@ def getAllImages():
     for image_name in all_images:
         path = folder_dir + '/' + image_name
         img = cv2.imread(path)
-        #print(image_name)
+        # print(image_name)
 
         # img_hlines, lines, input_img = detectLinesHough(img)
         # saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
@@ -618,65 +660,46 @@ def getAllImages():
         saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
         saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
 
-        # vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
-        # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
-        # saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
-        #
-        # horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
-        # saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
+        vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
+        saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
+        saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
+
+        horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
+        closest_hor_ver = find_closest_vertical_to_horizontal_rec(horiz_data[0], vertical_data[0])
+        horizontal_vertical = draw_connected_middle_points_closest_horizontal_vertical(horizontal_vertical,
+                                                                                       closest_hor_ver)
+        saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
 
         # hor_rect_box = horiz_data[1]
         # ver_rect_box = vertical_data[1]
         # plot_histogram(hor_rect_box, ver_rect_box, image_name)
-        #plot_histogram_area(hor_rect_box, ver_rect_box, image_name)
+        # plot_histogram_area(hor_rect_box, ver_rect_box, image_name)
 
 
 if __name__ == '__main__':
     # load image
     img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Alhambra.jpg')
-    #img = cv2.imread('images/ERD_basic1_dig.png')
-    #img = cv2.imread('images/sudoku.png')
-    #img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
-    #img = cv2.imread('images/sampleLines.png')
+    # img = cv2.imread('images/ERD_basic1_dig.png')
+    # img = cv2.imread('images/sudoku.png')
+    # img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
+    # img = cv2.imread('images/sampleLines.png')
 
     # resize to half of the size
-    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
-    # #
-    # # #pokus_horizontal_lines(img)
-    # #
-    hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
-    hor_all_rec_points = hor_all_rec[0]
-    hor_all_rec_box = hor_all_rec[1]
+    # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
 
-    ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
-    ver_all_rec_points = ver_all_rec[0]
-    ver_all_rec_box = ver_all_rec[1]
-    # # #
-    cv2.imshow("hor", hor_lines)
-    cv2.imshow("ver", ver_lines)
-    # #
-    # # plot_histogram(hor_all_rec_box, ver_all_rec_box, 'Douglas.jpg')
+    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+    # hor_all_rec_points = hor_all_rec[0]
+    # hor_all_rec_box = hor_all_rec[1]
     #
-    # reord = reorder_rect_points(hor_all_rec_points[0])
-    # mid_start = get_middle_point([18, 20], [20, 30])
-    # mid_end = get_middle_point([40, 25], [38, 40])
-    # mid_trick = get_middle_point([22, 40], [18, 45])
-    # print(mid_start, mid_end, mid_trick)
-    # dst_cor = weighted_dst_horizontal(mid_start, mid_end)
-    # dst_trick = weighted_dst_horizontal(mid_start, mid_trick)
-    # print(dst_cor)
-    # print(dst_trick)
+    # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
+    # ver_all_rec_points = ver_all_rec[0]
+    # ver_all_rec_box = ver_all_rec[1]
     #
-    closest = find_closest_horizontal_rect(hor_all_rec_points)
-    hor_lines_points = draw_connected_middle_points_closest_horizontal(ver_lines, closest)
-    closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
-    hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
-    cv2.imshow("hor with points", hor_lines_points)
-
-    for rec in ver_all_rec_points:
-        start = rec[0]
-        end = rec[1]
-        midlle = get_middle_point_of_side(start, end)
+    # closest = find_closest_horizontal_rect(hor_all_rec_points)
+    # hor_lines_points = draw_connected_middle_points_closest_horizontal(ver_lines, closest)
+    # closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
+    # hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
+    # cv2.imshow("hor with points", hor_lines_points)
 
     # print(closest)
     #
@@ -684,14 +707,10 @@ if __name__ == '__main__':
     # print("len input: ", len(hor_all_rec_points))
     # print("number of keys: ", len(closest.keys()))
 
-    #getAllImages()
-    #showResultsHTML()
+    getAllImages()
+    showResultsHTML()
 
-    # wait until key is pressed
-    #cv2.imshow("pomoc", img)
-
-    #print(lineLength([3,0,9,0]))
-
+    # print(lineLength([3,0,9,0]))
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
