@@ -268,48 +268,65 @@ def reject_outliers(data, m=6.):
     return data[s < m].tolist()
 
 
-def plot_histogram_area(horizontal_rect_box, vertical_rect_box, img_name):
+def histogram_closest_distances(closest_rectangles, img_name):
     rect_hist_area_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_area"
 
-    area = []
+    distances = []
 
-    for rectangle in horizontal_rect_box:
-        rectangle_size = rectangle[1]
-        rec_width = rectangle_size[0]
-        rec_height = rectangle_size[1]
-        rect_area = rec_width * rec_height
-        area.append(rect_area)
+    for value in closest_rectangles.values():
+        dst = value[1]
+        distances.append(dst)
 
-    for rectangle in vertical_rect_box:
-        rectangle_size = rectangle[1]
-        rec_width = rectangle_size[0]
-        rec_height = rectangle_size[1]
-        rect_area = rec_width * rec_height
-        area.append(rect_area)
+    binwidth = 10
+    # n, bins, _ = plt.hist(distances, bins=np.arange(min(distances), max(distances) + binwidth, binwidth))
+    #
+    # plt.xlabel(f'min_dst: {min(distances): .3f}, max_dst: {max(distances): .3f}')
+    # plt.ylabel('Frequency')
+    # plt.title('Closest distances between rect')
 
-    # longer_side = reject_outliers(longer_side)
+    fig, ax = plt.subplots(figsize=(8, 4), facecolor='w')
+    cnts, values, bars = ax.hist(distances, edgecolor='k', bins=np.arange(min(distances), max(distances) + binwidth, binwidth))
+    #ax.set_xticks(bars)
+    print(len(bars))
+    print(values)
+    print(np.count_nonzero(cnts))
 
-    if len(horizontal_rect_box) > 0 or len(vertical_rect_box) > 0:
-        binwidth = 3
-        n, bins, _ = plt.hist(area, bins=np.arange(min(area), max(area) + binwidth, binwidth))
+    plt.xlabel(f'min_dst: {min(distances): .3f}, max_dst: {max(distances): .3f}')
+    plt.ylabel('Frequency')
 
-        plt.xlabel(f'min_area: {min(area): .3f}, max_area: {max(area): .3f}')
-        plt.ylabel('Frequency')
-        plt.title('Area of rect')
-    else:
-        plt.plot([])
+    number_of_bars = np.count_nonzero(cnts)
 
-    # plt.show()
+    colors = ['aqua', 'red', 'gold', 'royalblue', 'darkorange', 'green', 'purple', 'cyan', 'yellow', 'lime']
 
-    name = getResultName(img_name, "hist_area")
-    save_dst = rect_hist_area_dir + '/' + name
+    # for i in range(number_of_bars):
+    #     b, g, r = random_color()
+    #
+    #     colors.append([r/100, g/100, b/100])
 
-    all_images = os.listdir(rect_hist_area_dir)
-    if name in all_images:
-        os.remove(save_dst)
+    for i, (cnt, value, bar) in enumerate(zip(cnts, values, bars)):
+        bar.set_facecolor(colors[i % len(colors)])
 
-    plt.savefig(save_dst)
-    plt.clf()
+    # if len(horizontal_rect_box) > 0 or len(vertical_rect_box) > 0:
+    #     binwidth = 3
+    #     n, bins, _ = plt.hist(area, bins=np.arange(min(area), max(area) + binwidth, binwidth))
+    #
+    #     plt.xlabel(f'min_area: {min(area): .3f}, max_area: {max(area): .3f}')
+    #     plt.ylabel('Frequency')
+    #     plt.title('Area of rect')
+    # else:
+    #     plt.plot([])
+
+    plt.show()
+
+    # name = getResultName(img_name, "hist_dst")
+    # save_dst = rect_hist_area_dir + '/' + name
+    #
+    # all_images = os.listdir(rect_hist_area_dir)
+    # if name in all_images:
+    #     os.remove(save_dst)
+    #
+    # plt.savefig(save_dst)
+    # plt.clf()
 
 
 def plot_histogram_angle():
@@ -479,6 +496,7 @@ def weighted_dst_horizontal(start_point, end_point):
 
 def find_closest_vertical_to_horizontal_rec(all_hor_rect, all_ver_rect):
     # need fix: value = tuple(map(tuple, closest_rect_right)) 'NoneType' object is not iterable
+
     closest_results = {}
     closest_left = None
     closest_right = None
@@ -503,6 +521,17 @@ def find_closest_vertical_to_horizontal_rec(all_hor_rect, all_ver_rect):
             upper_side_right = end_rect[1]
             mid_upper = get_middle_point_of_side(upper_side_left, upper_side_right)
 
+            dst_left_upper = dst_of_points(mid_left, mid_upper)
+            dst_right_upper = dst_of_points(mid_right, mid_upper)
+
+            lower_side_left = end_rect[3]
+            lower_side_right = end_rect[2]
+            mid_lower = get_middle_point_of_side(lower_side_left, lower_side_right)
+
+            dst_left_lower = dst_of_points(mid_left, mid_lower)
+            dst_right_lower = dst_of_points(mid_right, mid_lower)
+
+            pass
 
 
 
@@ -757,21 +786,23 @@ if __name__ == '__main__':
     # img = cv2.imread('images/sampleLines.png')
 
     # resize to half of the size
-    # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
 
-    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
-    # hor_all_rec_points = hor_all_rec[0]
-    # hor_all_rec_box = hor_all_rec[1]
-    #
-    # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
-    # ver_all_rec_points = ver_all_rec[0]
-    # ver_all_rec_box = ver_all_rec[1]
-    #
-    # closest = find_closest_horizontal_rect(hor_all_rec_points)
-    # hor_lines_points = draw_connected_middle_points_closest_horizontal(ver_lines, closest)
-    # closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
-    # hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
-    # cv2.imshow("hor with points", hor_lines_points)
+    hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+    hor_all_rec_points = hor_all_rec[0]
+    hor_all_rec_box = hor_all_rec[1]
+
+    ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
+    ver_all_rec_points = ver_all_rec[0]
+    ver_all_rec_box = ver_all_rec[1]
+
+    closest = find_closest_horizontal_rect(hor_all_rec_points)
+    hor_lines_points = draw_connected_middle_points_closest_horizontal(ver_lines, closest)
+    #closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
+    #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
+    cv2.imshow("hor with points", hor_lines_points)
+
+    histogram_closest_distances(closest, 'Alhambra.jpg')
 
     # print(closest)
     #
@@ -779,8 +810,8 @@ if __name__ == '__main__':
     # print("len input: ", len(hor_all_rec_points))
     # print("number of keys: ", len(closest.keys()))
 
-    getAllImages()
-    showResultsHTML()
+    # getAllImages()
+    # showResultsHTML()
 
     # print(lineLength([3,0,9,0]))
 
