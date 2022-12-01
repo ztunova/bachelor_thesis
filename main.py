@@ -246,9 +246,9 @@ def draw_connected_middle_points_closest_horizontal(draw_img, closest_rect):
         # color = random_color()
 
         draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
-        if start_point[0] < end_point[0]:
-            draw_img = cv2.circle(draw_img, end_point, radius, color_start, thickness)
-            draw_img = cv2.line(draw_img, start_point, end_point, color_start, thickness)
+        # if start_point[0] < end_point[0]:
+        #     draw_img = cv2.circle(draw_img, end_point, radius, color_start, thickness)
+        #     draw_img = cv2.line(draw_img, start_point, end_point, color_start, thickness)
 
         draw_img = cv2.circle(draw_img, end_point, radius, (255, 51, 255), thickness)
         draw_img = cv2.line(draw_img, start_point, end_point, (255, 51, 255), thickness)
@@ -257,6 +257,64 @@ def draw_connected_middle_points_closest_horizontal(draw_img, closest_rect):
 
     return draw_img
 
+
+def draw_connected_middle_points_closest_horizontal_histogram_color(draw_img, closest_rect, color, bin_start, bin_end):
+    radius = 2
+    #color_start = (255, 0, 0)
+    thickness = 2
+
+    for start_rec, end_rec in closest_rect.items():
+        if bin_start <= end_rec[1] < bin_end:
+            start_rec_right_upper = start_rec[1]
+            start_rec_right_lower = start_rec[2]
+
+            end_rec_left_upper = end_rec[0][0]
+            end_rec_left_lower = end_rec[0][3]
+
+            start_point = get_middle_point_of_side(start_rec_right_upper, start_rec_right_lower)
+            end_point = get_middle_point_of_side(end_rec_left_upper, end_rec_left_lower)
+
+            # color = random_color()
+
+            draw_img = cv2.circle(draw_img, start_point, radius, color, thickness)
+            if start_point[0] < end_point[0]:
+                draw_img = cv2.circle(draw_img, end_point, radius, color, thickness)
+                draw_img = cv2.line(draw_img, start_point, end_point, color, thickness)
+
+            draw_img = cv2.circle(draw_img, end_point, radius, (255, 51, 255), thickness)
+            draw_img = cv2.line(draw_img, start_point, end_point, (255, 51, 255), thickness)
+
+    #cv2.imshow("connected", draw_img)
+
+    return draw_img
+
+def draw_connected_middle_points_histogram_colors(draw_img, closest_rect, colors, bins, bin_width):
+    #print(len(bins))
+    #print(len(colors))
+    if colors is None:
+        draw_connected_middle_points_closest_horizontal(draw_img, closest_rect)
+
+    for i in range(len(bins)):
+        bin_start = bins[i]
+        bin_end = bin_start + bin_width
+        color = colors[i]
+        print(bin_start, " ", bin_end, " ", color)
+        draw_img = draw_connected_middle_points_closest_horizontal_histogram_color(draw_img, closest_rect, color, bin_start, bin_end)
+
+    return draw_img
+
+
+def clear_hist_data(counts, bins, bin_width):
+    cleared_bins = []
+
+    for i in range(len(counts)):
+        if counts[i] > 0:
+            cleared_bins.append(bins[i])
+
+    # last_value = cleared_bins[len(cleared_bins) - 1] + bin_width + 1
+    # cleared_bins.insert(len(cleared_bins), last_value)
+    #print(cleared_bins)
+    return cleared_bins
 
 # larger m => less outliers removed
 def reject_outliers(data, m=6.):
@@ -268,43 +326,42 @@ def reject_outliers(data, m=6.):
     return data[s < m].tolist()
 
 
-def histogram_closest_distances(closest_rectangles, img_name):
-    rect_hist_area_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_area"
+def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, img_name):
+    #rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_area"
 
     distances = []
+    used_colors = None
+    cleared_bins = None
 
     for value in closest_rectangles.values():
         dst = value[1]
         distances.append(dst)
 
-    binwidth = 10
-    # n, bins, _ = plt.hist(distances, bins=np.arange(min(distances), max(distances) + binwidth, binwidth))
-    #
-    # plt.xlabel(f'min_dst: {min(distances): .3f}, max_dst: {max(distances): .3f}')
-    # plt.ylabel('Frequency')
-    # plt.title('Closest distances between rect')
-
+    binwidth = 5
     fig, ax = plt.subplots(figsize=(8, 4), facecolor='w')
-    cnts, values, bars = ax.hist(distances, edgecolor='k', bins=np.arange(min(distances), max(distances) + binwidth, binwidth))
-    #ax.set_xticks(bars)
-    print(len(bars))
-    print(values)
-    print(np.count_nonzero(cnts))
-
-    plt.xlabel(f'min_dst: {min(distances): .3f}, max_dst: {max(distances): .3f}')
     plt.ylabel('Frequency')
 
-    number_of_bars = np.count_nonzero(cnts)
+    # cnts = number of samples in each bin
+    # values = lower bounds of bins
+    # bars = rectangle definition of each histogram bar
+    if len(distances) > 0:
+        cnts, values, bars = ax.hist(distances, edgecolor='k',
+                                     bins=np.arange(min(distances), max(distances) + binwidth, binwidth))
+        plt.xlabel(f'min_dst: {min(distances): .3f}, max_dst: {max(distances): .3f}')
+        number_of_bars = np.count_nonzero(cnts)
 
-    colors = ['aqua', 'red', 'gold', 'royalblue', 'darkorange', 'green', 'purple', 'cyan', 'yellow', 'lime']
+        colors = ['aqua', 'red', 'gold', 'blue', 'orange', 'green', 'purple', 'cyan', 'yellow', 'lime']
 
-    # for i in range(number_of_bars):
-    #     b, g, r = random_color()
-    #
-    #     colors.append([r/100, g/100, b/100])
+        used_colors = []
+        for i, (cnt, value, bar) in enumerate(zip(cnts, values, bars)):
+            bar.set_facecolor(colors[i % len(colors)])
+            if cnt > 0:
+                used_colors.append(colors[i % len(colors)])
 
-    for i, (cnt, value, bar) in enumerate(zip(cnts, values, bars)):
-        bar.set_facecolor(colors[i % len(colors)])
+        cleared_bins = clear_hist_data(cnts, values, binwidth)
+
+    else:
+        plt.plot([])
 
     # if len(horizontal_rect_box) > 0 or len(vertical_rect_box) > 0:
     #     binwidth = 3
@@ -316,17 +373,20 @@ def histogram_closest_distances(closest_rectangles, img_name):
     # else:
     #     plt.plot([])
 
-    plt.show()
+    #plt.show()
 
-    # name = getResultName(img_name, "hist_dst")
-    # save_dst = rect_hist_area_dir + '/' + name
-    #
-    # all_images = os.listdir(rect_hist_area_dir)
-    # if name in all_images:
-    #     os.remove(save_dst)
-    #
-    # plt.savefig(save_dst)
-    # plt.clf()
+    name = getResultName(img_name, "hist_dst")
+    save_dst = rect_hist_closest_dst_dir + '/' + name
+
+    all_images = os.listdir(rect_hist_closest_dst_dir)
+    if name in all_images:
+        os.remove(save_dst)
+
+    plt.savefig(save_dst)
+    #plt.clf()
+    plt.close(fig)
+
+    return used_colors, cleared_bins, binwidth
 
 
 def plot_histogram_angle():
@@ -743,6 +803,9 @@ def getAllImages():
 
     horizontal_vertical_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_horizontal_vertical"
 
+    hor_rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hor_rect_hist_closest_dst"
+    ver_rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_ver_rect_hist_closest_dst"
+
     all_images = os.listdir(folder_dir)
 
     for image_name in all_images:
@@ -756,53 +819,61 @@ def getAllImages():
 
         horizontal_lines, horizontal_lines_input, horiz_data = detect_horizontal_lines(img)
         closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
-        horizontal_lines_connected = draw_connected_middle_points_closest_horizontal(horizontal_lines.copy(), closest_horizontal)
-        saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
-        saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
+
+        # horizontal_lines_connected = draw_connected_middle_points_closest_horizontal(horizontal_lines.copy(), closest_horizontal)
+        # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
+        # saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
 
         vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
         closest_vertical = find_closest_vertical_rect(vertical_data[0])
-        vertical_lines_connected = draw_connected_middle_points_closest_vertical(vertical_lines, closest_vertical)
-        saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines_connected)
-        saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
 
-        horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
+        # vertical_lines_connected = draw_connected_middle_points_closest_vertical(vertical_lines, closest_vertical)
+        # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines_connected)
+        # saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
+
+        # horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
         # closest_hor_ver = find_closest_vertical_to_horizontal_rec(horiz_data[0], vertical_data[0])
         # horizontal_vertical = draw_connected_middle_points_closest_horizontal_vertical(horizontal_vertical, closest_hor_ver)
-        saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
+        # saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
 
         # hor_rect_box = horiz_data[1]
         # ver_rect_box = vertical_data[1]
         # plot_histogram(hor_rect_box, ver_rect_box, image_name)
         # plot_histogram_area(hor_rect_box, ver_rect_box, image_name)
 
+        histogram_closest_distances(hor_rect_hist_closest_dst_dir, closest_horizontal, image_name)
+        histogram_closest_distances(ver_rect_hist_closest_dst_dir, closest_vertical, image_name)
+
 
 if __name__ == '__main__':
     # load image
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Alhambra.jpg')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Mesa.jpg')
     # img = cv2.imread('images/ERD_basic1_dig.png')
     # img = cv2.imread('images/sudoku.png')
     # img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
     # img = cv2.imread('images/sampleLines.png')
 
     # resize to half of the size
-    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    #
+    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+    # hor_all_rec_points = hor_all_rec[0]
+    # hor_all_rec_box = hor_all_rec[1]
+    #
+    # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
+    # ver_all_rec_points = ver_all_rec[0]
+    # ver_all_rec_box = ver_all_rec[1]
+    #
+    #closest = find_closest_horizontal_rect(hor_all_rec_points)
+    # hor_lines_points = draw_connected_middle_points_closest_horizontal(ver_lines, closest)
+    # #closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
+    # #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
+    # cv2.imshow("hor with points", hor_lines_points)
+    #
+    #colors, bins, binwidth = histogram_closest_distances(closest, 'Alhambra.jpg')
+    # img_color = draw_connected_middle_points_histogram_colors(ver_lines.copy(), closest, colors, bins, binwidth)
+    # cv2.imshow("colors", img_color)
 
-    hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
-    hor_all_rec_points = hor_all_rec[0]
-    hor_all_rec_box = hor_all_rec[1]
-
-    ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
-    ver_all_rec_points = ver_all_rec[0]
-    ver_all_rec_box = ver_all_rec[1]
-
-    closest = find_closest_horizontal_rect(hor_all_rec_points)
-    hor_lines_points = draw_connected_middle_points_closest_horizontal(ver_lines, closest)
-    #closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
-    #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
-    cv2.imshow("hor with points", hor_lines_points)
-
-    histogram_closest_distances(closest, 'Alhambra.jpg')
 
     # print(closest)
     #
@@ -810,8 +881,8 @@ if __name__ == '__main__':
     # print("len input: ", len(hor_all_rec_points))
     # print("number of keys: ", len(closest.keys()))
 
-    # getAllImages()
-    # showResultsHTML()
+    getAllImages()
+    showResultsHTML()
 
     # print(lineLength([3,0,9,0]))
 

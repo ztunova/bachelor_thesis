@@ -22,7 +22,9 @@ def showResultsHTML():
     horizontal_vertical_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_horizontal_vertical"
 
     rect_hist_all_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_all"
-    rect_hist_area_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_area"
+
+    hor_rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hor_rect_hist_closest_dst"
+    ver_rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_ver_rect_hist_closest_dst"
 
     original_images = os.listdir(original_images_dir)
     hlines_images = os.listdir(hlines_images_dir)
@@ -37,7 +39,9 @@ def showResultsHTML():
     horizontal_vertical_images = os.listdir(horizontal_vertical_dir)
 
     hist_all_images = os.listdir(rect_hist_all_dir)
-    hist_area_images = os.listdir(rect_hist_area_dir)
+
+    hist_hor_closest_rect_images = os.listdir(hor_rect_hist_closest_dst_dir)
+    hist_ver_closest_rect_images = os.listdir(ver_rect_hist_closest_dst_dir)
 
     html_head = """
     <head>
@@ -74,7 +78,9 @@ def showResultsHTML():
         horizontal_vertical_path = horizontal_vertical_dir + '/' + horizontal_vertical_images[i]
 
         hist_path = rect_hist_all_dir + '/' + hist_all_images[i]
-        hist_area_path = rect_hist_area_dir + '/' + hist_area_images[i]
+
+        hist_hor_closest_rec_path = hor_rect_hist_closest_dst_dir + '/' + hist_hor_closest_rect_images[i]
+        hist_ver_closest_rec_path = ver_rect_hist_closest_dst_dir + '/' + hist_ver_closest_rect_images[i]
 
         img = cv2.imread(original_img_path)
         height, width = img.shape[:2]
@@ -85,12 +91,13 @@ def showResultsHTML():
                         "<td><img src= \"" + original_img_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + hlines_img_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + hlines_input_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
-                        "<td><img src=\"" + hist_area_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + hist_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + horizontal_vertical_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + horizontal_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
-                        "<td><img src=\"" + horizontal_input_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
+                        "<td><img src=\"" + hist_hor_closest_rec_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + vertical_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
+                        "<td><img src=\"" + hist_ver_closest_rec_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
+                        "<td><img src=\"" + horizontal_input_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + vertical_input_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                     "</tr>\n"
         html_table = html_table + table_rov_info + "\n" + table_rov
