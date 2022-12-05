@@ -382,9 +382,10 @@ def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, i
     if name in all_images:
         os.remove(save_dst)
 
-    plt.savefig(save_dst)
-    #plt.clf()
-    plt.close(fig)
+    #plt.savefig(save_dst)
+    #plt.close(fig)
+
+    plt.show()
 
     return used_colors, cleared_bins, binwidth
 
@@ -845,46 +846,69 @@ def getAllImages():
         histogram_closest_distances(ver_rect_hist_closest_dst_dir, closest_vertical, image_name)
 
 
+def lines_by_hist_bins(bins, bin_width, closest_data, img, boundary, dir, name):
+
+    for i in range(boundary):
+        max_length = bins[i] + bin_width
+
+        for start_rec, end_rec in closest_data.items():
+            dst = end_rec[1]
+            if dst <= max_length:
+                start_rec_right_upper = start_rec[1]
+                start_rec_right_lower = start_rec[2]
+
+                end_rec_left_upper = end_rec[0][0]
+                end_rec_left_lower = end_rec[0][3]
+
+                start_point = get_middle_point_of_side(start_rec_right_upper, start_rec_right_lower)
+                end_point = get_middle_point_of_side(end_rec_left_upper, end_rec_left_lower)
+
+                img = cv2.circle(img, end_point, 2, (255, 51, 255), 2)
+                img = cv2.line(img, start_point, end_point, (255, 51, 255), 2)
+
+    #cv2.imshow("limited by bin", img)
+
+    dst = dir + '/' + name
+
+    cv2.imwrite(dst, img)
+
+
 if __name__ == '__main__':
     # load image
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Mesa.jpg')
-    # img = cv2.imread('images/ERD_basic1_dig.png')
-    # img = cv2.imread('images/sudoku.png')
-    # img = cv2.imread('images/ERD_simple_HW_noText_smaller.jpg')
-    # img = cv2.imread('images/sampleLines.png')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Alhambra.jpg')
+    img_copy = img.copy()
 
     # resize to half of the size
-    # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    #img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
     #
-    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
-    # hor_all_rec_points = hor_all_rec[0]
-    # hor_all_rec_box = hor_all_rec[1]
-    #
+    hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+    hor_all_rec_points = hor_all_rec[0]
+    hor_all_rec_box = hor_all_rec[1]
+
+    hor_lines_copy = copy.deepcopy(hor_lines)
+
     # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
+
     # ver_all_rec_points = ver_all_rec[0]
     # ver_all_rec_box = ver_all_rec[1]
-    #
-    #closest = find_closest_horizontal_rect(hor_all_rec_points)
-    # hor_lines_points = draw_connected_middle_points_closest_horizontal(ver_lines, closest)
+
+    closest = find_closest_horizontal_rect(hor_all_rec_points)
+    hor_lines_points = draw_connected_middle_points_closest_horizontal(hor_lines, closest)
+    #cv2.imshow("colors", hor_lines_points)
+
     # #closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
     # #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
     # cv2.imshow("hor with points", hor_lines_points)
+
+    pokus = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'
+    colors, bins, binwidth = histogram_closest_distances(pokus, closest, 'Alhambra.jpg')
+
+    lines_by_hist_bins(bins, binwidth, closest, hor_lines_copy, 2, pokus, 'Alhambra2.jpg')
     #
-    #colors, bins, binwidth = histogram_closest_distances(closest, 'Alhambra.jpg')
-    # img_color = draw_connected_middle_points_histogram_colors(ver_lines.copy(), closest, colors, bins, binwidth)
-    # cv2.imshow("colors", img_color)
+    # print(bins)
 
-
-    # print(closest)
-    #
-    # print('---------')
-    # print("len input: ", len(hor_all_rec_points))
-    # print("number of keys: ", len(closest.keys()))
-
-    getAllImages()
-    showResultsHTML()
-
-    # print(lineLength([3,0,9,0]))
+    # getAllImages()
+    # showResultsHTML()
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
