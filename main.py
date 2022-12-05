@@ -345,9 +345,15 @@ def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, i
     # values = lower bounds of bins
     # bars = rectangle definition of each histogram bar
     if len(distances) > 0:
+        distances = reject_outliers(distances)
+
         cnts, values, bars = ax.hist(distances, edgecolor='k',
                                      bins=np.arange(min(distances), max(distances) + binwidth, binwidth))
-        plt.xlabel(f'min_dst: {min(distances): .3f}, max_dst: {max(distances): .3f}')
+
+        #cnts, values, bars = ax.hist(distances, edgecolor='k', bins='auto')
+        binwidth = values[1] - values[0]
+        plt.xlabel(f'bin width: {binwidth: .3f}, min_dst: {min(distances): .3f}, max_dst: {max(distances): .3f}')
+
         number_of_bars = np.count_nonzero(cnts)
 
         colors = ['aqua', 'red', 'gold', 'blue', 'orange', 'green', 'purple', 'cyan', 'yellow', 'lime']
@@ -363,18 +369,6 @@ def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, i
     else:
         plt.plot([])
 
-    # if len(horizontal_rect_box) > 0 or len(vertical_rect_box) > 0:
-    #     binwidth = 3
-    #     n, bins, _ = plt.hist(area, bins=np.arange(min(area), max(area) + binwidth, binwidth))
-    #
-    #     plt.xlabel(f'min_area: {min(area): .3f}, max_area: {max(area): .3f}')
-    #     plt.ylabel('Frequency')
-    #     plt.title('Area of rect')
-    # else:
-    #     plt.plot([])
-
-    #plt.show()
-
     name = getResultName(img_name, "hist_dst")
     save_dst = rect_hist_closest_dst_dir + '/' + name
 
@@ -382,10 +376,10 @@ def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, i
     if name in all_images:
         os.remove(save_dst)
 
-    #plt.savefig(save_dst)
-    #plt.close(fig)
+    plt.savefig(save_dst)
+    plt.close(fig)
 
-    plt.show()
+    #plt.show()
 
     return used_colors, cleared_bins, binwidth
 
@@ -853,7 +847,7 @@ def lines_by_hist_bins(bins, bin_width, closest_data, img, boundary, dir, name):
 
         for start_rec, end_rec in closest_data.items():
             dst = end_rec[1]
-            if dst <= max_length:
+            if dst < max_length:
                 start_rec_right_upper = start_rec[1]
                 start_rec_right_lower = start_rec[2]
 
@@ -868,14 +862,20 @@ def lines_by_hist_bins(bins, bin_width, closest_data, img, boundary, dir, name):
 
     #cv2.imshow("limited by bin", img)
 
-    dst = dir + '/' + name
+    #dst = dir + '/' + name
 
-    cv2.imwrite(dst, img)
+    #cv2.imwrite(dst, img)
+    saveImage(dir, name, str(boundary), img)
+
+
+def depict_all_bins_separetly(bins, binwidth, closest, img, dir, name):
+    for i in range(1, len(bins)):
+        lines_by_hist_bins(bins, binwidth, closest, img, i, dir, name)
 
 
 if __name__ == '__main__':
     # load image
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Alhambra.jpg')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Anaheim.jpg')
     img_copy = img.copy()
 
     # resize to half of the size
@@ -894,16 +894,18 @@ if __name__ == '__main__':
 
     closest = find_closest_horizontal_rect(hor_all_rec_points)
     hor_lines_points = draw_connected_middle_points_closest_horizontal(hor_lines, closest)
-    #cv2.imshow("colors", hor_lines_points)
+    # cv2.imshow("colors", hor_lines_points)
 
     # #closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
     # #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
     # cv2.imshow("hor with points", hor_lines_points)
 
     pokus = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'
-    colors, bins, binwidth = histogram_closest_distances(pokus, closest, 'Alhambra.jpg')
+    colors, bins, binwidth = histogram_closest_distances(pokus, closest, 'Anaheim.jpg')
 
-    lines_by_hist_bins(bins, binwidth, closest, hor_lines_copy, 2, pokus, 'Alhambra2.jpg')
+    #lines_by_hist_bins(bins, binwidth, closest, hor_lines_copy, 2, pokus, 'Alhambra.jpg')
+    depict_all_bins_separetly(bins, binwidth, closest, hor_lines_copy, pokus, 'Anaheim.jpg')
+
     #
     # print(bins)
 
