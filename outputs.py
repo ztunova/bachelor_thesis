@@ -85,7 +85,7 @@ def showResultsHTML():
         img = cv2.imread(original_img_path)
         height, width = img.shape[:2]
         table_rov_info = "<tr>" \
-                            "<td>" + original_images[i] + "\n hxw: "+ str(height) + " x " + str(width) + "</td>"\
+                            "<td>" + original_images[i] + "\n hxw: " + str(height) + " x " + str(width) + "</td>"\
                          "</tr>"
         table_rov = "<tr>" \
                         "<td><img src= \"" + original_img_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
