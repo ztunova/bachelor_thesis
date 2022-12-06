@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
+from output_lines_by_hist_script import lines_by_hist_html
 from outputs import showResultsHTML
 from numpy import linalg as LA
 
@@ -873,6 +874,31 @@ def depict_all_bins_separetly(bins, binwidth, closest, img, dir, name):
         lines_by_hist_bins(bins, binwidth, closest, img, i, dir, name)
 
 
+def lines_by_hist_for_certain_images():
+    all_img_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1'
+    results_parent_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'
+    text_file_dir = results_parent_dir + '/vzorove_obr_pre_histogrami.txt'
+
+    results_dirs = os.listdir(results_parent_dir)
+
+    file = open(text_file_dir, 'r')
+    lines = file.readlines()
+
+    for i in range(len(lines)):
+        name = lines[i].replace("\n", "")
+        img_dir = all_img_dir + '/' + name
+        img = cv2.imread(img_dir)
+
+        result_dir = results_parent_dir + '/' + results_dirs[i]
+
+        hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+        hor_all_rec_points = hor_all_rec[0]
+        closest = find_closest_horizontal_rect(hor_all_rec_points)
+        colors, bins, binwidth = histogram_closest_distances(result_dir, closest, name)
+        depict_all_bins_separetly(bins, binwidth, closest, hor_lines, result_dir, name)
+
+
+
 if __name__ == '__main__':
     # load image
     img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Anaheim.jpg')
@@ -881,36 +907,41 @@ if __name__ == '__main__':
     # resize to half of the size
     #img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
     #
-    hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
-    hor_all_rec_points = hor_all_rec[0]
-    hor_all_rec_box = hor_all_rec[1]
-
-    hor_lines_copy = copy.deepcopy(hor_lines)
-
-    # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
-
-    # ver_all_rec_points = ver_all_rec[0]
-    # ver_all_rec_box = ver_all_rec[1]
-
-    closest = find_closest_horizontal_rect(hor_all_rec_points)
-    hor_lines_points = draw_connected_middle_points_closest_horizontal(hor_lines, closest)
-    # cv2.imshow("colors", hor_lines_points)
-
-    # #closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
-    # #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
-    # cv2.imshow("hor with points", hor_lines_points)
-
-    pokus = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'
-    colors, bins, binwidth = histogram_closest_distances(pokus, closest, 'Anaheim.jpg')
-
-    #lines_by_hist_bins(bins, binwidth, closest, hor_lines_copy, 2, pokus, 'Alhambra.jpg')
-    depict_all_bins_separetly(bins, binwidth, closest, hor_lines_copy, pokus, 'Anaheim.jpg')
+    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+    # hor_all_rec_points = hor_all_rec[0]
+    # hor_all_rec_box = hor_all_rec[1]
+    #
+    # hor_lines_copy = copy.deepcopy(hor_lines)
+    #
+    # # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
+    #
+    # # ver_all_rec_points = ver_all_rec[0]
+    # # ver_all_rec_box = ver_all_rec[1]
+    #
+    # closest = find_closest_horizontal_rect(hor_all_rec_points)
+    # hor_lines_points = draw_connected_middle_points_closest_horizontal(hor_lines, closest)
+    # # cv2.imshow("colors", hor_lines_points)
+    #
+    # # #closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
+    # # #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
+    # # cv2.imshow("hor with points", hor_lines_points)
+    #
+    # pokus = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'
+    # colors, bins, binwidth = histogram_closest_distances(pokus, closest, 'Anaheim.jpg')
+    #
+    # #lines_by_hist_bins(bins, binwidth, closest, hor_lines_copy, 2, pokus, 'Alhambra.jpg')
+    # depict_all_bins_separetly(bins, binwidth, closest, hor_lines_copy, pokus, 'Anaheim.jpg')
 
     #
     # print(bins)
 
     # getAllImages()
     # showResultsHTML()
+
+    #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
+
+    #lines_by_hist_for_certain_images()
+    lines_by_hist_html()
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
