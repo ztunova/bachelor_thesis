@@ -94,7 +94,7 @@ def showResultsHTML():
                         "<td><img src=\"" + hist_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + horizontal_vertical_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + horizontal_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
-                        "<td><img src=\"" + hist_hor_closest_rec_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
+                        "<td><img src=\"" + hist_hor_closest_rec_path + "\" alt=\"Sth went wrong\" width=\"600\" height=\"400\"></td>" \
                         "<td><img src=\"" + vertical_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + hist_ver_closest_rec_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
                         "<td><img src=\"" + horizontal_input_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>" \
