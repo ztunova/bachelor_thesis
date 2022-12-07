@@ -261,7 +261,6 @@ def draw_connected_middle_points_closest_horizontal(draw_img, closest_rect):
 
 def draw_connected_middle_points_closest_horizontal_histogram_color(draw_img, closest_rect, color, bin_start, bin_end):
     radius = 2
-    #color_start = (255, 0, 0)
     thickness = 2
 
     for start_rec, end_rec in closest_rect.items():
@@ -275,23 +274,30 @@ def draw_connected_middle_points_closest_horizontal_histogram_color(draw_img, cl
             start_point = get_middle_point_of_side(start_rec_right_upper, start_rec_right_lower)
             end_point = get_middle_point_of_side(end_rec_left_upper, end_rec_left_lower)
 
-            # color = random_color()
-
             draw_img = cv2.circle(draw_img, start_point, radius, color, thickness)
-            if start_point[0] < end_point[0]:
-                draw_img = cv2.circle(draw_img, end_point, radius, color, thickness)
-                draw_img = cv2.line(draw_img, start_point, end_point, color, thickness)
-
-            draw_img = cv2.circle(draw_img, end_point, radius, (255, 51, 255), thickness)
-            draw_img = cv2.line(draw_img, start_point, end_point, (255, 51, 255), thickness)
+            # if start_point[0] < end_point[0]:
+            draw_img = cv2.circle(draw_img, end_point, radius, color, thickness)
+            draw_img = cv2.line(draw_img, start_point, end_point, color, thickness)
 
     #cv2.imshow("connected", draw_img)
 
     return draw_img
 
 def draw_connected_middle_points_histogram_colors(draw_img, closest_rect, colors, bins, bin_width):
-    #print(len(bins))
-    #print(len(colors))
+    # rgb
+    # bgr
+    all_colors = {
+        'aqua': (255, 255, 0),
+        'red': (0, 0, 255),
+        'blue': (255, 0, 0),
+        'orange': (0, 128, 255),
+        'green': (0, 128, 0),
+        'purple': (128, 0, 128),
+        'maroon': (0, 0, 128),
+        'yellow': (0, 255, 255),
+        'lime': (0, 255, 0)
+    }
+
     if colors is None:
         draw_connected_middle_points_closest_horizontal(draw_img, closest_rect)
 
@@ -299,8 +305,9 @@ def draw_connected_middle_points_histogram_colors(draw_img, closest_rect, colors
         bin_start = bins[i]
         bin_end = bin_start + bin_width
         color = colors[i]
-        print(bin_start, " ", bin_end, " ", color)
-        draw_img = draw_connected_middle_points_closest_horizontal_histogram_color(draw_img, closest_rect, color, bin_start, bin_end)
+        bgr_color = all_colors[color]
+        # print(bin_start, " ", bin_end, " ", color)
+        draw_img = draw_connected_middle_points_closest_horizontal_histogram_color(draw_img, closest_rect, bgr_color, bin_start, bin_end)
 
     return draw_img
 
@@ -339,7 +346,7 @@ def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, i
         distances.append(dst)
 
     binwidth = 5
-    fig, ax = plt.subplots(figsize=(8, 4), facecolor='w')
+    fig, ax = plt.subplots(figsize=(16, 4), facecolor='w')
     plt.ylabel('Frequency')
 
     # cnts = number of samples in each bin
@@ -357,7 +364,7 @@ def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, i
 
         number_of_bars = np.count_nonzero(cnts)
 
-        colors = ['aqua', 'red', 'gold', 'blue', 'orange', 'green', 'purple', 'cyan', 'yellow', 'lime']
+        colors = ['aqua', 'red', 'blue', 'orange', 'green', 'purple', 'maroon', 'yellow', 'lime']
 
         used_colors = []
         for i, (cnt, value, bar) in enumerate(zip(cnts, values, bars)):
@@ -633,10 +640,10 @@ def find_closest_horizontal_rect(all_hor_rect):
                     closest_rect = end_rec
                     min_dst = dst_act
         mid_closest = get_middle_point_of_side(closest_rect[0], closest_rect[3])
-        if mid_start[0] < mid_closest[0]:
-            key = tuple(map(tuple, start_rec))
-            value = tuple(map(tuple, closest_rect))
-            closest_results[key] = [value, min_dst]
+        # if mid_start[0] < mid_closest[0]:
+        key = tuple(map(tuple, start_rec))
+        value = tuple(map(tuple, closest_rect))
+        closest_results[key] = [value, min_dst]
 
     return closest_results
 
@@ -902,23 +909,24 @@ def lines_by_hist_for_certain_images():
 if __name__ == '__main__':
     # load image
     img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Anaheim.jpg')
-    img_copy = img.copy()
+    #img_copy = img.copy()
 
     # resize to half of the size
-    #img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
     #
-    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
-    # hor_all_rec_points = hor_all_rec[0]
-    # hor_all_rec_box = hor_all_rec[1]
-    #
-    # hor_lines_copy = copy.deepcopy(hor_lines)
-    #
+    hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+    hor_all_rec_points = hor_all_rec[0]
+    hor_all_rec_box = hor_all_rec[1]
+
+    hor_lines_copy = copy.deepcopy(hor_lines)
+    # cv2.imshow("hlc", hor_lines_copy)
+
     # # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
     #
     # # ver_all_rec_points = ver_all_rec[0]
     # # ver_all_rec_box = ver_all_rec[1]
     #
-    # closest = find_closest_horizontal_rect(hor_all_rec_points)
+    closest = find_closest_horizontal_rect(hor_all_rec_points)
     # hor_lines_points = draw_connected_middle_points_closest_horizontal(hor_lines, closest)
     # # cv2.imshow("colors", hor_lines_points)
     #
@@ -926,8 +934,10 @@ if __name__ == '__main__':
     # # #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
     # # cv2.imshow("hor with points", hor_lines_points)
     #
-    # pokus = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'
-    # colors, bins, binwidth = histogram_closest_distances(pokus, closest, 'Anaheim.jpg')
+    pokus = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'
+    colors, bins, binwidth = histogram_closest_distances(pokus, closest, 'Anaheim.jpg')
+    img_copy = draw_connected_middle_points_histogram_colors(hor_lines_copy, closest, colors, bins, binwidth)
+    cv2.imshow("colors", img_copy)
     #
     # #lines_by_hist_bins(bins, binwidth, closest, hor_lines_copy, 2, pokus, 'Alhambra.jpg')
     # depict_all_bins_separetly(bins, binwidth, closest, hor_lines_copy, pokus, 'Anaheim.jpg')
@@ -940,8 +950,8 @@ if __name__ == '__main__':
 
     #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
 
-    #lines_by_hist_for_certain_images()
-    lines_by_hist_html()
+    # lines_by_hist_for_certain_images()
+    # lines_by_hist_html()
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
