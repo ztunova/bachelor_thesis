@@ -301,6 +301,9 @@ def draw_connected_middle_points_histogram_colors(draw_img, closest_rect, colors
     if colors is None:
         draw_connected_middle_points_closest_horizontal(draw_img, closest_rect)
 
+    if bins is None:
+        return draw_img
+
     for i in range(len(bins)):
         bin_start = bins[i]
         bin_end = bin_start + bin_width
@@ -827,8 +830,8 @@ def getAllImages():
         # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
         # saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
 
-        vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
-        closest_vertical = find_closest_vertical_rect(vertical_data[0])
+        # vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
+        # closest_vertical = find_closest_vertical_rect(vertical_data[0])
 
         # vertical_lines_connected = draw_connected_middle_points_closest_vertical(vertical_lines, closest_vertical)
         # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines_connected)
@@ -844,8 +847,10 @@ def getAllImages():
         # plot_histogram(hor_rect_box, ver_rect_box, image_name)
         # plot_histogram_area(hor_rect_box, ver_rect_box, image_name)
 
-        histogram_closest_distances(hor_rect_hist_closest_dst_dir, closest_horizontal, image_name)
-        histogram_closest_distances(ver_rect_hist_closest_dst_dir, closest_vertical, image_name)
+        colors, bins, binwidth = histogram_closest_distances(hor_rect_hist_closest_dst_dir, closest_horizontal, image_name)
+        hor_lines_colors = draw_connected_middle_points_histogram_colors(horizontal_lines, closest_horizontal, colors, bins, binwidth)
+        saveImage(horizontal_lines_dir, image_name, 'hstColors', hor_lines_colors)
+        # histogram_closest_distances(ver_rect_hist_closest_dst_dir, closest_vertical, image_name)
 
 
 def lines_by_hist_bins(bins, bin_width, closest_data, img, boundary, dir, name):
@@ -912,13 +917,13 @@ if __name__ == '__main__':
     #img_copy = img.copy()
 
     # resize to half of the size
-    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    # #
+    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+    # hor_all_rec_points = hor_all_rec[0]
+    # hor_all_rec_box = hor_all_rec[1]
     #
-    hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
-    hor_all_rec_points = hor_all_rec[0]
-    hor_all_rec_box = hor_all_rec[1]
-
-    hor_lines_copy = copy.deepcopy(hor_lines)
+    # hor_lines_copy = copy.deepcopy(hor_lines)
     # cv2.imshow("hlc", hor_lines_copy)
 
     # # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
@@ -926,7 +931,7 @@ if __name__ == '__main__':
     # # ver_all_rec_points = ver_all_rec[0]
     # # ver_all_rec_box = ver_all_rec[1]
     #
-    closest = find_closest_horizontal_rect(hor_all_rec_points)
+    # closest = find_closest_horizontal_rect(hor_all_rec_points)
     # hor_lines_points = draw_connected_middle_points_closest_horizontal(hor_lines, closest)
     # # cv2.imshow("colors", hor_lines_points)
     #
@@ -934,10 +939,10 @@ if __name__ == '__main__':
     # # #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
     # # cv2.imshow("hor with points", hor_lines_points)
     #
-    pokus = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'
-    colors, bins, binwidth = histogram_closest_distances(pokus, closest, 'Anaheim.jpg')
-    img_copy = draw_connected_middle_points_histogram_colors(hor_lines_copy, closest, colors, bins, binwidth)
-    cv2.imshow("colors", img_copy)
+    # pokus = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'
+    # colors, bins, binwidth = histogram_closest_distances(pokus, closest, 'Anaheim.jpg')
+    # img_copy = draw_connected_middle_points_histogram_colors(hor_lines_copy, closest, colors, bins, binwidth)
+    # cv2.imshow("colors", img_copy)
     #
     # #lines_by_hist_bins(bins, binwidth, closest, hor_lines_copy, 2, pokus, 'Alhambra.jpg')
     # depict_all_bins_separetly(bins, binwidth, closest, hor_lines_copy, pokus, 'Anaheim.jpg')
@@ -945,8 +950,8 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    # getAllImages()
-    # showResultsHTML()
+    getAllImages()
+    showResultsHTML()
 
     #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
 
