@@ -10,16 +10,19 @@ def get_order_from_img_name(img_name):
 
     order = img_name[underscore_index:exten_index]
 
-    if order != 'hist_dst':
-        return int(order)
-    else:
+    if order == 'hist_dst':
         return 0
+    elif order == 'hist_dst_res':
+        return -1
+    else:
+        return int(order)
 
 
 def lines_by_hist_html():
-    parent_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'
+    parent_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist/fix_bins'
+    #parent_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist/auto_bins'
     subdirs = os.listdir(parent_dir)
-    subdirs.remove('vzorove_obr_pre_histogrami.txt')
+    #subdirs.remove('vzorove_obr_pre_histogrami.txt')
 
 
     html_table = """
@@ -48,7 +51,7 @@ def lines_by_hist_html():
 
             table_rov_info_data = "<td>" + content[i] + "\n hxw: " + str(height) + " x " + str(width) + "</td>"
 
-            table_data = "<td><img src= \"" + img_path + "\" alt=\"Sth went wrong\" width=\"450\" height=\"500\"></td>"
+            table_data = "<td><img src= \"" + img_path + "\" alt=\"Sth went wrong\" width=\"500\" height=\"450\"></td>"
 
             table_rov_info = table_rov_info + table_rov_info_data
             table_rov = table_rov + table_data
