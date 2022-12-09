@@ -358,10 +358,10 @@ def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, i
     if len(distances) > 0:
         distances = reject_outliers(distances)
 
-        cnts, values, bars = ax.hist(distances, edgecolor='k',
-                                     bins=np.arange(min(distances), max(distances) + binwidth, binwidth))
+        # cnts, values, bars = ax.hist(distances, edgecolor='k',
+        #                              bins=np.arange(min(distances), max(distances) + binwidth, binwidth))
 
-        #cnts, values, bars = ax.hist(distances, edgecolor='k', bins='auto')
+        cnts, values, bars = ax.hist(distances, edgecolor='k', bins='auto')
         binwidth = values[1] - values[0]
         plt.xlabel(f'bin width: {binwidth: .3f}, min_dst: {min(distances): .3f}, max_dst: {max(distances): .3f}')
 
@@ -774,6 +774,9 @@ def detectLinesHough(img):
 
 
 def getResultName(img_name, description):
+    if description == '':
+        return img_name
+
     start = len(img_name) - 6
     exten_index = img_name.find('.', start)
     result_name = img_name[:exten_index] + '_' + description + img_name[exten_index:]
@@ -797,7 +800,9 @@ def getAllImages():
     # dst_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines"
     # input_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines_input"
 
-    folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
+    # folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
+    folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized"
+
     dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines"
     input_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines_input"
 
@@ -888,8 +893,9 @@ def depict_all_bins_separetly(bins, binwidth, closest, img, dir, name):
 
 def lines_by_hist_for_certain_images():
     all_img_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1'
-    results_parent_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'
-    text_file_dir = results_parent_dir + '/vzorove_obr_pre_histogrami.txt'
+    results_parent_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist/fix_bins'
+    #results_parent_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist/auto_bins'
+    text_file_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist/vzorove_obr_pre_histogrami.txt'
 
     results_dirs = os.listdir(results_parent_dir)
 
@@ -910,11 +916,45 @@ def lines_by_hist_for_certain_images():
         depict_all_bins_separetly(bins, binwidth, closest, hor_lines, result_dir, name)
 
 
+def get_new_image_size(orig_height, orig_width):
+    new_longer_side_px = 1000
+
+    if orig_width >= orig_height:
+        new_width = new_longer_side_px
+        new_height = (new_longer_side_px * orig_height) / orig_width
+    else:
+        new_height = new_longer_side_px
+        new_width = (new_longer_side_px * orig_width) / orig_height
+
+    return int(new_height), int(new_width)
+
+
+def resize_all_images():
+    source_dst = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
+    result_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized"
+
+    all_images = os.listdir(source_dst)
+
+    for img_name in all_images:
+        img_path = source_dst + '/' + img_name
+        img = cv2.imread(img_path)
+
+        orig_height, orig_width = img.shape[:2]
+        new_height, new_width = get_new_image_size(orig_height, orig_width)
+
+        # !!! cv2. resize has order of new values: (width, height)
+        resized_img = cv2.resize(img, (new_width, new_height))
+        saveImage(result_dir, img_name, '', resized_img)
+
+
 
 if __name__ == '__main__':
+
+    # resize_all_images()
+
     # load image
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Anaheim.jpg')
-    #img_copy = img.copy()
+    # img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Anaheim.jpg')
+    # img_copy = img.copy()
 
     # resize to half of the size
     # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
@@ -950,13 +990,19 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    getAllImages()
-    showResultsHTML()
+    # getAllImages()
+    # showResultsHTML()
 
     #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
 
-    # lines_by_hist_for_certain_images()
+    #lines_by_hist_for_certain_images()
     # lines_by_hist_html()
+    #
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # print(get_new_image_size(550, 561))
+    # print(get_new_image_size(1058, 522))
+
+    res = getResultName("pokus.pg", '')
+    print(res)
