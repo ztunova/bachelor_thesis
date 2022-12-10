@@ -167,8 +167,35 @@ def draw_rectangles(draw_img, rect_points, horizontal):
     return draw_img
 
 
+def draw_connected_middle_points_max_length(draw_img, closest_rect, max_dst):
+    if closest_rect is None:
+        return draw_img
+
+    radius = 2
+    color_start = (255, 0, 0)
+    thickness = 2
+
+    for start_rec, end_rec in closest_rect.items():
+        start_rec_right_upper = start_rec[1]
+        start_rec_right_lower = start_rec[2]
+
+        end_rec_left_upper = end_rec[0][0]
+        end_rec_left_lower = end_rec[0][3]
+
+        start_point = get_middle_point_of_side(start_rec_right_upper, start_rec_right_lower)
+        end_point = get_middle_point_of_side(end_rec_left_upper, end_rec_left_lower)
+
+        dst = end_rec[1]
+
+        if dst < max_dst:
+            draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
+            draw_img = cv2.circle(draw_img, end_point, radius, (255, 51, 255), thickness)
+            draw_img = cv2.line(draw_img, start_point, end_point, (255, 51, 255), thickness)
+
+    return draw_img
+
 def draw_connected_middle_points_closest_horizontal_vertical(draw_img, closest_rect):
-    if closest_rect == None:
+    if closest_rect is None:
         return draw_img
     radius = 2
     color_start = (255, 0, 0)
@@ -230,6 +257,9 @@ def draw_connected_middle_points_closest_vertical(draw_img, closest_rect):
 
 
 def draw_connected_middle_points_closest_horizontal(draw_img, closest_rect):
+    if closest_rect is None:
+        return draw_img
+
     radius = 2
     color_start = (255, 0, 0)
     thickness = 2
@@ -629,6 +659,7 @@ def find_closest_vertical_rect(all_ver_rect):
 def find_closest_horizontal_rect(all_hor_rect):
     closest_results = {}
     closest_rect = None
+    real_dst = 0
 
     for start_rec in all_hor_rect:
         start_rec = reorder_rect_points_horizontal_rec(start_rec)
@@ -642,11 +673,16 @@ def find_closest_horizontal_rect(all_hor_rect):
                 if dst_act < min_dst:
                     closest_rect = end_rec
                     min_dst = dst_act
-        mid_closest = get_middle_point_of_side(closest_rect[0], closest_rect[3])
+        # mid_closest = get_middle_point_of_side(closest_rect[0], closest_rect[3])
         # if mid_start[0] < mid_closest[0]:
         key = tuple(map(tuple, start_rec))
-        value = tuple(map(tuple, closest_rect))
-        closest_results[key] = [value, min_dst]
+        if closest_rect is not None:
+            value = tuple(map(tuple, closest_rect))
+            mid_end_closest = get_middle_point_of_side(closest_rect[0], closest_rect[3])
+            real_dst = dst_of_points(mid_start, mid_end_closest)
+        else:
+            value = key
+        closest_results[key] = [value, min_dst, real_dst]
 
     return closest_results
 
@@ -818,6 +854,7 @@ def getAllImages():
     ver_rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_ver_rect_hist_closest_dst"
 
     all_images = os.listdir(folder_dir)
+    # print(all_images)
 
     for image_name in all_images:
         path = folder_dir + '/' + image_name
@@ -832,7 +869,9 @@ def getAllImages():
         closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
 
         # horizontal_lines_connected = draw_connected_middle_points_closest_horizontal(horizontal_lines.copy(), closest_horizontal)
-        # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
+        horizontal_lines_connected = draw_connected_middle_points_max_length(horizontal_lines.copy(), closest_horizontal, 20)
+        # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
+        saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
         # saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
 
         # vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
@@ -852,9 +891,10 @@ def getAllImages():
         # plot_histogram(hor_rect_box, ver_rect_box, image_name)
         # plot_histogram_area(hor_rect_box, ver_rect_box, image_name)
 
-        colors, bins, binwidth = histogram_closest_distances(hor_rect_hist_closest_dst_dir, closest_horizontal, image_name)
-        hor_lines_colors = draw_connected_middle_points_histogram_colors(horizontal_lines, closest_horizontal, colors, bins, binwidth)
-        saveImage(horizontal_lines_dir, image_name, 'hstColors', hor_lines_colors)
+        # colors, bins, binwidth = histogram_closest_distances(hor_rect_hist_closest_dst_dir, closest_horizontal, image_name)
+        # hor_lines_colors = draw_connected_middle_points_histogram_colors(horizontal_lines, closest_horizontal, colors, bins, binwidth)
+        # saveImage(horizontal_lines_dir, image_name, 'hstColors', hor_lines_colors)
+
         # histogram_closest_distances(ver_rect_hist_closest_dst_dir, closest_vertical, image_name)
 
 
@@ -943,7 +983,7 @@ def resize_all_images():
         new_height, new_width = get_new_image_size(orig_height, orig_width)
 
         # !!! cv2. resize has order of new values: (width, height)
-        resized_img = cv2.resize(img, (new_width, new_height))
+        resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
         saveImage(result_dir, img_name, '', resized_img)
 
 
@@ -952,17 +992,15 @@ if __name__ == '__main__':
 
     # resize_all_images()
 
-    # load image
-    # img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Anaheim.jpg')
-    # img_copy = img.copy()
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized/ElMonte.jpg')
+    # # img_copy = img.copy()
+    # # resize to half of the size
+    # # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
 
-    # resize to half of the size
-    # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
-    # #
     # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
     # hor_all_rec_points = hor_all_rec[0]
-    # hor_all_rec_box = hor_all_rec[1]
-    #
+    # # hor_all_rec_box = hor_all_rec[1]
+
     # hor_lines_copy = copy.deepcopy(hor_lines)
     # cv2.imshow("hlc", hor_lines_copy)
 
@@ -970,10 +1008,13 @@ if __name__ == '__main__':
     #
     # # ver_all_rec_points = ver_all_rec[0]
     # # ver_all_rec_box = ver_all_rec[1]
-    #
+
     # closest = find_closest_horizontal_rect(hor_all_rec_points)
-    # hor_lines_points = draw_connected_middle_points_closest_horizontal(hor_lines, closest)
-    # # cv2.imshow("colors", hor_lines_points)
+    # print(closest)
+    # # hor_lines_points = draw_connected_middle_points_closest_horizontal(hor_lines, closest)
+    # hor_lines_points = draw_connected_middle_points_max_length(hor_lines, closest, 80)
+
+    # cv2.imshow("colors", hor_lines_points)
     #
     # # #closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
     # # #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
@@ -990,19 +1031,19 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    # getAllImages()
-    # showResultsHTML()
+    getAllImages()
+    showResultsHTML()
 
     #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
 
     #lines_by_hist_for_certain_images()
     # lines_by_hist_html()
     #
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
     # print(get_new_image_size(550, 561))
     # print(get_new_image_size(1058, 522))
 
-    res = getResultName("pokus.pg", '')
-    print(res)
+    # res = getResultName("pokus.pg", '')
+    # print(res)
