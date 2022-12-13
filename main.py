@@ -167,7 +167,38 @@ def draw_rectangles(draw_img, rect_points, horizontal):
     return draw_img
 
 
-def draw_connected_middle_points_max_length(draw_img, closest_rect, max_dst):
+def draw_connected_middle_points_max_length_vertical(draw_img, closest_rect, max_dst):
+    if closest_rect is None:
+        return draw_img
+
+    radius = 2
+    color_start = (255, 0, 0)
+    thickness = 2
+
+    for start_rec, end_rec in closest_rect.items():
+        start_rec_left_upper = start_rec[0]
+        start_rec_right_upper = start_rec[1]
+
+        end_rec_left_lower = end_rec[0][3]
+        end_rec_right_lower = end_rec[0][2]
+
+        start_point = get_middle_point_of_side(start_rec_left_upper, start_rec_right_upper)
+        end_point = get_middle_point_of_side(end_rec_left_lower, end_rec_right_lower)
+
+
+        # end_rec[1] = upravena metrika
+        # end_rec[2] = realna metrika
+        dst = end_rec[2]
+
+        if dst < max_dst:
+            draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
+            draw_img = cv2.circle(draw_img, end_point, radius, (255, 51, 255), thickness)
+            draw_img = cv2.line(draw_img, start_point, end_point, (255, 255, 0), thickness)
+
+    return draw_img
+
+
+def draw_connected_middle_points_max_length_horizontal(draw_img, closest_rect, max_dst):
     if closest_rect is None:
         return draw_img
 
@@ -185,7 +216,10 @@ def draw_connected_middle_points_max_length(draw_img, closest_rect, max_dst):
         start_point = get_middle_point_of_side(start_rec_right_upper, start_rec_right_lower)
         end_point = get_middle_point_of_side(end_rec_left_upper, end_rec_left_lower)
 
-        dst = end_rec[1]
+
+        # end_rec[1] = upravena metrika
+        # end_rec[2] = realna metrika
+        dst = end_rec[2]
 
         if dst < max_dst:
             draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
@@ -375,7 +409,8 @@ def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, i
     cleared_bins = None
 
     for value in closest_rectangles.values():
-        dst = value[1]
+        # value[1] = upravena metrika, [2] realna metrika
+        dst = value[2]
         distances.append(dst)
 
     binwidth = 5
@@ -629,11 +664,10 @@ def find_closest_vertical_to_horizontal_rec(all_hor_rect, all_ver_rect):
 
             pass
 
-
-
 def find_closest_vertical_rect(all_ver_rect):
     closest_results = {}
     closest_rect = None
+    real_dst = 0
 
     for start_rec in all_ver_rect:
         start_rec = reorder_rect_points_vertical_rec(start_rec)
@@ -647,11 +681,16 @@ def find_closest_vertical_rect(all_ver_rect):
                 if dst_act < min_dst:
                     closest_rect = end_rec
                     min_dst = dst_act
-        mid_closest = get_middle_point_of_side(closest_rect[3], closest_rect[2])
-        if mid_start[1] > mid_closest[1]:
-            key = tuple(map(tuple, start_rec))
+        # mid_closest = get_middle_point_of_side(closest_rect[3], closest_rect[2])
+        key = tuple(map(tuple, start_rec))
+        if closest_rect is not None:
             value = tuple(map(tuple, closest_rect))
-            closest_results[key] = [value, min_dst]
+            mid_end_closest = get_middle_point_of_side(closest_rect[3], closest_rect[2])
+            real_dst = dst_of_points(mid_start, mid_end_closest)
+        else:
+            value = key
+
+        closest_results[key] = [value, min_dst, real_dst]
 
     return closest_results
 
@@ -708,7 +747,7 @@ def detect_horizontal_lines(img, copy=None):
 
     contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-    min_length = 3
+    min_length = 2
     height, width = img.shape[:2]
     max_length = max(height, width) / 2
 
@@ -718,8 +757,9 @@ def detect_horizontal_lines(img, copy=None):
         box = cv2.boxPoints(rect)
         box = np.int0(box)
 
-        if (rect[1][0] > min_length and rect[1][1] > min_length) and (
-                rect[1][0] < max_length and rect[1][1] < max_length):
+        # if (rect[1][0] > min_length and rect[1][1] > min_length) and (
+        #         rect[1][0] < max_length and rect[1][1] < max_length):
+        if rect[1][0] * rect[1][1] > 20:
             all_rect_box.append(rect)
             all_rect_points.append(box)
             # cv2.drawContours(copy, [box], 0, (0, 255, 0), 2)
@@ -866,25 +906,30 @@ def getAllImages():
         # saveImage(input_dir, image_name, 'input', input_img)
 
         horizontal_lines, horizontal_lines_input, horiz_data = detect_horizontal_lines(img)
-        closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
+        # closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
 
         # horizontal_lines_connected = draw_connected_middle_points_closest_horizontal(horizontal_lines.copy(), closest_horizontal)
-        horizontal_lines_connected = draw_connected_middle_points_max_length(horizontal_lines.copy(), closest_horizontal, 20)
-        # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
-        saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
+        # horizontal_lines_connected = draw_connected_middle_points_max_length_horizontal(horizontal_lines.copy(), closest_horizontal, 30)
+        saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
+        # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
         # saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
 
-        # vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
+        vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
         # closest_vertical = find_closest_vertical_rect(vertical_data[0])
 
         # vertical_lines_connected = draw_connected_middle_points_closest_vertical(vertical_lines, closest_vertical)
+        # vertical_lines_connected = draw_connected_middle_points_max_length_vertical(vertical_lines.copy(), closest_vertical, 30)
+        saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
         # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines_connected)
         # saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
 
-        # horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
+        horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
+        # hor_ver_connected = draw_connected_middle_points_max_length_horizontal(horizontal_vertical, closest_horizontal, 30)
+        # hor_ver_connected = draw_connected_middle_points_max_length_vertical(hor_ver_connected, closest_vertical, 30)
         # closest_hor_ver = find_closest_vertical_to_horizontal_rec(horiz_data[0], vertical_data[0])
         # horizontal_vertical = draw_connected_middle_points_closest_horizontal_vertical(horizontal_vertical, closest_hor_ver)
-        # saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
+        saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
+        # saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', hor_ver_connected)
 
         # hor_rect_box = horiz_data[1]
         # ver_rect_box = vertical_data[1]
@@ -983,7 +1028,7 @@ def resize_all_images():
         new_height, new_width = get_new_image_size(orig_height, orig_width)
 
         # !!! cv2. resize has order of new values: (width, height)
-        resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
+        resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
         saveImage(result_dir, img_name, '', resized_img)
 
 
