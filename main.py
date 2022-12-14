@@ -188,7 +188,7 @@ def draw_connected_middle_points_max_length_vertical(draw_img, closest_rect, max
 
         # end_rec[1] = upravena metrika
         # end_rec[2] = realna metrika
-        dst = end_rec[2]
+        dst = end_rec[1]
 
         if dst < max_dst:
             draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
@@ -219,7 +219,7 @@ def draw_connected_middle_points_max_length_horizontal(draw_img, closest_rect, m
 
         # end_rec[1] = upravena metrika
         # end_rec[2] = realna metrika
-        dst = end_rec[2]
+        dst = end_rec[1]
 
         if dst < max_dst:
             draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
@@ -644,10 +644,10 @@ def find_closest_vertical_to_horizontal_rec(all_hor_rect, all_ver_rect):
         mid_left = get_middle_point_of_side(left_side_upper, left_side_lower)
         min_dst_left = 10000
 
-        right_side_upper = start_rec[1]
-        right_side_lower = start_rec[2]
-        mid_right = get_middle_point_of_side(right_side_upper, right_side_lower)
-        min_dst_right = 10000
+        # right_side_upper = start_rec[1]
+        # right_side_lower = start_rec[2]
+        # mid_right = get_middle_point_of_side(right_side_upper, right_side_lower)
+        # min_dst_right = 10000
 
         for end_rect in all_ver_rect:
             end_rect = reorder_rect_points_vertical_rec(end_rect)
@@ -655,18 +655,29 @@ def find_closest_vertical_to_horizontal_rec(all_hor_rect, all_ver_rect):
             upper_side_left = end_rect[0]
             upper_side_right = end_rect[1]
             mid_upper = get_middle_point_of_side(upper_side_left, upper_side_right)
-
             dst_left_upper = dst_of_points(mid_left, mid_upper)
-            dst_right_upper = dst_of_points(mid_right, mid_upper)
 
-            lower_side_left = end_rect[3]
-            lower_side_right = end_rect[2]
-            mid_lower = get_middle_point_of_side(lower_side_left, lower_side_right)
+            # dst_right_upper = dst_of_points(mid_right, mid_upper)
 
-            dst_left_lower = dst_of_points(mid_left, mid_lower)
-            dst_right_lower = dst_of_points(mid_right, mid_lower)
+            # lower_side_left = end_rect[3]
+            # lower_side_right = end_rect[2]
+            # mid_lower = get_middle_point_of_side(lower_side_left, lower_side_right)
+            #
+            # dst_left_lower = dst_of_points(mid_left, mid_lower)
+            # dst_right_lower = dst_of_points(mid_right, mid_lower)
 
-            pass
+            if dst_left_upper < min_dst_left:
+                closest_left = end_rect
+                min_dst_left = dst_left_upper
+
+        key = tuple(map(tuple, start_rec))
+        if closest_left is not None:
+            value = tuple(map(tuple, closest_left))
+        else:
+            value = key
+        closest_results[key] = [value, min_dst_left]
+
+        return closest_results
 
 def find_closest_vertical_rect(all_ver_rect):
     closest_results = {}
@@ -913,18 +924,18 @@ def getAllImages():
         closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
 
         # horizontal_lines_connected = draw_connected_middle_points_closest_horizontal(horizontal_lines.copy(), closest_horizontal)
-        horizontal_lines_connected = draw_connected_middle_points_max_length_horizontal(horizontal_lines.copy(), closest_horizontal, 30)
+        horizontal_lines_connected = draw_connected_middle_points_max_length_horizontal(horizontal_lines.copy(), closest_horizontal, 37)
         # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
         saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
         # saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
 
-        # vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
-        # closest_vertical = find_closest_vertical_rect(vertical_data[0])
+        vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
+        closest_vertical = find_closest_vertical_rect(vertical_data[0])
 
         # vertical_lines_connected = draw_connected_middle_points_closest_vertical(vertical_lines, closest_vertical)
-        # vertical_lines_connected = draw_connected_middle_points_max_length_vertical(vertical_lines.copy(), closest_vertical, 30)
+        vertical_lines_connected = draw_connected_middle_points_max_length_vertical(vertical_lines.copy(), closest_vertical, 37)
         # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
-        # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines_connected)
+        saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines_connected)
         # saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
 
         # horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
@@ -946,7 +957,7 @@ def getAllImages():
 
         # histogram_closest_distances(ver_rect_hist_closest_dst_dir, closest_vertical, image_name)
 
-        print(image_name)
+        # print(image_name)
 
 
 def lines_by_hist_bins(bins, bin_width, closest_data, img, boundary, dir, name):
