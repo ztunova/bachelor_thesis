@@ -525,6 +525,8 @@ def reorder_rect_points_vertical_rec(rect):
     min_y1 = min(rect, key=lambda rec: rec[1])
     min_y.append(min_y1)
     index = np.where(np.all(rect == min_y1, axis=1))
+    if len(index[0]) > 1:
+        index = index[0][0]
     rect = np.delete(rect, index, axis=0)
     min_y2 = min(rect, key=lambda rec: rec[1])
     min_y.append(min_y2)
@@ -555,6 +557,8 @@ def reorder_rect_points_horizontal_rec(rect):
     max_x1 = max(rect, key=lambda x: x[0])
     max_x.append(max_x1)
     index = np.where(np.all(rect == max_x1, axis=1))
+    if len(index[0]) > 1:
+        index = index[0][0]
     rect = np.delete(rect, index, axis=0)
     max_x2 = max(rect, key=lambda x: x[0])
     max_x.append(max_x2)
@@ -899,36 +903,36 @@ def getAllImages():
     for image_name in all_images:
         path = folder_dir + '/' + image_name
         img = cv2.imread(path)
-        # print(image_name)
+        print(image_name)
 
         # img_hlines, lines, input_img = detectLinesHough(img)
         # saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
         # saveImage(input_dir, image_name, 'input', input_img)
 
         horizontal_lines, horizontal_lines_input, horiz_data = detect_horizontal_lines(img)
-        # closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
+        closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
 
         # horizontal_lines_connected = draw_connected_middle_points_closest_horizontal(horizontal_lines.copy(), closest_horizontal)
-        # horizontal_lines_connected = draw_connected_middle_points_max_length_horizontal(horizontal_lines.copy(), closest_horizontal, 30)
-        saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
-        # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
+        horizontal_lines_connected = draw_connected_middle_points_max_length_horizontal(horizontal_lines.copy(), closest_horizontal, 30)
+        # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
+        saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
         # saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
 
-        vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
+        # vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
         # closest_vertical = find_closest_vertical_rect(vertical_data[0])
 
         # vertical_lines_connected = draw_connected_middle_points_closest_vertical(vertical_lines, closest_vertical)
         # vertical_lines_connected = draw_connected_middle_points_max_length_vertical(vertical_lines.copy(), closest_vertical, 30)
-        saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
+        # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
         # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines_connected)
         # saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
 
-        horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
+        # horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
         # hor_ver_connected = draw_connected_middle_points_max_length_horizontal(horizontal_vertical, closest_horizontal, 30)
         # hor_ver_connected = draw_connected_middle_points_max_length_vertical(hor_ver_connected, closest_vertical, 30)
         # closest_hor_ver = find_closest_vertical_to_horizontal_rec(horiz_data[0], vertical_data[0])
         # horizontal_vertical = draw_connected_middle_points_closest_horizontal_vertical(horizontal_vertical, closest_hor_ver)
-        saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
+        # saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
         # saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', hor_ver_connected)
 
         # hor_rect_box = horiz_data[1]
@@ -941,6 +945,8 @@ def getAllImages():
         # saveImage(horizontal_lines_dir, image_name, 'hstColors', hor_lines_colors)
 
         # histogram_closest_distances(ver_rect_hist_closest_dst_dir, closest_vertical, image_name)
+
+        print(image_name)
 
 
 def lines_by_hist_bins(bins, bin_width, closest_data, img, boundary, dir, name):
@@ -1037,7 +1043,7 @@ if __name__ == '__main__':
 
     # resize_all_images()
 
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized/ElMonte.jpg')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized/Leadville.png')
     # # img_copy = img.copy()
     # # resize to half of the size
     # # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
