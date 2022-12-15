@@ -242,21 +242,32 @@ def draw_connected_middle_points_closest_horizontal_vertical(draw_img, closest_r
     for start_rec, end_rec in closest_rect.items():
         start_hor_rec_left_upper = start_rec[0]
         start_hor_rec_left_lower = start_rec[3]
+        start_hor_rec_right_upper = start_rec[1]
+        start_hor_rec_right_lower = start_rec[2]
 
-        end_ver_rec_upper_left = end_rec[0][0]
-        end_ver_rec_upper_right = end_rec[0][1]
+        # draw connection between left side of horizontal rectangle and upper side of closest vertical rectangle
+        closest_ver_left_rect = end_rec[0]
+        end_ver_rec_upper_left = closest_ver_left_rect[0]
+        end_ver_rec_upper_right = closest_ver_left_rect[1]
 
         start_point = get_middle_point_of_side(start_hor_rec_left_upper, start_hor_rec_left_lower)
         end_point = get_middle_point_of_side(end_ver_rec_upper_left, end_ver_rec_upper_right)
-
-        # color = random_color()
 
         draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
         draw_img = cv2.circle(draw_img, end_point, radius, color_start, thickness)
         draw_img = cv2.line(draw_img, start_point, end_point, color_start, thickness)
 
-        # draw_img = cv2.circle(draw_img, end_point, radius, (51, 255, 255), thickness)
-        # draw_img = cv2.line(draw_img, start_point, end_point, (51, 255, 255), thickness)
+        # draw connection between right side of horizontal rectangle and upper side of closest vertical rectangle
+        closest_ver_right_rect = end_rec[1]
+        end_ver_rec_upper_left = closest_ver_right_rect[0]
+        end_ver_rec_upper_right = closest_ver_right_rect[1]
+
+        start_point = get_middle_point_of_side(start_hor_rec_right_upper, start_hor_rec_right_lower)
+        end_point = get_middle_point_of_side(end_ver_rec_upper_left, end_ver_rec_upper_right)
+
+        draw_img = cv2.circle(draw_img, start_point, radius, (51, 255, 255), thickness)
+        draw_img = cv2.circle(draw_img, end_point, radius, (51, 255, 255), thickness)
+        draw_img = cv2.line(draw_img, start_point, end_point, (51, 255, 255), thickness)
 
         # cv2.imshow("connected", draw_img)
 
@@ -647,10 +658,10 @@ def find_closest_vertical_to_horizontal_rec(all_hor_rect, all_ver_rect):
         mid_left = get_middle_point_of_side(left_side_upper, left_side_lower)
         min_dst_left = 10000
 
-        # right_side_upper = start_rec[1]
-        # right_side_lower = start_rec[2]
-        # mid_right = get_middle_point_of_side(right_side_upper, right_side_lower)
-        # min_dst_right = 10000
+        right_side_upper = start_rec[1]
+        right_side_lower = start_rec[2]
+        mid_right = get_middle_point_of_side(right_side_upper, right_side_lower)
+        min_dst_right = 10000
 
         for end_rect in all_ver_rect:
             end_rect = reorder_rect_points_vertical_rec(end_rect)
@@ -658,9 +669,9 @@ def find_closest_vertical_to_horizontal_rec(all_hor_rect, all_ver_rect):
             upper_side_left = end_rect[0]
             upper_side_right = end_rect[1]
             mid_upper = get_middle_point_of_side(upper_side_left, upper_side_right)
-            dst_left_upper = dst_of_points(mid_left, mid_upper)
 
-            # dst_right_upper = dst_of_points(mid_right, mid_upper)
+            dst_left_upper = dst_of_points(mid_left, mid_upper)
+            dst_right_upper = dst_of_points(mid_right, mid_upper)
 
             # lower_side_left = end_rect[3]
             # lower_side_right = end_rect[2]
@@ -672,13 +683,20 @@ def find_closest_vertical_to_horizontal_rec(all_hor_rect, all_ver_rect):
             if dst_left_upper < min_dst_left:
                 closest_left = end_rect
                 min_dst_left = dst_left_upper
+            if dst_right_upper < min_dst_right:
+                closest_right = end_rect
+                min_dst_right = dst_right_upper
 
         key = tuple(map(tuple, start_rec))
         if closest_left is not None:
-            value = tuple(map(tuple, closest_left))
+            value_left = tuple(map(tuple, closest_left))
         else:
-            value = key
-        closest_results[key] = [value, min_dst_left]
+            value_left = key
+        if closest_right is not None:
+            value_right = tuple(map(tuple, closest_right))
+        else:
+            value_right = key
+        closest_results[key] = [value_left, value_right, min_dst_left, min_dst_right]
 
     return closest_results
 
@@ -927,26 +945,26 @@ def getAllImages():
         closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
 
         # horizontal_lines_connected = draw_connected_middle_points_closest_horizontal(horizontal_lines.copy(), closest_horizontal)
-        horizontal_lines_connected = draw_connected_middle_points_max_length_horizontal(horizontal_lines.copy(), closest_horizontal, 40)
+        # horizontal_lines_connected = draw_connected_middle_points_max_length_horizontal(horizontal_lines.copy(), closest_horizontal, 40)
         # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
-        saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
+        # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
         # saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
 
-        vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
-        closest_vertical = find_closest_vertical_rect(vertical_data[0])
+        # vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
+        # closest_vertical = find_closest_vertical_rect(vertical_data[0])
 
         # vertical_lines_connected = draw_connected_middle_points_closest_vertical(vertical_lines, closest_vertical)
-        vertical_lines_connected = draw_connected_middle_points_max_length_vertical(vertical_lines.copy(), closest_vertical, 40)
+        # vertical_lines_connected = draw_connected_middle_points_max_length_vertical(vertical_lines.copy(), closest_vertical, 40)
         # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
-        saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines_connected)
+        # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines_connected)
         # saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
 
-        # horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
+        horizontal_vertical, _, vertical_data = detect_vertical_lines(img, horizontal_lines)
         # hor_ver_connected = draw_connected_middle_points_max_length_horizontal(horizontal_vertical, closest_horizontal, 30)
         # hor_ver_connected = draw_connected_middle_points_max_length_vertical(hor_ver_connected, closest_vertical, 30)
-        # closest_hor_ver = find_closest_vertical_to_horizontal_rec(horiz_data[0], vertical_data[0])
-        # horizontal_vertical = draw_connected_middle_points_closest_horizontal_vertical(horizontal_vertical, closest_hor_ver)
-        # saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
+        closest_hor_ver = find_closest_vertical_to_horizontal_rec(horiz_data[0], vertical_data[0])
+        horizontal_vertical = draw_connected_middle_points_closest_horizontal_vertical(horizontal_vertical, closest_hor_ver)
+        saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
         # saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', hor_ver_connected)
 
         # hor_rect_box = horiz_data[1]
@@ -960,7 +978,7 @@ def getAllImages():
 
         # histogram_closest_distances(ver_rect_hist_closest_dst_dir, closest_vertical, image_name)
 
-        # print(image_name)
+        print(image_name)
 
 
 def lines_by_hist_bins(bins, bin_width, closest_data, img, boundary, dir, name):
@@ -1057,30 +1075,30 @@ if __name__ == '__main__':
 
     # resize_all_images()
 
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized/Leadville.png')
-
-    hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
-    hor_all_rec_points = hor_all_rec[0]
+    # img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized/Leadville.png')
+    #
+    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+    # hor_all_rec_points = hor_all_rec[0]
 
     # hor_lines_copy = copy.deepcopy(hor_lines)
     # cv2.imshow("hlc", hor_lines_copy)
 
-    ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(img, hor_lines)
-    ver_all_rec_points = ver_all_rec[0]
-
-    closest_hv = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
-
-    for key, value in closest_hv.items():
-        print(key, ' : ', value)
-
-    closest_hv_img = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_hv)
+    # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(img, hor_lines)
+    # ver_all_rec_points = ver_all_rec[0]
+    #
+    # closest_hv = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
+    #
+    # for key, value in closest_hv.items():
+    #     print(key, ' : ', value)
+    #
+    # closest_hv_img = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_hv)
 
     # closest = find_closest_horizontal_rect(hor_all_rec_points)
     # print(closest)
     # # hor_lines_points = draw_connected_middle_points_closest_horizontal(hor_lines, closest)
     # hor_lines_points = draw_connected_middle_points_max_length(hor_lines, closest, 80)
 
-    cv2.imshow("colors", ver_lines)
+    # cv2.imshow("colors", ver_lines)
     # cv2.imshow("closest hv", closest_hv_img)
     #
     # # #closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
@@ -1098,8 +1116,8 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    # getAllImages()
-    # showResultsHTML()
+    getAllImages()
+    showResultsHTML()
 
     #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
 
