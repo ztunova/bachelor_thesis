@@ -228,32 +228,35 @@ def draw_connected_middle_points_max_length_horizontal(draw_img, closest_rect, m
 
     return draw_img
 
+
+# v1: closest upper point of vertical rectangle to left point of horizontal rectangle
+# key = horizontal rectangle, value = vertical rectangle
 def draw_connected_middle_points_closest_horizontal_vertical(draw_img, closest_rect):
     if closest_rect is None:
         return draw_img
+
     radius = 2
     color_start = (255, 0, 0)
     thickness = 2
 
     for start_rec, end_rec in closest_rect.items():
-        start_rec_right_upper = start_rec[1]
-        start_rec_right_lower = start_rec[2]
+        start_hor_rec_left_upper = start_rec[0]
+        start_hor_rec_left_lower = start_rec[3]
 
-        end_rec_upper_left = end_rec[0][0]
-        end_rec_upper_right = end_rec[0][1]
+        end_ver_rec_upper_left = end_rec[0][0]
+        end_ver_rec_upper_right = end_rec[0][1]
 
-        start_point = get_middle_point_of_side(start_rec_right_upper, start_rec_right_lower)
-        end_point = get_middle_point_of_side(end_rec_upper_left, end_rec_upper_right)
+        start_point = get_middle_point_of_side(start_hor_rec_left_upper, start_hor_rec_left_lower)
+        end_point = get_middle_point_of_side(end_ver_rec_upper_left, end_ver_rec_upper_right)
 
         # color = random_color()
 
         draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
-        if start_point[0] < end_point[0]:
-            draw_img = cv2.circle(draw_img, end_point, radius, color_start, thickness)
-            draw_img = cv2.line(draw_img, start_point, end_point, color_start, thickness)
+        draw_img = cv2.circle(draw_img, end_point, radius, color_start, thickness)
+        draw_img = cv2.line(draw_img, start_point, end_point, color_start, thickness)
 
-        draw_img = cv2.circle(draw_img, end_point, radius, (51, 255, 255), thickness)
-        draw_img = cv2.line(draw_img, start_point, end_point, (51, 255, 255), thickness)
+        # draw_img = cv2.circle(draw_img, end_point, radius, (51, 255, 255), thickness)
+        # draw_img = cv2.line(draw_img, start_point, end_point, (51, 255, 255), thickness)
 
         # cv2.imshow("connected", draw_img)
 
@@ -1070,12 +1073,15 @@ if __name__ == '__main__':
     for key, value in closest_hv.items():
         print(key, ' : ', value)
 
+    closest_hv_img = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_hv)
+
     # closest = find_closest_horizontal_rect(hor_all_rec_points)
     # print(closest)
     # # hor_lines_points = draw_connected_middle_points_closest_horizontal(hor_lines, closest)
     # hor_lines_points = draw_connected_middle_points_max_length(hor_lines, closest, 80)
 
     cv2.imshow("colors", ver_lines)
+    # cv2.imshow("closest hv", closest_hv_img)
     #
     # # #closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
     # # #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
