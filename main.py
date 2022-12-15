@@ -231,7 +231,7 @@ def draw_connected_middle_points_max_length_horizontal(draw_img, closest_rect, m
 
 # v1: closest upper point of vertical rectangle to left point of horizontal rectangle
 # key = horizontal rectangle, value = vertical rectangle
-def draw_connected_middle_points_closest_horizontal_vertical(draw_img, closest_rect):
+def draw_connected_middle_points_closest_horizontal_vertical_max_dst(draw_img, closest_rect, max_dst):
     if closest_rect is None:
         return draw_img
 
@@ -253,9 +253,10 @@ def draw_connected_middle_points_closest_horizontal_vertical(draw_img, closest_r
         start_point = get_middle_point_of_side(start_hor_rec_left_upper, start_hor_rec_left_lower)
         end_point = get_middle_point_of_side(end_ver_rec_upper_left, end_ver_rec_upper_right)
 
-        draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
-        draw_img = cv2.circle(draw_img, end_point, radius, color_start, thickness)
-        draw_img = cv2.line(draw_img, start_point, end_point, color_start, thickness)
+        if end_rec[2] < max_dst:
+            draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
+            draw_img = cv2.circle(draw_img, end_point, radius, color_start, thickness)
+            draw_img = cv2.line(draw_img, start_point, end_point, color_start, thickness)
 
         # draw connection between right side of horizontal rectangle and upper side of closest vertical rectangle
         closest_ver_right_rect = end_rec[1]
@@ -265,9 +266,10 @@ def draw_connected_middle_points_closest_horizontal_vertical(draw_img, closest_r
         start_point = get_middle_point_of_side(start_hor_rec_right_upper, start_hor_rec_right_lower)
         end_point = get_middle_point_of_side(end_ver_rec_upper_left, end_ver_rec_upper_right)
 
-        draw_img = cv2.circle(draw_img, start_point, radius, (51, 255, 255), thickness)
-        draw_img = cv2.circle(draw_img, end_point, radius, (51, 255, 255), thickness)
-        draw_img = cv2.line(draw_img, start_point, end_point, (51, 255, 255), thickness)
+        if end_rec[3] < max_dst:
+            draw_img = cv2.circle(draw_img, start_point, radius, (51, 255, 255), thickness)
+            draw_img = cv2.circle(draw_img, end_point, radius, (51, 255, 255), thickness)
+            draw_img = cv2.line(draw_img, start_point, end_point, (51, 255, 255), thickness)
 
         # cv2.imshow("connected", draw_img)
 
@@ -963,7 +965,7 @@ def getAllImages():
         # hor_ver_connected = draw_connected_middle_points_max_length_horizontal(horizontal_vertical, closest_horizontal, 30)
         # hor_ver_connected = draw_connected_middle_points_max_length_vertical(hor_ver_connected, closest_vertical, 30)
         closest_hor_ver = find_closest_vertical_to_horizontal_rec(horiz_data[0], vertical_data[0])
-        horizontal_vertical = draw_connected_middle_points_closest_horizontal_vertical(horizontal_vertical, closest_hor_ver)
+        horizontal_vertical = draw_connected_middle_points_closest_horizontal_vertical_max_dst(horizontal_vertical, closest_hor_ver, 20)
         saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
         # saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', hor_ver_connected)
 
