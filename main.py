@@ -677,7 +677,7 @@ def find_closest_vertical_to_horizontal_rec(all_hor_rect, all_ver_rect):
             value = key
         closest_results[key] = [value, min_dst_left]
 
-        return closest_results
+    return closest_results
 
 def find_closest_vertical_rect(all_ver_rect):
     closest_results = {}
@@ -924,7 +924,7 @@ def getAllImages():
         closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
 
         # horizontal_lines_connected = draw_connected_middle_points_closest_horizontal(horizontal_lines.copy(), closest_horizontal)
-        horizontal_lines_connected = draw_connected_middle_points_max_length_horizontal(horizontal_lines.copy(), closest_horizontal, 37)
+        horizontal_lines_connected = draw_connected_middle_points_max_length_horizontal(horizontal_lines.copy(), closest_horizontal, 40)
         # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
         saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
         # saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
@@ -933,7 +933,7 @@ def getAllImages():
         closest_vertical = find_closest_vertical_rect(vertical_data[0])
 
         # vertical_lines_connected = draw_connected_middle_points_closest_vertical(vertical_lines, closest_vertical)
-        vertical_lines_connected = draw_connected_middle_points_max_length_vertical(vertical_lines.copy(), closest_vertical, 37)
+        vertical_lines_connected = draw_connected_middle_points_max_length_vertical(vertical_lines.copy(), closest_vertical, 40)
         # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
         saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines_connected)
         # saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
@@ -1055,28 +1055,27 @@ if __name__ == '__main__':
     # resize_all_images()
 
     img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized/Leadville.png')
-    # # img_copy = img.copy()
-    # # resize to half of the size
-    # # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
 
-    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
-    # hor_all_rec_points = hor_all_rec[0]
-    # # hor_all_rec_box = hor_all_rec[1]
+    hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
+    hor_all_rec_points = hor_all_rec[0]
 
     # hor_lines_copy = copy.deepcopy(hor_lines)
     # cv2.imshow("hlc", hor_lines_copy)
 
-    # # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
-    #
-    # # ver_all_rec_points = ver_all_rec[0]
-    # # ver_all_rec_box = ver_all_rec[1]
+    ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(img, hor_lines)
+    ver_all_rec_points = ver_all_rec[0]
+
+    closest_hv = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
+
+    for key, value in closest_hv.items():
+        print(key, ' : ', value)
 
     # closest = find_closest_horizontal_rect(hor_all_rec_points)
     # print(closest)
     # # hor_lines_points = draw_connected_middle_points_closest_horizontal(hor_lines, closest)
     # hor_lines_points = draw_connected_middle_points_max_length(hor_lines, closest, 80)
 
-    # cv2.imshow("colors", hor_lines_points)
+    cv2.imshow("colors", ver_lines)
     #
     # # #closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
     # # #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
@@ -1093,8 +1092,8 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    getAllImages()
-    showResultsHTML()
+    # getAllImages()
+    # showResultsHTML()
 
     #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
 
