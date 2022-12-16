@@ -1038,12 +1038,51 @@ def resize_all_images():
         saveImage(result_dir, img_name, '', resized_img)
 
 
+def find_contours(img):
+    image_copy = img.copy()
+
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    ret, thresh = cv2.threshold(img_gray, 150, 255, cv2.THRESH_BINARY)
+    # cv2.imshow('Binary image', thresh)
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+    threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
+
+    bw_swap = cv2.bitwise_not(threshold)
+    # dilated = cv2.dilate(bw_swap, np.ones((4, 2), dtype=np.uint8))  # vodorovne: 4,1
+    # eroded = cv2.erode(dilated, np.ones((1, 13), dtype=np.uint8))  # vodorovne: 1, 9
+
+    # cv2.imshow('eroded', bw_swap)
+
+    contours, hierarchy = cv2.findContours(bw_swap, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    print("Number of Contours is: " + str(len(contours)))
+
+    for cnt in contours:
+    #     color = random_color()
+    #     rect = cv2.minAreaRect(cnt)
+    #     box = cv2.boxPoints(rect)
+    #     box = np.int0(box)
+    #     cv2.drawContours(image_copy, [box], 0, color, 2)
+
+        # cnt_tupple = tuple(cnt)
+        if cv2.isContourConvex(cnt):
+            color = random_color()
+            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0,255,0), thickness=2, lineType=cv2.LINE_AA)
+
+    # cv2.drawContours(image=image_copy, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
+    cv2.imshow('cnts', image_copy)
+
 
 if __name__ == '__main__':
 
     # resize_all_images()
 
     img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized/Leadville.png')
+    # cv2.imshow("img orig", img)
+
+    find_contours(img)
     # # img_copy = img.copy()
     # # resize to half of the size
     # # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
@@ -1082,8 +1121,8 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    getAllImages()
-    showResultsHTML()
+    # getAllImages()
+    # showResultsHTML()
 
     #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
 
