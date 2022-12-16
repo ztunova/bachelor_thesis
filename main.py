@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
+import digital_images_results
 from output_lines_by_hist_script import lines_by_hist_html
 from outputs import showResultsHTML
 from numpy import linalg as LA
@@ -881,7 +882,8 @@ def getAllImages():
     # input_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines_input"
 
     # folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
-    folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized"
+    # folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized"
+    folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized"
 
     dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines"
     input_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines_input"
@@ -897,6 +899,8 @@ def getAllImages():
     hor_rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hor_rect_hist_closest_dst"
     ver_rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_ver_rect_hist_closest_dst"
 
+    digital_imgs_contour_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_digital_contours"
+
     all_images = os.listdir(folder_dir)
     # print(all_images)
 
@@ -905,17 +909,21 @@ def getAllImages():
         img = cv2.imread(path)
         print(image_name)
 
+        digital_contours = find_contours(img)
+        saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
+
+
         # img_hlines, lines, input_img = detectLinesHough(img)
         # saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
         # saveImage(input_dir, image_name, 'input', input_img)
 
-        horizontal_lines, horizontal_lines_input, horiz_data = detect_horizontal_lines(img)
-        closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
+        # horizontal_lines, horizontal_lines_input, horiz_data = detect_horizontal_lines(img)
+        # closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
 
         # horizontal_lines_connected = draw_connected_middle_points_closest_horizontal(horizontal_lines.copy(), closest_horizontal)
-        horizontal_lines_connected = draw_connected_middle_points_max_length_horizontal(horizontal_lines.copy(), closest_horizontal, 30)
+        # horizontal_lines_connected = draw_connected_middle_points_max_length_horizontal(horizontal_lines.copy(), closest_horizontal, 30)
         # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
-        saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
+        # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
         # saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
 
         # vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
@@ -1042,47 +1050,45 @@ def find_contours(img):
     image_copy = img.copy()
 
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret, thresh = cv2.threshold(img_gray, 150, 255, cv2.THRESH_BINARY)
+    # ret, thresh = cv2.threshold(img_gray, 150, 255, cv2.THRESH_BINARY)
     # cv2.imshow('Binary image', thresh)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (7, 7), 0)
-    threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
+    threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 3)
 
     bw_swap = cv2.bitwise_not(threshold)
-    # dilated = cv2.dilate(bw_swap, np.ones((4, 2), dtype=np.uint8))  # vodorovne: 4,1
-    # eroded = cv2.erode(dilated, np.ones((1, 13), dtype=np.uint8))  # vodorovne: 1, 9
+    dilated = cv2.dilate(bw_swap, np.ones((2, 2), dtype=np.uint8))  # vodorovne: 4,1
+    eroded = cv2.erode(dilated, np.ones((2, 2), dtype=np.uint8))  # vodorovne: 1, 9
 
     # cv2.imshow('eroded', bw_swap)
 
-    contours, hierarchy = cv2.findContours(bw_swap, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     print("Number of Contours is: " + str(len(contours)))
 
     for cnt in contours:
-    #     color = random_color()
-    #     rect = cv2.minAreaRect(cnt)
-    #     box = cv2.boxPoints(rect)
-    #     box = np.int0(box)
-    #     cv2.drawContours(image_copy, [box], 0, color, 2)
+        # color = random_color()
+        # rect = cv2.minAreaRect(cnt)
+        # box = cv2.boxPoints(rect)
+        # box = np.int0(box)
+        # cv2.drawContours(image_copy, [box], 0, color, -2)
 
-        # cnt_tupple = tuple(cnt)
-        if cv2.isContourConvex(cnt):
-            color = random_color()
-            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0,255,0), thickness=2, lineType=cv2.LINE_AA)
+        color = random_color()
+        cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=-2, lineType=cv2.LINE_AA)
 
     # cv2.drawContours(image=image_copy, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
-    cv2.imshow('cnts', image_copy)
-
+    # cv2.imshow('cnts', image_copy)
+    return image_copy
 
 if __name__ == '__main__':
 
     # resize_all_images()
 
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized/Leadville.png')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized/Lodi.png')
     # cv2.imshow("img orig", img)
 
-    find_contours(img)
+    # find_contours(img)
     # # img_copy = img.copy()
     # # resize to half of the size
     # # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
@@ -1121,8 +1127,9 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    # getAllImages()
-    # showResultsHTML()
+    getAllImages()
+    digital_images_results.show_results_html()
+    #showResultsHTML()
 
     #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
 
