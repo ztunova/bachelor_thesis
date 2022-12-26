@@ -954,7 +954,7 @@ def getAllImages():
 
         # histogram_closest_distances(ver_rect_hist_closest_dst_dir, closest_vertical, image_name)
 
-        print(image_name)
+        # print(image_name)
 
 
 def lines_by_hist_bins(bins, bin_width, closest_data, img, boundary, dir, name):
@@ -1058,23 +1058,46 @@ def find_contours(img):
     threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 3)
 
     bw_swap = cv2.bitwise_not(threshold)
-    dilated = cv2.dilate(bw_swap, np.ones((2, 2), dtype=np.uint8))  # vodorovne: 4,1
-    eroded = cv2.erode(dilated, np.ones((2, 2), dtype=np.uint8))  # vodorovne: 1, 9
+    dilated = cv2.dilate(bw_swap, np.ones((3, 3), dtype=np.uint8))  # 2, 2
+    eroded = cv2.erode(dilated, np.ones((2, 2), dtype=np.uint8))  # 2, 2
 
     # cv2.imshow('eroded', bw_swap)
 
     contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    print("Number of Contours is: " + str(len(contours)))
-
+    # print("Number of Contours is: " + str(len(contours)))
+    #
     for cnt in contours:
-        # color = random_color()
-        # rect = cv2.minAreaRect(cnt)
-        # box = cv2.boxPoints(rect)
-        # box = np.int0(box)
-        # cv2.drawContours(image_copy, [box], 0, color, -2)
-
         color = random_color()
-        cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=-2, lineType=cv2.LINE_AA)
+        rect = cv2.minAreaRect(cnt)
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+        cv2.drawContours(image_copy, [box], 0, (0, 255, 0), 2)
+
+        if len(cnt) >= 5:
+            ellipse = cv2.fitEllipse(cnt)
+            (x, y), (MA, ma), angle = ellipse
+            ellipse_area = math.pi * MA * ma
+            # print(ellipse)
+            # if ellipse_area > 5000:
+            cv2.ellipse(image_copy, ellipse, (0, 0, 255), 3)
+        else:
+            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+        #
+        # area = cv2.contourArea(cnt)
+
+        # (x_axis, y_axis), radius = cv2.minEnclosingCircle(cnt)
+        #
+        # center = (int(x_axis), int(y_axis))
+        # radius = int(radius)
+        #
+        # cv2.circle(image_copy, center, radius, (0, 255, 0), 2)
+
+        # if area > 100:
+        #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
+
+        # approx = cv2.approxPolyDP(cnt, 0.02 * cv2.arcLength(cnt, True), True)
+        # if len(approx) == 4:
+        # cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=-2, lineType=cv2.LINE_AA)
 
     # cv2.drawContours(image=image_copy, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
