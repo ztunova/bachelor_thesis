@@ -1047,6 +1047,23 @@ def resize_all_images():
 
 
 def find_contours(img):
+    template_orig = cv2.imread('images/vzorovy_obdlznik.png')
+    template = cv2.cvtColor(template_orig, cv2.COLOR_BGR2GRAY)
+    ret, thresh1 = cv2.threshold(template, 127, 255, 0)
+    bw_swap1 = cv2.bitwise_not(thresh1)
+
+    # cv2.imshow('vzor', bw_swap1)
+
+    template_contours, template_hierarchy = cv2.findContours(thresh1, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    sorted_contours = sorted(template_contours, key=cv2.contourArea, reverse=True)
+    template_contour = sorted_contours[1]
+    # print(template_contour)
+
+    cv2.drawContours(template_orig, [template_contour], -1, (0, 255, 0), 3)
+
+    # cv2.imshow('templ cnt', template_orig)
+    # print(len(template_contours))
+
     image_copy = img.copy()
 
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -1064,33 +1081,40 @@ def find_contours(img):
     # cv2.imshow('eroded', bw_swap)
 
     contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    # temp = contours[3]
+    # cv2.drawContours(image=image_copy, contours=[temp], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+    # cv2.imshow('temp', image_copy)
+
     # print("Number of Contours is: " + str(len(contours)))
     #
     for cnt in contours:
         color = random_color()
+
+        cv2.drawContours(template_orig, template_contours, -1, color, 3)
+
         rect = cv2.minAreaRect(cnt)
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-        cv2.drawContours(image_copy, [box], 0, (0, 255, 0), 2)
+        box = box.reshape((*box.shape, 1))
 
-        if len(cnt) >= 5:
-            ellipse = cv2.fitEllipse(cnt)
-            (x, y), (MA, ma), angle = ellipse
-            ellipse_area = math.pi * MA * ma
-            # print(ellipse)
-            # if ellipse_area > 5000:
-            cv2.ellipse(image_copy, ellipse, (0, 0, 255), 3)
-        else:
+        match = cv2.matchShapes(box, cnt, 3, 0.0)
+        # print(match)
+
+        if match < 0.02:
             cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-        #
-        # area = cv2.contourArea(cnt)
 
-        # (x_axis, y_axis), radius = cv2.minEnclosingCircle(cnt)
-        #
-        # center = (int(x_axis), int(y_axis))
-        # radius = int(radius)
-        #
-        # cv2.circle(image_copy, center, radius, (0, 255, 0), 2)
+        # if len(cnt) >= 5:
+        #     ellipse = cv2.fitEllipse(cnt)
+        #     (x, y), (MA, ma), angle = ellipse
+        #     ellipse_area = math.pi * MA * ma
+        #     # print(ellipse)
+        #     # if ellipse_area > 5000:
+        #     cv2.ellipse(image_copy, ellipse, (0, 0, 255), 3)
+        # else:
+        #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
+        # area = cv2.contourArea(cnt)
 
         # if area > 100:
         #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
@@ -1108,7 +1132,7 @@ if __name__ == '__main__':
 
     # resize_all_images()
 
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized/Lodi.png')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Arkadelphia.jpg')
     # cv2.imshow("img orig", img)
 
     # find_contours(img)
