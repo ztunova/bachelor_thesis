@@ -1047,7 +1047,7 @@ def resize_all_images():
 
 
 def find_contours(img):
-    template_orig = cv2.imread('images/vzorovy_obdlznik.png')
+    template_orig = cv2.imread('images/vzorovy_obdlznik2.png')
     template = cv2.cvtColor(template_orig, cv2.COLOR_BGR2GRAY)
     ret, thresh1 = cv2.threshold(template, 127, 255, 0)
     bw_swap1 = cv2.bitwise_not(thresh1)
@@ -1066,10 +1066,6 @@ def find_contours(img):
 
     image_copy = img.copy()
 
-    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # ret, thresh = cv2.threshold(img_gray, 150, 255, cv2.THRESH_BINARY)
-    # cv2.imshow('Binary image', thresh)
-
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (7, 7), 0)
     threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 3)
@@ -1087,41 +1083,55 @@ def find_contours(img):
     # cv2.imshow('temp', image_copy)
 
     # print("Number of Contours is: " + str(len(contours)))
-    #
-    for cnt in contours:
-        color = random_color()
 
-        cv2.drawContours(template_orig, template_contours, -1, color, 3)
+    for cnt in contours:
+        cnt_area = cv2.contourArea(cnt)
+        color = random_color()
+        # if cnt_area < 400 or cnt_area > 20000:
+        #     continue
 
         rect = cv2.minAreaRect(cnt)
+        rect_width = rect[1][0]
+        rect_heigh = rect[1][1]
+        rect_area = rect_width * rect_heigh
+
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-        box = box.reshape((*box.shape, 1))
 
-        match = cv2.matchShapes(box, cnt, 3, 0.0)
-        # print(match)
+        # box = box.reshape((4, 1, 2))
+        # match_rect = cv2.matchShapes(box, cnt, 3, 0.0)
+        # # # print(match)
+        # #
+        # if match_rect < 0.02:
+        # cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
-        if match < 0.02:
-            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+        if len(cnt) >= 5:
+            ellipse = cv2.fitEllipse(cnt)
+            (x, y), (MA, ma), angle = ellipse
+            ellipse_area = math.pi * MA/2 * ma/2
 
-        # if len(cnt) >= 5:
-        #     ellipse = cv2.fitEllipse(cnt)
-        #     (x, y), (MA, ma), angle = ellipse
-        #     ellipse_area = math.pi * MA * ma
+            cnt_rect_diff = rect_area - cnt_area
+            cnt_ellipse_diff = ellipse_area - cnt_area
+
+            if cnt_rect_diff < cnt_ellipse_diff:
+                cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+            elif cnt_rect_diff > cnt_ellipse_diff:
+                cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+            else:
+                cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+
         #     # print(ellipse)
         #     # if ellipse_area > 5000:
         #     cv2.ellipse(image_copy, ellipse, (0, 0, 255), 3)
+
+
+
         # else:
-        #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-
-        # area = cv2.contourArea(cnt)
-
-        # if area > 100:
         #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
 
-        # approx = cv2.approxPolyDP(cnt, 0.02 * cv2.arcLength(cnt, True), True)
-        # if len(approx) == 4:
-        # cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=-2, lineType=cv2.LINE_AA)
+        # if 6000 > cnt_area > 400:
+        #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
+
 
     # cv2.drawContours(image=image_copy, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
