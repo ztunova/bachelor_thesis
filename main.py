@@ -1059,7 +1059,7 @@ def find_contours(img):
     template_contour = sorted_contours[1]
     # print(template_contour)
 
-    cv2.drawContours(template_orig, [template_contour], -1, (0, 255, 0), 3)
+    # cv2.drawContours(template_orig, [template_contour], -1, (0, 255, 0), 3)
 
     # cv2.imshow('templ cnt', template_orig)
     # print(len(template_contours))
@@ -1113,12 +1113,12 @@ def find_contours(img):
             cnt_rect_diff = rect_area - cnt_area
             cnt_ellipse_diff = ellipse_area - cnt_area
 
-            if cnt_rect_diff < cnt_ellipse_diff:
+            if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 800:
                 cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-            elif cnt_rect_diff > cnt_ellipse_diff:
+            elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 500:
                 cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
-            else:
-                cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            # else:
+            #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
 
         #     # print(ellipse)
         #     # if ellipse_area > 5000:
@@ -1127,13 +1127,13 @@ def find_contours(img):
 
 
         # else:
-        #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
+        #   cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
 
         # if 6000 > cnt_area > 400:
         #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
 
 
-    # cv2.drawContours(image=image_copy, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+    # cv2.drawContours(image=image_copy, contours=contours, contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
 
     # cv2.imshow('cnts', image_copy)
     return image_copy
