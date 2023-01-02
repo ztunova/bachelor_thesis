@@ -1046,26 +1046,7 @@ def resize_all_images():
         saveImage(result_dir, img_name, '', resized_img)
 
 
-def find_contours(img):
-    template_orig = cv2.imread('images/vzorovy_obdlznik2.png')
-    template = cv2.cvtColor(template_orig, cv2.COLOR_BGR2GRAY)
-    ret, thresh1 = cv2.threshold(template, 127, 255, 0)
-    bw_swap1 = cv2.bitwise_not(thresh1)
-
-    # cv2.imshow('vzor', bw_swap1)
-
-    template_contours, template_hierarchy = cv2.findContours(thresh1, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-    sorted_contours = sorted(template_contours, key=cv2.contourArea, reverse=True)
-    template_contour = sorted_contours[1]
-    # print(template_contour)
-
-    # cv2.drawContours(template_orig, [template_contour], -1, (0, 255, 0), 3)
-
-    # cv2.imshow('templ cnt', template_orig)
-    # print(len(template_contours))
-
-    image_copy = img.copy()
-
+def img_preprocessing(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (7, 7), 0)
     threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 3)
@@ -1074,7 +1055,46 @@ def find_contours(img):
     dilated = cv2.dilate(bw_swap, np.ones((3, 3), dtype=np.uint8))  # 2, 2
     eroded = cv2.erode(dilated, np.ones((2, 2), dtype=np.uint8))  # 2, 2
 
-    # cv2.imshow('eroded', bw_swap)
+    result_img = gray   # dilated
+    # cv2.imshow('res', result_img)
+    return result_img
+
+
+def detect_corners(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    image_copy = img.copy()
+
+    corners = cv2.goodFeaturesToTrack(gray, 0, 0.1, 20)
+    corners = np.int0(corners)
+
+    for i in corners:
+        x, y = i.ravel()
+        cv2.circle(image_copy, (x, y), 5, (0, 0, 255), -1)
+
+    return image_copy
+
+def find_contours(img):
+    # template_orig = cv2.imread('images/vzorovy_obdlznik2.png')
+    # template = cv2.cvtColor(template_orig, cv2.COLOR_BGR2GRAY)
+    # ret, thresh1 = cv2.threshold(template, 127, 255, 0)
+    # bw_swap1 = cv2.bitwise_not(thresh1)
+    #
+    # # cv2.imshow('vzor', bw_swap1)
+    #
+    # template_contours, template_hierarchy = cv2.findContours(thresh1, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    # sorted_contours = sorted(template_contours, key=cv2.contourArea, reverse=True)
+    # template_contour = sorted_contours[1]
+    # print(template_contour)
+
+    # cv2.drawContours(template_orig, [template_contour], -1, (0, 255, 0), 3)
+
+    # cv2.imshow('templ cnt', template_orig)
+    # print(len(template_contours))
+
+    image_copy = img.copy()
+    dilated = img_preprocessing(img)
+
+    # image_copy = detect_corners(img)
 
     contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -1113,27 +1133,19 @@ def find_contours(img):
             cnt_rect_diff = rect_area - cnt_area
             cnt_ellipse_diff = ellipse_area - cnt_area
 
-            if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 800:
-                cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-            elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 500:
-                cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+            angle_of_rotation = rect[2]
+            # if angle_of_rotation == 0:
+            box = reorder_rect_points_horizontal_rec(box)
+            box = np.asarray(box)
+            cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
+            # if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 900 and rect_area >= 500:
+            #     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+            # elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 500 and ellipse_area >= 500:
+            #     cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
             # else:
             #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
 
-        #     # print(ellipse)
-        #     # if ellipse_area > 5000:
-        #     cv2.ellipse(image_copy, ellipse, (0, 0, 255), 3)
-
-
-
-        # else:
-        #   cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
-
-        # if 6000 > cnt_area > 400:
-        #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
-
-
-    # cv2.drawContours(image=image_copy, contours=contours, contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
 
     # cv2.imshow('cnts', image_copy)
     return image_copy
@@ -1193,8 +1205,8 @@ if __name__ == '__main__':
     #lines_by_hist_for_certain_images()
     # lines_by_hist_html()
     #
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     # print(get_new_image_size(550, 561))
     # print(get_new_image_size(1058, 522))
