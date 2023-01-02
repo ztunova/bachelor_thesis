@@ -1055,7 +1055,7 @@ def img_preprocessing(img):
     dilated = cv2.dilate(bw_swap, np.ones((3, 3), dtype=np.uint8))  # 2, 2
     eroded = cv2.erode(dilated, np.ones((2, 2), dtype=np.uint8))  # 2, 2
 
-    result_img = gray   # dilated
+    result_img = dilated   # dilated
     # cv2.imshow('res', result_img)
     return result_img
 
@@ -1153,9 +1153,21 @@ def find_contours(img):
 
             angle_of_rotation = rect[2]
             # if angle_of_rotation == 0:
-            box = reorder_rect_points_horizontal_rec(box)
-            box = np.asarray(box)
-            cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+            reordered_box = reorder_rect_points_horizontal_rec(box)
+            reordered_box = np.asarray(reordered_box)
+
+            down_side_right_point = reordered_box[2]
+            angle_point = reordered_box[3]
+
+            vect_a = [angle_point[0], 0]
+            vect_b_x = down_side_right_point[0] - angle_point[0]
+            vect_b_y = down_side_right_point[1] - angle_point[1]
+            vect_b = [vect_b_x, vect_b_y]
+
+            vect_angle = angle_of_vectors(vect_a, vect_b)
+
+            if vect_angle > 10:
+                cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
             # if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 900 and rect_area >= 500:
             #     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
@@ -1174,8 +1186,6 @@ if __name__ == '__main__':
 
     img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Arkadelphia.jpg')
     # cv2.imshow("img orig", img)
-
-    print(angle_of_vectors([50, 0], [50, 25]))
 
     # find_contours(img)
     # # img_copy = img.copy()
@@ -1216,8 +1226,8 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    # getAllImages()
-    # digital_images_results.show_results_html()
+    getAllImages()
+    digital_images_results.show_results_html()
     #showResultsHTML()
 
     #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
