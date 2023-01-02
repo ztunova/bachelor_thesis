@@ -1073,6 +1073,24 @@ def detect_corners(img):
 
     return image_copy
 
+
+def angle_of_vectors(vect_a, vect_b):
+    vect_a_x, vect_a_y = vect_a
+    vect_b_x, vect_b_y = vect_b
+
+    vect_a_length = math.sqrt(vect_a_x**2 + vect_a_y**2)
+    vect_b_length = math.sqrt(vect_b_x**2 + vect_b_y**2)
+
+    dot_product = (vect_a_x * vect_b_x) + (vect_a_y * vect_b_y)
+    if dot_product == 0:
+        return 90.0
+
+    cos_angle = dot_product / (vect_a_length * vect_b_length)
+    angle = math.degrees(math.acos(cos_angle))
+
+    return round(angle, 2)
+
+
 def find_contours(img):
     # template_orig = cv2.imread('images/vzorovy_obdlznik2.png')
     # template = cv2.cvtColor(template_orig, cv2.COLOR_BGR2GRAY)
@@ -1157,6 +1175,8 @@ if __name__ == '__main__':
     img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Arkadelphia.jpg')
     # cv2.imshow("img orig", img)
 
+    print(angle_of_vectors([50, 0], [50, 25]))
+
     # find_contours(img)
     # # img_copy = img.copy()
     # # resize to half of the size
@@ -1196,8 +1216,8 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    getAllImages()
-    digital_images_results.show_results_html()
+    # getAllImages()
+    # digital_images_results.show_results_html()
     #showResultsHTML()
 
     #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
