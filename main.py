@@ -1074,8 +1074,38 @@ def detect_corners(img):
     return image_copy
 
 
-def template_matching(img):
-    pass
+def template_matching(target):
+    image_copy = target.copy()
+
+    rect_template_img = cv2.imread('images/vzorovy_obdlznik2.png')
+    rect_template_gray = cv2.cvtColor(rect_template_img, cv2.COLOR_BGR2GRAY)
+    ret, thresh_rect_template = cv2.threshold(rect_template_gray, 127, 255, 0)
+    bw_swap_rect_template = cv2.bitwise_not(thresh_rect_template)
+
+    # cv2.imshow('vzor', bw_swap1)
+
+    rect_contours, rect_hierarchy = cv2.findContours(thresh_rect_template, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    sorted_rect_template_contours = sorted(rect_contours, key=cv2.contourArea, reverse=True)
+    rect_template = sorted_rect_template_contours[1]
+
+    cv2.drawContours(rect_template_img, [rect_template], -1, (0, 255, 0), 3)
+
+    target_gray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)
+    thresh_target = img_preprocessing(target)
+    # ret, thresh_target = cv2.threshold(target_gray, 127, 255, 0)
+
+    target_contours, hierarchy = cv2.findContours(thresh_target, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+
+    for cnt in target_contours:
+        match = cv2.matchShapes(rect_template, cnt, cv2.CONTOURS_MATCH_I3, 0.0)
+        # print(match)
+        if match < 0.25:
+            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
+
+    # cv2.imshow('templ cnt', rect_template_img)
+
+    return image_copy
 
 
 def get_vectors_from_rect_points(box):
@@ -1158,40 +1188,13 @@ def bounding_shapes(img):
 
 
 def detect_shapes(img):
-    # template_orig = cv2.imread('images/vzorovy_obdlznik2.png')
-    # template = cv2.cvtColor(template_orig, cv2.COLOR_BGR2GRAY)
-    # ret, thresh1 = cv2.threshold(template, 127, 255, 0)
-    # bw_swap1 = cv2.bitwise_not(thresh1)
-    #
-    # # cv2.imshow('vzor', bw_swap1)
-    #
-    # template_contours, template_hierarchy = cv2.findContours(thresh1, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-    # sorted_contours = sorted(template_contours, key=cv2.contourArea, reverse=True)
-    # template_contour = sorted_contours[1]
-    # print(template_contour)
-
-    # cv2.drawContours(template_orig, [template_contour], -1, (0, 255, 0), 3)
-
-    # cv2.imshow('templ cnt', template_orig)
-    # print(len(template_contours))
-
-    image_copy = img.copy()
-    dilated = img_preprocessing(img)
-
-    # image_copy = detect_corners(img)
-
-    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-    # temp = contours[3]
-    # cv2.drawContours(image=image_copy, contours=[temp], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-    # cv2.imshow('temp', image_copy)
-
-    # print("Number of Contours is: " + str(len(contours)))
-
+    # image_copy = bounding_shapes(img)
+    image_copy = template_matching(img)
 
     # cv2.imshow('result', image_copy)
-    image_copy = bounding_shapes(img)
+
     return image_copy
+
 
 if __name__ == '__main__':
 
@@ -1201,6 +1204,8 @@ if __name__ == '__main__':
     # cv2.imshow("img orig", img)
 
     # find_contours(img)
+    # template_matching(img)
+
     # # img_copy = img.copy()
     # # resize to half of the size
     # # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
@@ -1248,8 +1253,8 @@ if __name__ == '__main__':
     #lines_by_hist_for_certain_images()
     # lines_by_hist_html()
     #
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
     # print(get_new_image_size(550, 561))
     # print(get_new_image_size(1058, 522))
