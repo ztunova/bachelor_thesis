@@ -909,7 +909,7 @@ def getAllImages():
         img = cv2.imread(path)
         print(image_name)
 
-        digital_contours = find_contours(img)
+        digital_contours = detect_shapes(img)
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
 
 
@@ -1074,7 +1074,28 @@ def detect_corners(img):
     return image_copy
 
 
-def angle_of_vectors(vect_a, vect_b):
+def template_matching(img):
+    pass
+
+
+def get_vectors_from_rect_points(box):
+    reordered_box = reorder_rect_points_horizontal_rec(box)
+    reordered_box = np.asarray(reordered_box)
+
+    down_side_right_point = reordered_box[2]
+    angle_point = reordered_box[3]
+
+    vect_a = [angle_point[0], 0]
+    vect_b_x = down_side_right_point[0] - angle_point[0]
+    vect_b_y = down_side_right_point[1] - angle_point[1]
+    vect_b = [vect_b_x, vect_b_y]
+
+    return vect_a, vect_b
+
+
+def angle_of_rectangle(rect):
+    vect_a, vect_b = get_vectors_from_rect_points(rect)
+
     vect_a_x, vect_a_y = vect_a
     vect_b_x, vect_b_y = vect_b
 
@@ -1091,7 +1112,52 @@ def angle_of_vectors(vect_a, vect_b):
     return round(angle, 2)
 
 
-def find_contours(img):
+def bounding_shapes(img):
+    image_copy = img.copy()
+    dilated = img_preprocessing(img)
+
+    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    for cnt in contours:
+        cnt_area = cv2.contourArea(cnt)
+        color = random_color()
+        # if cnt_area < 400 or cnt_area > 20000:
+        #     continue
+
+        rect = cv2.minAreaRect(cnt)
+        rect_width = rect[1][0]
+        rect_heigh = rect[1][1]
+        rect_area = rect_width * rect_heigh
+
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+
+        if len(cnt) >= 5:
+            ellipse = cv2.fitEllipse(cnt)
+            (x, y), (MA, ma), angle = ellipse
+            ellipse_area = math.pi * MA/2 * ma/2
+
+            cnt_rect_diff = rect_area - cnt_area
+            cnt_ellipse_diff = ellipse_area - cnt_area
+
+            # angle_of_rotation = rect[2]
+
+            angle_of_rect_rotation = angle_of_rectangle(box)
+
+            if angle_of_rect_rotation > 5:
+                cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
+            # if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 900 and rect_area >= 500:
+            #     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+            # elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 500 and ellipse_area >= 500:
+            #     cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+            # else:
+            #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+
+    return image_copy
+
+
+def detect_shapes(img):
     # template_orig = cv2.imread('images/vzorovy_obdlznik2.png')
     # template = cv2.cvtColor(template_orig, cv2.COLOR_BGR2GRAY)
     # ret, thresh1 = cv2.threshold(template, 127, 255, 0)
@@ -1122,62 +1188,9 @@ def find_contours(img):
 
     # print("Number of Contours is: " + str(len(contours)))
 
-    for cnt in contours:
-        cnt_area = cv2.contourArea(cnt)
-        color = random_color()
-        # if cnt_area < 400 or cnt_area > 20000:
-        #     continue
 
-        rect = cv2.minAreaRect(cnt)
-        rect_width = rect[1][0]
-        rect_heigh = rect[1][1]
-        rect_area = rect_width * rect_heigh
-
-        box = cv2.boxPoints(rect)
-        box = np.int0(box)
-
-        # box = box.reshape((4, 1, 2))
-        # match_rect = cv2.matchShapes(box, cnt, 3, 0.0)
-        # # # print(match)
-        # #
-        # if match_rect < 0.02:
-        # cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-
-        if len(cnt) >= 5:
-            ellipse = cv2.fitEllipse(cnt)
-            (x, y), (MA, ma), angle = ellipse
-            ellipse_area = math.pi * MA/2 * ma/2
-
-            cnt_rect_diff = rect_area - cnt_area
-            cnt_ellipse_diff = ellipse_area - cnt_area
-
-            angle_of_rotation = rect[2]
-            # if angle_of_rotation == 0:
-            reordered_box = reorder_rect_points_horizontal_rec(box)
-            reordered_box = np.asarray(reordered_box)
-
-            down_side_right_point = reordered_box[2]
-            angle_point = reordered_box[3]
-
-            vect_a = [angle_point[0], 0]
-            vect_b_x = down_side_right_point[0] - angle_point[0]
-            vect_b_y = down_side_right_point[1] - angle_point[1]
-            vect_b = [vect_b_x, vect_b_y]
-
-            vect_angle = angle_of_vectors(vect_a, vect_b)
-
-            if vect_angle > 10:
-                cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-
-            # if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 900 and rect_area >= 500:
-            #     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-            # elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 500 and ellipse_area >= 500:
-            #     cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
-            # else:
-            #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-
-
-    # cv2.imshow('cnts', image_copy)
+    # cv2.imshow('result', image_copy)
+    image_copy = bounding_shapes(img)
     return image_copy
 
 if __name__ == '__main__':
