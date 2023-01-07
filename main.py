@@ -1060,11 +1060,33 @@ def img_preprocessing(img):
     return result_img
 
 
+def feature_matching(img):
+    rect_template_img = cv2.imread('images/vzorovy_obdlznik2.png')
+    rect_template_gray = cv2.cvtColor(rect_template_img, cv2.COLOR_BGR2GRAY)
+    # ret, thresh_rect_template = cv2.threshold(rect_template_gray, 127, 255, 0)
+
+    orb = cv2.ORB_create()
+
+    source = img_preprocessing(img)
+
+    kp1, des1 = orb.detectAndCompute(rect_template_gray, None)
+    kp2, des2 = orb.detectAndCompute(img, None)
+
+    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+
+    matches = bf.match(des1, des2)
+    matches = sorted(matches, key=lambda x: x.distance)
+
+    img3 = cv2.drawMatches(rect_template_gray, kp1, img, kp2, matches[:50], None, flags=2)
+    plt.imshow(img3)
+    plt.show()
+
 def detect_corners(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     image_copy = img.copy()
 
-    corners = cv2.goodFeaturesToTrack(gray, 0, 0.1, 20)
+    # max corners to detect (0 => all corners), quality, minimum distance between corners
+    corners = cv2.goodFeaturesToTrack(gray, 0, 0.1, 25)
     corners = np.int0(corners)
 
     for i in corners:
@@ -1113,12 +1135,74 @@ def template_matching(target):
         # print(match)
         # if match_rectangle < 0.25:
         #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-        if match_rectangle < match_ellipse and match_rectangle < 0.2:
-            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-        elif match_ellipse < match_rectangle and match_ellipse < 0.2:
-            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+        # if match_rectangle < match_ellipse and match_rectangle < 0.2:
+        #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+        # elif match_ellipse < match_rectangle and match_ellipse < 0.2:
+        #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+
+        rect = cv2.minAreaRect(cnt)
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+
+        box = box.reshape((*box.shape, 1))
+
+        match = cv2.matchShapes(box, cnt, 3, 0.0)
+        # print(match)
+
+        if match < 0.03:
+            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2,lineType=cv2.LINE_AA)
 
     # cv2.imshow('templ cnt', rect_template_img)
+
+    return image_copy
+
+
+def get_shapes(img):
+    image_copy = img.copy()
+    dilated = img_preprocessing(img)
+
+    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    for cnt in contours:
+        cnt_area = cv2.contourArea(cnt)
+
+        rect = cv2.minAreaRect(cnt)
+        rect_width = rect[1][0]
+        rect_heigh = rect[1][1]
+        rect_area = rect_width * rect_heigh
+
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+
+        cnt_rect_diff = rect_area - cnt_area
+
+        # cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
+        if cnt_rect_diff < 4000 and cnt_area > 500:
+            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+
+            # start_row = box
+
+    return image_copy
+
+
+def shape_approximation(img):
+    image_copy = img.copy()
+    dilated = img_preprocessing(img)
+
+    contours, _ = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    for cnt in contours:
+        approx = cv2.approxPolyDP(cnt, 0.1 * cv2.arcLength(cnt, True), True)
+
+        if len(approx) == 3:
+            cv2.drawContours(image=image_copy, contours=[approx], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+
+        elif len(approx) == 4:
+            cv2.drawContours(image=image_copy, contours=[approx], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
+        elif 6 < len(approx) < 15:
+            cv2.drawContours(image=image_copy, contours=[approx], contourIdx=-1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_AA)
 
     return image_copy
 
@@ -1157,6 +1241,12 @@ def angle_of_rectangle(rect):
     return round(angle, 2)
 
 
+def check_ellipse(ellipse):
+    (x, y), (width, height), angle = ellipse
+
+
+
+
 def bounding_shapes(img):
     image_copy = img.copy()
     dilated = img_preprocessing(img)
@@ -1165,8 +1255,8 @@ def bounding_shapes(img):
 
     for cnt in contours:
         cnt_area = cv2.contourArea(cnt)
-        color = random_color()
-        cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
+        # color = random_color()
+        # cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
 
         # if cnt_area < 400 or cnt_area > 20000:
         #     continue
@@ -1190,23 +1280,27 @@ def bounding_shapes(img):
             # angle_of_rotation = rect[2]
 
             # angle_of_rect_rotation = angle_of_rectangle(box)
-            #
-            # if angle_of_rect_rotation > 5:
+            # if angle_of_rect_rotation > 5 and rect_area < 10000:
             #     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
-            # if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 900 and rect_area >= 500:
-            #     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-            # elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 500 and ellipse_area >= 500:
-            #     cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+            if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 900 and rect_area >= 500:
+                cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+            elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 500 and ellipse_area >= 500:
+                cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+
             # else:
-            #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+                # cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
 
     return image_copy
 
 
 def detect_shapes(img):
     image_copy = bounding_shapes(img)
+    # image_copy = shape_approximation(img)
+    # image_copy = get_shapes(img)
+
     # image_copy = template_matching(img)
+    # image_copy = detect_corners(img)
 
     # cv2.imshow('result', image_copy)
 
@@ -1222,6 +1316,7 @@ if __name__ == '__main__':
 
     # find_contours(img)
     # template_matching(img)
+    # feature_matching(img)
 
     # # img_copy = img.copy()
     # # resize to half of the size
