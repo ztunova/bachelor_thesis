@@ -1305,11 +1305,18 @@ def distance_point_to_line(line_start, line_end, point):
 
 def check_dst_point_to_line(selected_points, start_line, end_line):
     distances = []
+    summa = 0
 
     for point in selected_points:
         point = point[0]
         dst_to_line = distance_point_to_line(start_line, end_line, point)
         distances.append(dst_to_line)
+        summa = summa + dst_to_line
+
+    absolute_deviation = summa / len(distances)
+    # print(absolute_deviation)
+
+    return absolute_deviation
 
 
 def bounding_shapes(img):
@@ -1323,8 +1330,8 @@ def bounding_shapes(img):
         # color = random_color()
         # cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
 
-        # if cnt_area < 400 or cnt_area > 20000:
-        #     continue
+        if cnt_area < 400:
+            continue
 
         rect = cv2.minAreaRect(cnt)
         rect_width = rect[1][0]
@@ -1349,7 +1356,14 @@ def bounding_shapes(img):
             # if angle_of_rect_rotation > 10:
             #     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
 
+            # if cnt_rect_diff < cnt_ellipse_diff:
+            #     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+            # else:
+            #     cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+                # print(ellipse)
+
             if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 900 and rect_area >= 500:
+                # cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
                 if angle_of_rect_rotation > 10:
                     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
                 else:
@@ -1378,28 +1392,16 @@ def bounding_shapes(img):
                 selected = selected.reshape(shape1, 1, shape3)
 
                 # print(selected)
-                cv2.drawContours(image=image_copy, contours=selected, contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+                # cv2.drawContours(image=image_copy, contours=selected, contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
 
-                check_dst_point_to_line(selected, leftmost, topmost)
+                absolute_deviation = check_dst_point_to_line(selected, leftmost, topmost)
 
-            #     M_cnt = cv2.moments(cnt)
-            #     if M_cnt['m00'] != 0.0:
-            #         x_cnt = int(M_cnt['m10'] / M_cnt['m00'])
-            #         y_cnt = int(M_cnt['m01'] / M_cnt['m00'])
-            #         cv2.circle(image_copy, (x_cnt, y_cnt), 5, (0, 0, 255), -1)
-            #
-            #         centre_top = dst_of_points(topmost, (x_cnt, y_cnt))
-            #         centre_bottom = dst_of_points(bottommost, (x_cnt, y_cnt))
-            #
-            #         diff = abs(centre_top - centre_bottom)
-            #         if diff < 5:
-            #             cv2.ellipse(image_copy, ellipse, (255, 0, 0), 2)
+                if absolute_deviation < 1:
+                    cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+                else:
+                    cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
 
 
-                # if cnt_ellipse_diff <= 200:
-                #     cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
-                # else:
-                #     cv2.ellipse(image_copy, ellipse, (255, 0, 0), 2)
 
     return image_copy
 
@@ -1421,8 +1423,10 @@ if __name__ == '__main__':
 
     # resize_all_images()
 
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Arkadelphia.jpg')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Leadville.png')
     # cv2.imshow("img orig", img)
+
+    # bounding_shapes(img)
 
     # A = (53, 31)
     # B = (14, 9)
