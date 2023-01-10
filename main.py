@@ -1273,10 +1273,9 @@ def angle_of_rectangle(rect):
     return round(angle, 2)
 
 
-def get_vector(line_start, line_end, point):
+def get_vector(line_start, line_end):
     a_x, a_y = line_start
     b_x, b_y = line_end
-    point_x, point_y = point
 
     # smerovy vektor priamky AB
     s_x = b_x - a_x
@@ -1288,13 +1287,29 @@ def get_vector(line_start, line_end, point):
 
     c = (-n_x * a_x) - (n_y * a_y)
 
+    return c, (n_x, n_y)
+
+
+def distance_point_to_line(line_start, line_end, point):
+    c, (n_x, n_y) = get_vector(line_start, line_end)
+    point_x, point_y = point
+
     # vzdialenost bodu od priamky
-    vector_length = math.sqrt(n_x**2 + n_y**2)
+    vector_length = math.sqrt(n_x ** 2 + n_y ** 2)
     numerator = abs(n_x * point_x + n_y * point_y + c)
 
     dst_point_line = numerator / vector_length
 
-    return c, (n_x, n_y), dst_point_line
+    return dst_point_line
+
+
+def check_dst_point_to_line(selected_points, start_line, end_line):
+    distances = []
+
+    for point in selected_points:
+        point = point[0]
+        dst_to_line = distance_point_to_line(start_line, end_line, point)
+        distances.append(dst_to_line)
 
 
 def bounding_shapes(img):
@@ -1355,7 +1370,18 @@ def bounding_shapes(img):
 
                 cv2.line(image_copy, leftmost, topmost, (0, 0, 255), 1)
 
-            #
+                left_x, left_y = leftmost
+                top_x, top_y = topmost
+
+                selected = cnt[(left_y >= cnt[:, :, 1]) & (cnt[:, :, 0] <= top_x)]
+                shape1, shape3 = selected.shape
+                selected = selected.reshape(shape1, 1, shape3)
+
+                # print(selected)
+                cv2.drawContours(image=image_copy, contours=selected, contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+
+                check_dst_point_to_line(selected, leftmost, topmost)
+
             #     M_cnt = cv2.moments(cnt)
             #     if M_cnt['m00'] != 0.0:
             #         x_cnt = int(M_cnt['m10'] / M_cnt['m00'])
@@ -1445,8 +1471,8 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    # getAllImages()
-    # digital_images_results.show_results_html()
+    getAllImages()
+    digital_images_results.show_results_html()
     #showResultsHTML()
 
     #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
