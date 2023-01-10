@@ -1214,8 +1214,25 @@ def shape_approximation(img):
                 cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
 
         # elif len(approx) == 4:
-        #     cv2.drawContours(image=image_copy, contours=[approx], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+        #     M_cnt = cv2.moments(cnt)
+        #     M_approx = cv2.moments(approx)
+        #     if M_cnt['m00'] != 0.0:
+        #         x_cnt = int(M_cnt['m10'] / M_cnt['m00'])
+        #         y_cnt = int(M_cnt['m01'] / M_cnt['m00'])
+        #         cv2.circle(image_copy, (x_cnt, y_cnt), 5, (0, 0, 255), -1)
         #
+        #     if M_approx['m00'] != 0.0:
+        #         x_approx = int(M_approx['m10'] / M_approx['m00'])
+        #         y_approx = int(M_approx['m01'] / M_approx['m00'])
+        #         cv2.circle(image_copy, (x_approx, y_approx), 5, (0, 255, 0), -1)
+        #
+        #     x_diff = abs(x_cnt - x_approx)
+        #     y_diff = abs(y_cnt - y_approx)
+        #     if x_diff < 5 and y_diff < 5:
+        #         cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
+            # cv2.drawContours(image=image_copy, contours=[approx], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
         # elif 6 < len(approx) < 15:
         #     cv2.drawContours(image=image_copy, contours=[approx], contourIdx=-1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_AA)
 
@@ -1256,17 +1273,35 @@ def angle_of_rectangle(rect):
     return round(angle, 2)
 
 
-def check_ellipse(ellipse):
-    (x, y), (width, height), angle = ellipse
+def get_vector(line_start, line_end, point):
+    a_x, a_y = line_start
+    b_x, b_y = line_end
+    point_x, point_y = point
 
+    # smerovy vektor priamky AB
+    s_x = b_x - a_x
+    s_y = b_y - a_y
 
+    # normalovy vektor kolmy na smerovy
+    n_x = s_y
+    n_y = -s_x
+
+    c = (-n_x * a_x) - (n_y * a_y)
+
+    # vzdialenost bodu od priamky
+    vector_length = math.sqrt(n_x**2 + n_y**2)
+    numerator = abs(n_x * point_x + n_y * point_y + c)
+
+    dst_point_line = numerator / vector_length
+
+    return c, (n_x, n_y), dst_point_line
 
 
 def bounding_shapes(img):
     image_copy = img.copy()
     dilated = img_preprocessing(img)
 
-    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
     for cnt in contours:
         cnt_area = cv2.contourArea(cnt)
@@ -1296,20 +1331,56 @@ def bounding_shapes(img):
 
             angle_of_rect_rotation = angle_of_rectangle(box)
 
+            # if angle_of_rect_rotation > 10:
+            #     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+
             if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 900 and rect_area >= 500:
                 if angle_of_rect_rotation > 10:
-                    cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+                    cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
                 else:
                     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-            elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 400 and ellipse_area >= 500:
-                cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+
+            elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 500 and ellipse_area >= 500:
+                # cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+
+                leftmost = tuple(cnt[cnt[:, :, 0].argmin()][0])
+                rightmost = tuple(cnt[cnt[:, :, 0].argmax()][0])
+                topmost = tuple(cnt[cnt[:, :, 1].argmin()][0])
+                bottommost = tuple(cnt[cnt[:, :, 1].argmax()][0])
+
+                cv2.circle(image_copy, leftmost, 5, (0, 0, 255), -1)
+                cv2.circle(image_copy, rightmost, 5, (0, 255, 0), -1)
+                cv2.circle(image_copy, topmost, 5, (255, 0, 0), -1)
+                cv2.circle(image_copy, bottommost, 5, (255, 0, 255), -1)
+
+                cv2.line(image_copy, leftmost, topmost, (0, 0, 255), 1)
+
+            #
+            #     M_cnt = cv2.moments(cnt)
+            #     if M_cnt['m00'] != 0.0:
+            #         x_cnt = int(M_cnt['m10'] / M_cnt['m00'])
+            #         y_cnt = int(M_cnt['m01'] / M_cnt['m00'])
+            #         cv2.circle(image_copy, (x_cnt, y_cnt), 5, (0, 0, 255), -1)
+            #
+            #         centre_top = dst_of_points(topmost, (x_cnt, y_cnt))
+            #         centre_bottom = dst_of_points(bottommost, (x_cnt, y_cnt))
+            #
+            #         diff = abs(centre_top - centre_bottom)
+            #         if diff < 5:
+            #             cv2.ellipse(image_copy, ellipse, (255, 0, 0), 2)
+
+
+                # if cnt_ellipse_diff <= 200:
+                #     cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+                # else:
+                #     cv2.ellipse(image_copy, ellipse, (255, 0, 0), 2)
 
     return image_copy
 
 
 def detect_shapes(img):
-    # image_copy = bounding_shapes(img)
-    image_copy = shape_approximation(img)
+    image_copy = bounding_shapes(img)
+    # image_copy = shape_approximation(img)
     # image_copy = get_shapes(img)
 
     # image_copy = template_matching(img)
@@ -1326,6 +1397,11 @@ if __name__ == '__main__':
 
     img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Arkadelphia.jpg')
     # cv2.imshow("img orig", img)
+
+    # A = (53, 31)
+    # B = (14, 9)
+    # C = (5, 18)
+    # print(get_vector(A, B, C))
 
     # find_contours(img)
     # template_matching(img)
@@ -1369,8 +1445,8 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    getAllImages()
-    digital_images_results.show_results_html()
+    # getAllImages()
+    # digital_images_results.show_results_html()
     #showResultsHTML()
 
     #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
