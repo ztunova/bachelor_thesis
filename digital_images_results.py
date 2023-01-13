@@ -10,6 +10,20 @@ def show_results_html():
 
     original_images_names = os.listdir(original_images_dir)
 
+    html_header = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+    """
+
+    html_end = """
+    </body>
+    </html>
+    """
+
     html_table = """
     <table>
     <thead>
@@ -27,8 +41,8 @@ def show_results_html():
         table_rov_info = "<tr>""<td>" + original_images_names[i] + "\n hxw: " + str(height) + " x " + str(width) + "</td>""</tr>"
 
         table_rov = "<tr>" \
-                    "<td><img src= \"" + orig_img_path + "\" alt=\"Sth went wrong\" width=\"250\" height=\"400\"></td>" \
-                    "<td><img src=\"" + contour_img_path + "\" alt=\"Sth went wrong\" width=\"250\" height=\"400\"></td>" \
+                    "<td><img src= \"" + orig_img_path + "\" alt=\"Sth went wrong\" width=\"500\" height=\"400\"></td>" \
+                    "<td><img src=\"" + contour_img_path + "\" alt=\"Sth went wrong\" width=\"500\" height=\"400\"></td>" \
                     "</tr>\n"
         html_table = html_table + table_rov_info + "\n" + table_rov
 
