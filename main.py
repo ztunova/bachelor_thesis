@@ -1303,17 +1303,26 @@ def distance_point_to_line(line_start, line_end, point):
     return dst_point_line
 
 
-def check_dst_point_to_line(selected_points, start_line, end_line):
+def check_dst_point_to_line(selected_points, start_line, end_line, rightmost):
     distances = []
     summa = 0
+    text_vect_length = dst_of_points(start_line, rightmost)
 
     for point in selected_points:
         point = point[0]
-        dst_to_line = distance_point_to_line(start_line, end_line, point)
-        distances.append(dst_to_line)
-        summa = summa + dst_to_line
 
-    absolute_deviation = summa / len(distances)
+        dst_to_text_line = distance_point_to_line(start_line, rightmost, point)
+
+        if dst_to_text_line / text_vect_length > 7 / text_vect_length:
+            # cv2.circle(image_copy, point, 2, (0, 0, 255), -1)
+            dst_to_line = distance_point_to_line(start_line, end_line, point)
+            distances.append(dst_to_line)
+            summa = summa + dst_to_line
+
+    if len(distances) != 0:
+        absolute_deviation = summa / len(distances)
+    else:
+        absolute_deviation = 10
     # print(absolute_deviation)
 
     return absolute_deviation
@@ -1363,26 +1372,26 @@ def bounding_shapes(img):
                 # print(ellipse)
 
             if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 900 and rect_area >= 500:
-                # cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-                if angle_of_rect_rotation > 10:
-                    cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
-                else:
-                    cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+                cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+                # if angle_of_rect_rotation > 10:
+                #     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+                # else:
+                #     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
             elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 500 and ellipse_area >= 500:
-                # cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+                cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
 
                 leftmost = tuple(cnt[cnt[:, :, 0].argmin()][0])
                 rightmost = tuple(cnt[cnt[:, :, 0].argmax()][0])
                 topmost = tuple(cnt[cnt[:, :, 1].argmin()][0])
                 bottommost = tuple(cnt[cnt[:, :, 1].argmax()][0])
 
-                cv2.circle(image_copy, leftmost, 5, (0, 0, 255), -1)
-                cv2.circle(image_copy, rightmost, 5, (0, 255, 0), -1)
-                cv2.circle(image_copy, topmost, 5, (255, 0, 0), -1)
-                cv2.circle(image_copy, bottommost, 5, (255, 0, 255), -1)
-
-                cv2.line(image_copy, leftmost, topmost, (0, 0, 255), 1)
+                # cv2.circle(image_copy, leftmost, 5, (0, 0, 255), -1)
+                # cv2.circle(image_copy, rightmost, 5, (0, 255, 0), -1)
+                # cv2.circle(image_copy, topmost, 5, (255, 0, 0), -1)
+                # cv2.circle(image_copy, bottommost, 5, (255, 0, 255), -1)
+                #
+                # cv2.line(image_copy, leftmost, topmost, (0, 0, 255), 1)
 
                 left_x, left_y = leftmost
                 top_x, top_y = topmost
@@ -1396,25 +1405,121 @@ def bounding_shapes(img):
 
                 absolute_deviation = check_dst_point_to_line(selected, leftmost, topmost)
 
-                if absolute_deviation < 1:
-                    cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
-                else:
-                    cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
-
-
+                # if absolute_deviation < 1:
+                #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+                # else:
+                #     cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
 
     return image_copy
 
 
+def find_shape_center(shape):
+    M_shape = cv2.moments(shape)
+    x_center = 0
+    y_center = 0
+
+    if M_shape['m00'] != 0.0:
+        x_center = int(M_shape['m10'] / M_shape['m00'])
+        y_center = int(M_shape['m01'] / M_shape['m00'])
+
+    return x_center, y_center
+
+
 def detect_shapes(img):
-    image_copy = bounding_shapes(img)
-    # image_copy = shape_approximation(img)
-    # image_copy = get_shapes(img)
+    image_copy = img.copy()
+    dilated = img_preprocessing(img)
 
-    # image_copy = template_matching(img)
-    # image_copy = detect_corners(img)
+    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
-    # cv2.imshow('result', image_copy)
+    for cnt in contours:
+        cnt_area = cv2.contourArea(cnt)
+        # color = random_color()
+        # cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
+
+        if cnt_area < 400:
+            continue
+
+        approx = cv2.approxPolyDP(cnt, 0.025 * cv2.arcLength(cnt, True), True)
+
+        if len(approx) == 3:
+            x_cnt, y_cnt = find_shape_center(cnt)
+            x_approx, y_approx = find_shape_center(approx)
+
+            x_diff = abs(x_cnt - x_approx)
+            y_diff = abs(y_cnt - y_approx)
+            if x_diff < 5 and y_diff < 5:
+                cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+
+        else:
+            rect = cv2.minAreaRect(cnt)
+            rect_width = rect[1][0]
+            rect_heigh = rect[1][1]
+            rect_area = rect_width * rect_heigh
+
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
+
+            if len(cnt) >= 5:
+                ellipse = cv2.fitEllipse(cnt)
+                (x, y), (MA, ma), angle = ellipse
+                ellipse_area = math.pi * MA / 2 * ma / 2
+
+                cnt_rect_diff = rect_area - cnt_area
+                cnt_ellipse_diff = ellipse_area - cnt_area
+
+                # angle_of_rect_rotation = rect[2]
+                angle_of_rect_rotation = angle_of_rectangle(box)
+
+                if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 900 and rect_area >= 500:
+                    cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2,
+                                     lineType=cv2.LINE_AA)
+                    if angle_of_rect_rotation > 10:
+                        cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+                    else:
+                        cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
+                elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 700 and ellipse_area >= 500:
+                    # cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+
+                    leftmost = tuple(cnt[cnt[:, :, 0].argmin()][0])
+                    topmost = tuple(cnt[cnt[:, :, 1].argmin()][0])
+                    rightmost = tuple(cnt[cnt[:, :, 0].argmax()][0])
+                    bottommost = tuple(cnt[cnt[:, :, 1].argmax()][0])
+
+                    # cv2.circle(image_copy, leftmost, 5, (0, 0, 255), -1)
+                    # cv2.circle(image_copy, rightmost, 5, (0, 255, 0), -1)
+                    # cv2.circle(image_copy, topmost, 5, (255, 0, 0), -1)
+                    # cv2.circle(image_copy, bottommost, 5, (255, 0, 255), -1)
+                    # cv2.line(image_copy, leftmost, rightmost, (0, 0, 255), 1)
+
+                    left_x, left_y = leftmost
+                    top_x, top_y = topmost
+                    bottom_x, bottom_y = bottommost
+
+                    selected_upper = cnt[(left_y >= cnt[:, :, 1]) & (cnt[:, :, 0] <= top_x)]
+                    shape1, shape3 = selected_upper.shape
+                    selected_upper = selected_upper.reshape(shape1, 1, shape3)
+
+                    selected_lower = cnt[(left_y <= cnt[:, :, 1]) & (cnt[:, :, 0] <= bottom_x)]
+                    shape1, shape3 = selected_lower.shape
+                    selected_lower = selected_lower.reshape(shape1, 1, shape3)
+
+                    # # print(selected)
+                    # cv2.drawContours(image=image_copy, contours=selected_lower, contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+
+                    absolute_deviation_upper = check_dst_point_to_line(selected_upper, leftmost, topmost, rightmost)
+                    absolute_deviation_lower = check_dst_point_to_line(selected_lower, leftmost, bottommost, rightmost)
+
+                    if absolute_deviation_upper < 1 or absolute_deviation_lower < 1:
+                        cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+
+                        cv2.circle(image_copy, leftmost, 5, (0, 0, 0), -1)
+                        cv2.circle(image_copy, rightmost, 5, (0, 255, 0), -1)
+                        cv2.circle(image_copy, topmost, 5, (255, 0, 0), -1)
+                        cv2.circle(image_copy, bottommost, 5, (0, 255, 255), -1)
+
+                    else:
+                        cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
 
     return image_copy
 
