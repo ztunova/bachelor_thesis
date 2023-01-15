@@ -14,6 +14,8 @@ from output_lines_by_hist_script import lines_by_hist_html
 from outputs import showResultsHTML
 from numpy import linalg as LA
 
+from shapes import Shape
+
 
 def identical_lists(l1, l2):
     pass
@@ -909,7 +911,7 @@ def getAllImages():
         img = cv2.imread(path)
         print(image_name)
 
-        digital_contours = detect_shapes(img)
+        digital_contours, detected_shapes = detect_shapes(img)
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
 
 
@@ -1267,10 +1269,10 @@ def distance_point_to_line(line_start, line_end, point):
     point_x, point_y = point
 
     # vzdialenost bodu od priamky
-    vector_length = math.sqrt(n_x ** 2 + n_y ** 2)
+    denominator = math.sqrt(n_x ** 2 + n_y ** 2)
     numerator = abs(n_x * point_x + n_y * point_y + c)
 
-    dst_point_line = numerator / vector_length
+    dst_point_line = numerator / denominator
 
     return dst_point_line
 
@@ -1312,13 +1314,56 @@ def find_shape_center(shape):
     return x_center, y_center
 
 
+def shape_inside_shape_test(shape_outer, shape_inner):
+    for point in shape_inner.contour:
+        point = point[0]
+        point_x, point_y = point
+        # print(point)
+        inside = cv2.pointPolygonTest(shape_outer.contour, (int(point_x), int(point_y)), measureDist=False)
+        # point is outside the polygon
+        if inside < 0:
+            return False
+
+    # all points of inner shape are inside outer shape
+    return True
+
+
+def clear_shapes(all_shapes, img):
+    cleared_shapes = []
+
+    for i in range(len(all_shapes) - 1):
+        shape1 = all_shapes[i]
+        for j in range(i + 1, len(all_shapes)):
+            shape2 = all_shapes[j]
+
+            shape1_in_shape2 = shape_inside_shape_test(shape2, shape1)
+            shape2_in_shape1 = shape_inside_shape_test(shape1, shape2)
+
+            # if shape1_in_shape2:
+            #     cv2.drawContours(image=img, contours=shape1.contour, contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
+            # elif shape2_in_shape1:
+            #     cv2.drawContours(image=img, contours=shape2.contour, contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
+
+        hull = cv2.convexHull(shape1.contour, returnPoints=False)
+        convexity_defects = cv2.convexityDefects(shape1.contour, hull)
+        if shape1.hierarchy[2] < 0:
+            # these are the innermost child components
+            cv2.drawContours(image=img, contours=shape1.contour, contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
+
+    return img
+
+
 def detect_shapes(img):
+    all_shapes = []
     image_copy = img.copy()
     dilated = img_preprocessing(img)
 
     contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    hierarchy = hierarchy[0]
 
-    for cnt in contours:
+    for component in zip(contours, hierarchy):
+        cnt = component[0]
+        cnt_hierarchy = component[1]
         cnt_area = cv2.contourArea(cnt)
         # color = random_color()
         # cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=color, thickness=2, lineType=cv2.LINE_AA)
@@ -1335,6 +1380,8 @@ def detect_shapes(img):
             x_diff = abs(x_cnt - x_approx)
             y_diff = abs(y_cnt - y_approx)
             if x_diff < 5 and y_diff < 5:
+                triangle_shape = Shape(cnt, cnt_hierarchy, "triangle")
+                all_shapes.append(triangle_shape)
                 cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
 
         else:
@@ -1358,11 +1405,15 @@ def detect_shapes(img):
                 angle_of_rect_rotation = angle_of_rectangle(box)
 
                 if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 900 and rect_area >= 500:
-                    cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2,
-                                     lineType=cv2.LINE_AA)
+                    # cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2,
+                    #                  lineType=cv2.LINE_AA)
                     if angle_of_rect_rotation > 10:
+                        diamond_shape = Shape(cnt, cnt_hierarchy, "diamond")
+                        all_shapes.append(diamond_shape)
                         cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
                     else:
+                        rectangle_shape = Shape(cnt, cnt_hierarchy, "rectangle")
+                        all_shapes.append(rectangle_shape)
                         cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
                 elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 700 and ellipse_area >= 500:
@@ -1397,29 +1448,42 @@ def detect_shapes(img):
                     absolute_deviation_upper = check_dst_point_to_line(selected_upper, leftmost, topmost, rightmost)
                     absolute_deviation_lower = check_dst_point_to_line(selected_lower, leftmost, bottommost, rightmost)
 
-                    if absolute_deviation_upper < 1 or absolute_deviation_lower < 1:
-                        cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+                    upper_side_length = dst_of_points(leftmost, topmost)
+                    lower_side_length = dst_of_points(leftmost, bottommost)
 
-                        x_center, y_center = find_shape_center(cnt)
-                        cv2.circle(image_copy, (x_center, y_center), 5, (255, 255, 51), -1)
+                    if upper_side_length > 0 and lower_side_length > 0:
+                        if (absolute_deviation_upper / upper_side_length) < (1 / upper_side_length) or (absolute_deviation_lower / lower_side_length) < (1 / lower_side_length):
+                            diamond_shape = Shape(cnt, cnt_hierarchy, "diamond")
+                            all_shapes.append(diamond_shape)
 
-                        cv2.circle(image_copy, leftmost, 5, (0, 0, 0), -1)
-                        cv2.circle(image_copy, rightmost, 5, (0, 255, 0), -1)
-                        cv2.circle(image_copy, topmost, 5, (255, 0, 0), -1)
-                        cv2.circle(image_copy, bottommost, 5, (0, 255, 255), -1)
+                            hull = cv2.convexHull(cnt, False)
+                            cv2.drawContours(image=image_copy, contours=[hull], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
 
-                    else:
-                        cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+                            # x_center, y_center = find_shape_center(cnt)
+                            # cv2.circle(image_copy, (x_center, y_center), 5, (255, 255, 51), -1)
+                            #
+                            # cv2.circle(image_copy, leftmost, 5, (0, 0, 0), -1)
+                            # cv2.circle(image_copy, rightmost, 5, (0, 255, 0), -1)
+                            # cv2.circle(image_copy, topmost, 5, (255, 0, 0), -1)
+                            # cv2.circle(image_copy, bottommost, 5, (0, 255, 255), -1)
 
-    return image_copy
+                        else:
+                            ellipse_shape = Shape(cnt, cnt_hierarchy, "ellipse")
+                            all_shapes.append(ellipse_shape)
+                            cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+
+    image_copy = clear_shapes(all_shapes, image_copy)
+    return image_copy, all_shapes
 
 
 if __name__ == '__main__':
 
     # resize_all_images()
 
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Leadville.png')
+    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Aurora.jpg')
     # cv2.imshow("img orig", img)
+
+    # img_res, shapes = detect_shapes(img)
 
     # bounding_shapes(img)
 
