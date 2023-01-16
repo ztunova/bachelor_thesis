@@ -1328,6 +1328,48 @@ def shape_inside_shape_test(shape_outer, shape_inner):
     return True
 
 
+def draw_shapes(img, shapes):
+    for shape in shapes:
+        if shape.shape_name == "triangle":
+            cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(255, 0, 0), thickness=-2, lineType=cv2.LINE_AA)
+        elif shape.shape_name == "rectangle":
+            cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(0, 255, 0), thickness=-2, lineType=cv2.LINE_AA)
+        elif shape.shape_name == "ellipse":
+            cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(0, 0, 255), thickness=-2, lineType=cv2.LINE_AA)
+        elif shape.shape_name == "diamond":
+            cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(0, 0, 0), thickness=-2, lineType=cv2.LINE_AA)
+
+    return img
+
+
+def remove_shapes_from_image(img, shapes):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    deleted_shapes_img = img.copy()
+    img = draw_shapes(img, shapes)
+    # cv2.imshow("img", img)
+    # mask = np.ones(img.shape[:2], dtype="uint8") * 255
+
+    for shape in shapes:
+        # cv2.drawContours(image=deleted_shapes_img, contours=[shape.contour], contourIdx=-1, color=(255, 255, 255), thickness=-1, lineType=cv2.LINE_AA)
+
+        shape.bounding_rectangle = list(shape.bounding_rectangle)
+        shape.bounding_rectangle[1] = list(shape.bounding_rectangle[1])
+        shape.bounding_rectangle[1][0] = shape.bounding_rectangle[1][0] + 5
+        shape.bounding_rectangle[1][1] = shape.bounding_rectangle[1][1] + 5
+        shape.bounding_rectangle[1] = tuple(shape.bounding_rectangle[1])
+        shape.bounding_rectangle = tuple(shape.bounding_rectangle)
+
+        box = cv2.boxPoints(shape.bounding_rectangle)
+        box = np.int0(box)
+
+        hull = cv2.convexHull(shape.contour, False)
+        cv2.drawContours(img, [box], -1, (255, 255, 255), -1)
+
+    # bitwiseXor = cv2.bitwise_xor(img, mask)
+    # cv2.imshow("XOR", bitwiseXor)
+
+    return img
+
 def clear_shapes(all_shapes, img):
     cleared_shapes = []
 
@@ -1380,7 +1422,15 @@ def detect_shapes(img):
             x_diff = abs(x_cnt - x_approx)
             y_diff = abs(y_cnt - y_approx)
             if x_diff < 5 and y_diff < 5:
-                triangle_shape = Shape(cnt, cnt_hierarchy, "triangle")
+                rect = cv2.minAreaRect(cnt)
+                rect_width = rect[1][0]
+                rect_heigh = rect[1][1]
+                rect_area = rect_width * rect_heigh
+
+                box = cv2.boxPoints(rect)
+                box = np.int0(box)
+
+                triangle_shape = Shape(cnt, cnt_hierarchy, "triangle", rect)
                 all_shapes.append(triangle_shape)
                 cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
 
@@ -1408,11 +1458,11 @@ def detect_shapes(img):
                     # cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2,
                     #                  lineType=cv2.LINE_AA)
                     if angle_of_rect_rotation > 10:
-                        diamond_shape = Shape(cnt, cnt_hierarchy, "diamond")
+                        diamond_shape = Shape(cnt, cnt_hierarchy, "diamond", rect)
                         all_shapes.append(diamond_shape)
                         cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
                     else:
-                        rectangle_shape = Shape(cnt, cnt_hierarchy, "rectangle")
+                        rectangle_shape = Shape(cnt, cnt_hierarchy, "rectangle", rect)
                         all_shapes.append(rectangle_shape)
                         cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
@@ -1453,7 +1503,7 @@ def detect_shapes(img):
 
                     if upper_side_length > 0 and lower_side_length > 0:
                         if (absolute_deviation_upper / upper_side_length) < (1 / upper_side_length) or (absolute_deviation_lower / lower_side_length) < (1 / lower_side_length):
-                            diamond_shape = Shape(cnt, cnt_hierarchy, "diamond")
+                            diamond_shape = Shape(cnt, cnt_hierarchy, "diamond", rect)
                             all_shapes.append(diamond_shape)
 
                             hull = cv2.convexHull(cnt, False)
@@ -1468,11 +1518,13 @@ def detect_shapes(img):
                             # cv2.circle(image_copy, bottommost, 5, (0, 255, 255), -1)
 
                         else:
-                            ellipse_shape = Shape(cnt, cnt_hierarchy, "ellipse")
+                            ellipse_shape = Shape(cnt, cnt_hierarchy, "ellipse", rect)
                             all_shapes.append(ellipse_shape)
                             cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+                            # cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
-    image_copy = clear_shapes(all_shapes, image_copy)
+    # image_copy = clear_shapes(all_shapes, image_copy)
+    image_copy = remove_shapes_from_image(img, all_shapes)
     return image_copy, all_shapes
 
 
@@ -1484,6 +1536,10 @@ if __name__ == '__main__':
     # cv2.imshow("img orig", img)
 
     # img_res, shapes = detect_shapes(img)
+    # deleted = remove_shapes_from_image(img, shapes)
+    # cv2.imshow("orig", img_res)
+    # cv2.imshow("deleted", deleted)
+
 
     # bounding_shapes(img)
 
