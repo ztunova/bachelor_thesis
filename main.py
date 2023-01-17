@@ -1346,6 +1346,7 @@ def draw_shapes(img, shapes):
 
 
 def detect_lines(img):
+    # removal based on bounding rectangle
     # img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     img_copy = img.copy()
     dilated = img_preprocessing(img)
@@ -1366,8 +1367,7 @@ def remove_shapes_from_image(img, shapes):
     mask = np.ones(img.shape[:2], dtype="uint8") * 255
 
     for shape in shapes:
-        # cv2.drawContours(image=mask, contours=[shape.contour], contourIdx=-1, color=(0, 0, 0), thickness=-1, lineType=cv2.LINE_AA)
-
+        # removal based on bounding rectangle
         # shape.bounding_rectangle = list(shape.bounding_rectangle)
         # shape.bounding_rectangle[1] = list(shape.bounding_rectangle[1])
         # shape.bounding_rectangle[1][0] = shape.bounding_rectangle[1][0] + 5
@@ -1377,24 +1377,21 @@ def remove_shapes_from_image(img, shapes):
         #
         # box = cv2.boxPoints(shape.bounding_rectangle)
         # box = np.int0(box)
-        #
+
         hull = cv2.convexHull(shape.contour, False)
+
+        # removal based on bounding rectangle: [box]
+        # removal based on contour: [hull]
         cv2.drawContours(mask, [hull], -1, (0, 0, 0), -1)
 
+    # removal based on contour: dilate contour, detect again and draw white
     bw_swap = cv2.bitwise_not(mask)
-    # cv2.imshow("bw swap", bw_swap)
     dilated = cv2.dilate(bw_swap, np.ones((13, 13), dtype=np.uint8))
-    # cv2.imshow("dilated", dilated)
-
     contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     for cnt in contours:
         # color = random_color()
         color = (255, 255, 255)
         cv2.drawContours(image=deleted_shapes_img, contours=[cnt], contourIdx=-1, color=color, thickness=-2, lineType=cv2.LINE_AA)
-
-    # bitwiseXor = cv2.bitwise_xor(img, mask)
-    # cv2.imshow("mask", mask)
-    # cv2.imshow("deleted shapes", deleted_shapes_img)
 
     img = detect_lines(deleted_shapes_img)
     return img
