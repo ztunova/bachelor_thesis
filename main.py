@@ -1346,7 +1346,7 @@ def draw_shapes(img, shapes):
 
 
 def detect_lines(img):
-    img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    # img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     img_copy = img.copy()
     dilated = img_preprocessing(img)
 
@@ -1360,31 +1360,43 @@ def detect_lines(img):
 
 def remove_shapes_from_image(img, shapes):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    deleted_shapes_img = img.copy()
+    deleted_shapes_img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     img = draw_shapes(img, shapes)
     # cv2.imshow("img", img)
-    # mask = np.ones(img.shape[:2], dtype="uint8") * 255
+    mask = np.ones(img.shape[:2], dtype="uint8") * 255
 
     for shape in shapes:
-        # cv2.drawContours(image=deleted_shapes_img, contours=[shape.contour], contourIdx=-1, color=(255, 255, 255), thickness=-1, lineType=cv2.LINE_AA)
+        # cv2.drawContours(image=mask, contours=[shape.contour], contourIdx=-1, color=(0, 0, 0), thickness=-1, lineType=cv2.LINE_AA)
 
-        shape.bounding_rectangle = list(shape.bounding_rectangle)
-        shape.bounding_rectangle[1] = list(shape.bounding_rectangle[1])
-        shape.bounding_rectangle[1][0] = shape.bounding_rectangle[1][0] + 5
-        shape.bounding_rectangle[1][1] = shape.bounding_rectangle[1][1] + 5
-        shape.bounding_rectangle[1] = tuple(shape.bounding_rectangle[1])
-        shape.bounding_rectangle = tuple(shape.bounding_rectangle)
-
-        box = cv2.boxPoints(shape.bounding_rectangle)
-        box = np.int0(box)
-
+        # shape.bounding_rectangle = list(shape.bounding_rectangle)
+        # shape.bounding_rectangle[1] = list(shape.bounding_rectangle[1])
+        # shape.bounding_rectangle[1][0] = shape.bounding_rectangle[1][0] + 5
+        # shape.bounding_rectangle[1][1] = shape.bounding_rectangle[1][1] + 5
+        # shape.bounding_rectangle[1] = tuple(shape.bounding_rectangle[1])
+        # shape.bounding_rectangle = tuple(shape.bounding_rectangle)
+        #
+        # box = cv2.boxPoints(shape.bounding_rectangle)
+        # box = np.int0(box)
+        #
         hull = cv2.convexHull(shape.contour, False)
-        cv2.drawContours(img, [box], -1, (255, 255, 255), -1)
+        cv2.drawContours(mask, [hull], -1, (0, 0, 0), -1)
+
+    bw_swap = cv2.bitwise_not(mask)
+    # cv2.imshow("bw swap", bw_swap)
+    dilated = cv2.dilate(bw_swap, np.ones((13, 13), dtype=np.uint8))
+    # cv2.imshow("dilated", dilated)
+
+    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    for cnt in contours:
+        # color = random_color()
+        color = (255, 255, 255)
+        cv2.drawContours(image=deleted_shapes_img, contours=[cnt], contourIdx=-1, color=color, thickness=-2, lineType=cv2.LINE_AA)
 
     # bitwiseXor = cv2.bitwise_xor(img, mask)
-    # cv2.imshow("XOR", bitwiseXor)
+    # cv2.imshow("mask", mask)
+    # cv2.imshow("deleted shapes", deleted_shapes_img)
 
-    img = detect_lines(img)
+    img = detect_lines(deleted_shapes_img)
     return img
 
 
