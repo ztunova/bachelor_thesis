@@ -902,6 +902,7 @@ def getAllImages():
     ver_rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_ver_rect_hist_closest_dst"
 
     digital_imgs_contour_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_digital_contours"
+    removed_shapes_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_removed_shapes"
 
     all_images = os.listdir(folder_dir)
     # print(all_images)
@@ -913,6 +914,8 @@ def getAllImages():
 
         digital_contours, detected_shapes = detect_shapes(img)
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
+        removed_shapes = remove_shapes_from_image(img, detected_shapes)
+        saveImage(removed_shapes_dir, image_name, "", removed_shapes)
 
 
         # img_hlines, lines, input_img = detectLinesHough(img)
@@ -1342,6 +1345,19 @@ def draw_shapes(img, shapes):
     return img
 
 
+def detect_lines(img):
+    img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    img_copy = img.copy()
+    dilated = img_preprocessing(img)
+
+    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    for cnt in contours:
+        color = random_color()
+        cv2.drawContours(image=img_copy, contours=[cnt], contourIdx=-1, color=color, thickness=-2,lineType=cv2.LINE_AA)
+
+    return img_copy
+
+
 def remove_shapes_from_image(img, shapes):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     deleted_shapes_img = img.copy()
@@ -1368,7 +1384,9 @@ def remove_shapes_from_image(img, shapes):
     # bitwiseXor = cv2.bitwise_xor(img, mask)
     # cv2.imshow("XOR", bitwiseXor)
 
+    img = detect_lines(img)
     return img
+
 
 def clear_shapes(all_shapes, img):
     cleared_shapes = []
@@ -1524,7 +1542,7 @@ def detect_shapes(img):
                             # cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
     # image_copy = clear_shapes(all_shapes, image_copy)
-    image_copy = remove_shapes_from_image(img, all_shapes)
+    # image_copy = remove_shapes_from_image(img, all_shapes)
     return image_copy, all_shapes
 
 
@@ -1592,11 +1610,12 @@ if __name__ == '__main__':
 
     getAllImages()
     digital_images_results.show_results_html()
-    #showResultsHTML()
 
-    #print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
+    # showResultsHTML()
 
-    #lines_by_hist_for_certain_images()
+    # print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
+
+    # lines_by_hist_for_certain_images()
     # lines_by_hist_html()
     #
     cv2.waitKey(0)
