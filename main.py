@@ -188,7 +188,6 @@ def draw_connected_middle_points_max_length_vertical(draw_img, closest_rect, max
         start_point = get_middle_point_of_side(start_rec_left_upper, start_rec_right_upper)
         end_point = get_middle_point_of_side(end_rec_left_lower, end_rec_right_lower)
 
-
         # end_rec[1] = upravena metrika
         # end_rec[2] = realna metrika
         dst = end_rec[2]
@@ -219,7 +218,6 @@ def draw_connected_middle_points_max_length_horizontal(draw_img, closest_rect, m
         start_point = get_middle_point_of_side(start_rec_right_upper, start_rec_right_lower)
         end_point = get_middle_point_of_side(end_rec_left_upper, end_rec_left_lower)
 
-
         # end_rec[1] = upravena metrika
         # end_rec[2] = realna metrika
         dst = end_rec[2]
@@ -230,6 +228,7 @@ def draw_connected_middle_points_max_length_horizontal(draw_img, closest_rect, m
             draw_img = cv2.line(draw_img, start_point, end_point, (255, 51, 255), thickness)
 
     return draw_img
+
 
 def draw_connected_middle_points_closest_horizontal_vertical(draw_img, closest_rect):
     if closest_rect is None:
@@ -346,9 +345,10 @@ def draw_connected_middle_points_closest_horizontal_histogram_color(draw_img, cl
             draw_img = cv2.circle(draw_img, end_point, radius, color, thickness)
             draw_img = cv2.line(draw_img, start_point, end_point, color, thickness)
 
-    #cv2.imshow("connected", draw_img)
+    # cv2.imshow("connected", draw_img)
 
     return draw_img
+
 
 def draw_connected_middle_points_histogram_colors(draw_img, closest_rect, colors, bins, bin_width):
     # rgb
@@ -377,7 +377,8 @@ def draw_connected_middle_points_histogram_colors(draw_img, closest_rect, colors
         color = colors[i]
         bgr_color = all_colors[color]
         # print(bin_start, " ", bin_end, " ", color)
-        draw_img = draw_connected_middle_points_closest_horizontal_histogram_color(draw_img, closest_rect, bgr_color, bin_start, bin_end)
+        draw_img = draw_connected_middle_points_closest_horizontal_histogram_color(draw_img, closest_rect, bgr_color,
+                                                                                   bin_start, bin_end)
 
     return draw_img
 
@@ -391,8 +392,9 @@ def clear_hist_data(counts, bins, bin_width):
 
     # last_value = cleared_bins[len(cleared_bins) - 1] + bin_width + 1
     # cleared_bins.insert(len(cleared_bins), last_value)
-    #print(cleared_bins)
+    # print(cleared_bins)
     return cleared_bins
+
 
 # larger m => less outliers removed
 def reject_outliers(data, m=6.):
@@ -405,7 +407,7 @@ def reject_outliers(data, m=6.):
 
 
 def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, img_name):
-    #rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_area"
+    # rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_area"
 
     distances = []
     used_colors = None
@@ -458,7 +460,7 @@ def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, i
     plt.savefig(save_dst)
     plt.close(fig)
 
-    #plt.show()
+    # plt.show()
 
     return used_colors, cleared_bins, binwidth
 
@@ -670,6 +672,7 @@ def find_closest_vertical_to_horizontal_rec(all_hor_rect, all_ver_rect):
             dst_right_lower = dst_of_points(mid_right, mid_lower)
 
             pass
+
 
 def find_closest_vertical_rect(all_ver_rect):
     closest_results = {}
@@ -917,7 +920,6 @@ def getAllImages():
         removed_shapes = remove_shapes_from_image(img, detected_shapes)
         saveImage(removed_shapes_dir, image_name, "", removed_shapes)
 
-
         # img_hlines, lines, input_img = detectLinesHough(img)
         # saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
         # saveImage(input_dir, image_name, 'input', input_img)
@@ -963,7 +965,6 @@ def getAllImages():
 
 
 def lines_by_hist_bins(bins, bin_width, closest_data, img, boundary, dir, name):
-
     for i in range(boundary):
         max_length = bins[i] + bin_width
 
@@ -982,11 +983,11 @@ def lines_by_hist_bins(bins, bin_width, closest_data, img, boundary, dir, name):
                 img = cv2.circle(img, end_point, 2, (255, 51, 255), 2)
                 img = cv2.line(img, start_point, end_point, (255, 51, 255), 2)
 
-    #cv2.imshow("limited by bin", img)
+    # cv2.imshow("limited by bin", img)
 
-    #dst = dir + '/' + name
+    # dst = dir + '/' + name
 
-    #cv2.imwrite(dst, img)
+    # cv2.imwrite(dst, img)
     saveImage(dir, name, str(boundary), img)
 
 
@@ -998,7 +999,7 @@ def depict_all_bins_separetly(bins, binwidth, closest, img, dir, name):
 def lines_by_hist_for_certain_images():
     all_img_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1'
     results_parent_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist/fix_bins'
-    #results_parent_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist/auto_bins'
+    # results_parent_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist/auto_bins'
     text_file_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist/vzorove_obr_pre_histogrami.txt'
 
     results_dirs = os.listdir(results_parent_dir)
@@ -1060,7 +1061,7 @@ def img_preprocessing(img):
     dilated = cv2.dilate(bw_swap, np.ones((3, 3), dtype=np.uint8))  # 2, 2
     eroded = cv2.erode(dilated, np.ones((2, 2), dtype=np.uint8))  # 2, 2
 
-    result_img = dilated   # dilated
+    result_img = dilated  # dilated
     # cv2.imshow('res', result_img)
     return result_img
 
@@ -1122,7 +1123,8 @@ def template_matching(target):
     ellipse_template_gray = cv2.cvtColor(ellipse_template_img, cv2.COLOR_BGR2GRAY)
     ret, thresh_ellipse_template = cv2.threshold(ellipse_template_gray, 127, 255, 0)
 
-    ellipse_contours, ellipse_hierarchy = cv2.findContours(thresh_ellipse_template, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    ellipse_contours, ellipse_hierarchy = cv2.findContours(thresh_ellipse_template, cv2.RETR_CCOMP,
+                                                           cv2.CHAIN_APPROX_SIMPLE)
     sorted_ellipse_template_contours = sorted(ellipse_contours, key=cv2.contourArea, reverse=True)
     ellipse_template = sorted_ellipse_template_contours[1]
 
@@ -1156,7 +1158,8 @@ def template_matching(target):
         # print(match)
 
         if match < 0.03:
-            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2,lineType=cv2.LINE_AA)
+            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2,
+                             lineType=cv2.LINE_AA)
 
     # cv2.imshow('templ cnt', rect_template_img)
 
@@ -1188,7 +1191,8 @@ def shape_approximation(img):
             x_diff = abs(x_cnt - x_approx)
             y_diff = abs(y_cnt - y_approx)
             if x_diff < 5 and y_diff < 5:
-                cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+                cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2,
+                                 lineType=cv2.LINE_AA)
 
         # elif len(approx) == 4:
         #     M_cnt = cv2.moments(cnt)
@@ -1208,7 +1212,7 @@ def shape_approximation(img):
         #     if x_diff < 5 and y_diff < 5:
         #         cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
-            # cv2.drawContours(image=image_copy, contours=[approx], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+        # cv2.drawContours(image=image_copy, contours=[approx], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
         # elif 6 < len(approx) < 15:
         #     cv2.drawContours(image=image_copy, contours=[approx], contourIdx=-1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_AA)
@@ -1237,8 +1241,8 @@ def angle_of_rectangle(rect):
     vect_a_x, vect_a_y = vect_a
     vect_b_x, vect_b_y = vect_b
 
-    vect_a_length = math.sqrt(vect_a_x**2 + vect_a_y**2)
-    vect_b_length = math.sqrt(vect_b_x**2 + vect_b_y**2)
+    vect_a_length = math.sqrt(vect_a_x ** 2 + vect_a_y ** 2)
+    vect_b_length = math.sqrt(vect_b_x ** 2 + vect_b_y ** 2)
 
     dot_product = (vect_a_x * vect_b_x) + (vect_a_y * vect_b_y)
     if dot_product == 0:
@@ -1334,13 +1338,17 @@ def shape_inside_shape_test(shape_outer, shape_inner):
 def draw_shapes(img, shapes):
     for shape in shapes:
         if shape.shape_name == "triangle":
-            cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(255, 0, 0), thickness=-2, lineType=cv2.LINE_AA)
+            cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(255, 0, 0), thickness=-2,
+                             lineType=cv2.LINE_AA)
         elif shape.shape_name == "rectangle":
-            cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(0, 255, 0), thickness=-2, lineType=cv2.LINE_AA)
+            cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(0, 255, 0), thickness=-2,
+                             lineType=cv2.LINE_AA)
         elif shape.shape_name == "ellipse":
-            cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(0, 0, 255), thickness=-2, lineType=cv2.LINE_AA)
+            cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(0, 0, 255), thickness=-2,
+                             lineType=cv2.LINE_AA)
         elif shape.shape_name == "diamond":
-            cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(0, 0, 0), thickness=-2, lineType=cv2.LINE_AA)
+            cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(0, 0, 0), thickness=-2,
+                             lineType=cv2.LINE_AA)
 
     return img
 
@@ -1354,7 +1362,7 @@ def detect_lines(img):
     contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     for cnt in contours:
         color = random_color()
-        cv2.drawContours(image=img_copy, contours=[cnt], contourIdx=-1, color=color, thickness=-2,lineType=cv2.LINE_AA)
+        cv2.drawContours(image=img_copy, contours=[cnt], contourIdx=-1, color=color, thickness=-2, lineType=cv2.LINE_AA)
 
     return img_copy
 
@@ -1391,7 +1399,8 @@ def remove_shapes_from_image(img, shapes):
     for cnt in contours:
         # color = random_color()
         color = (255, 255, 255)
-        cv2.drawContours(image=deleted_shapes_img, contours=[cnt], contourIdx=-1, color=color, thickness=-2, lineType=cv2.LINE_AA)
+        cv2.drawContours(image=deleted_shapes_img, contours=[cnt], contourIdx=-1, color=color, thickness=-2,
+                         lineType=cv2.LINE_AA)
 
     img = detect_lines(deleted_shapes_img)
     return img
@@ -1402,22 +1411,35 @@ def clear_shapes(all_shapes, img):
 
     for i in range(len(all_shapes) - 1):
         shape1 = all_shapes[i]
-        for j in range(i + 1, len(all_shapes)):
-            shape2 = all_shapes[j]
+        # for j in range(i + 1, len(all_shapes)):
+        #     shape2 = all_shapes[j]
+        #
+        #     shape1_in_shape2 = shape_inside_shape_test(shape2, shape1)
+        #     shape2_in_shape1 = shape_inside_shape_test(shape1, shape2)
 
-            shape1_in_shape2 = shape_inside_shape_test(shape2, shape1)
-            shape2_in_shape1 = shape_inside_shape_test(shape1, shape2)
-
-            # if shape1_in_shape2:
-            #     cv2.drawContours(image=img, contours=shape1.contour, contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
-            # elif shape2_in_shape1:
-            #     cv2.drawContours(image=img, contours=shape2.contour, contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
+        # if shape1_in_shape2:
+        #     cv2.drawContours(image=img, contours=shape1.contour, contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
+        # elif shape2_in_shape1:
+        #     cv2.drawContours(image=img, contours=shape2.contour, contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
 
         hull = cv2.convexHull(shape1.contour, returnPoints=False)
-        convexity_defects = cv2.convexityDefects(shape1.contour, hull)
-        if shape1.hierarchy[2] < 0:
-            # these are the innermost child components
-            cv2.drawContours(image=img, contours=shape1.contour, contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
+
+        if len(hull > 3):
+            convexity_defects = cv2.convexityDefects(shape1.contour, hull)
+            if convexity_defects is None:
+                continue
+            cnt = shape1.contour
+            for defect in convexity_defects:
+                s, e, f, d = defect[0]
+                start = tuple(cnt[s][0])
+                end = tuple(cnt[e][0])
+                far = tuple(cnt[f][0])
+                # cv2.line(img, start, end, [0, 255, 255], 2)
+                cv2.circle(img, far, 3, [255, 0, 0], -1)
+
+        # if shape1.hierarchy[2] < 0:
+        #     # these are the innermost child components
+        #     cv2.drawContours(image=img, contours=shape1.contour, contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
 
     return img
 
@@ -1459,7 +1481,8 @@ def detect_shapes(img):
 
                 triangle_shape = Shape(cnt, cnt_hierarchy, "triangle", rect)
                 all_shapes.append(triangle_shape)
-                cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+                cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2,
+                                 lineType=cv2.LINE_AA)
 
         else:
             rect = cv2.minAreaRect(cnt)
@@ -1487,11 +1510,13 @@ def detect_shapes(img):
                     if angle_of_rect_rotation > 10:
                         diamond_shape = Shape(cnt, cnt_hierarchy, "diamond", rect)
                         all_shapes.append(diamond_shape)
-                        cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+                        cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(255, 0, 255),
+                                         thickness=2, lineType=cv2.LINE_AA)
                     else:
                         rectangle_shape = Shape(cnt, cnt_hierarchy, "rectangle", rect)
                         all_shapes.append(rectangle_shape)
-                        cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+                        cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0),
+                                         thickness=2, lineType=cv2.LINE_AA)
 
                 elif cnt_rect_diff > cnt_ellipse_diff and cnt_ellipse_diff <= 700 and ellipse_area >= 500:
                     # cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
@@ -1529,12 +1554,14 @@ def detect_shapes(img):
                     lower_side_length = dst_of_points(leftmost, bottommost)
 
                     if upper_side_length > 0 and lower_side_length > 0:
-                        if (absolute_deviation_upper / upper_side_length) < (1 / upper_side_length) or (absolute_deviation_lower / lower_side_length) < (1 / lower_side_length):
+                        if (absolute_deviation_upper / upper_side_length) < (1 / upper_side_length) or (
+                                absolute_deviation_lower / lower_side_length) < (1 / lower_side_length):
                             diamond_shape = Shape(cnt, cnt_hierarchy, "diamond", rect)
                             all_shapes.append(diamond_shape)
 
                             hull = cv2.convexHull(cnt, False)
-                            cv2.drawContours(image=image_copy, contours=[hull], contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+                            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 255),
+                                             thickness=2, lineType=cv2.LINE_AA)
 
                             # x_center, y_center = find_shape_center(cnt)
                             # cv2.circle(image_copy, (x_center, y_center), 5, (255, 255, 51), -1)
@@ -1556,17 +1583,16 @@ def detect_shapes(img):
 
 
 if __name__ == '__main__':
-
     # resize_all_images()
 
-    img = cv2.imread('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Aurora.jpg')
+    img = cv2.imread(
+        'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Aspen.png')
     # cv2.imshow("img orig", img)
 
     # img_res, shapes = detect_shapes(img)
     # deleted = remove_shapes_from_image(img, shapes)
     # cv2.imshow("orig", img_res)
     # cv2.imshow("deleted", deleted)
-
 
     # bounding_shapes(img)
 
