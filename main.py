@@ -14,7 +14,7 @@ from output_lines_by_hist_script import lines_by_hist_html
 from outputs import showResultsHTML
 from numpy import linalg as LA
 
-from shapes import Shape
+from shapes import Shape, Line
 
 
 def identical_lists(l1, l2):
@@ -1368,8 +1368,25 @@ def enlarge_contour(shape, img_size, hull):
     return mask
 
 
+def match_shapes(img, shapes, lines):
+    for line in lines:
+        for shape in shapes:
+            shape_centre = find_shape_center(shape.enlarged_contour)
+            cv2.circle(img, shape_centre, 3, (0, 0, 0), -1)
+            for point in line.edge_points:
+                point = point[0]
+                point_x, point_y = point
+
+                inside = cv2.pointPolygonTest(shape.enlarged_contour, (int(point_x), int(point_y)), measureDist=False)
+
+                if inside >= 0:
+                    cv2.line(img, shape_centre, point, line.color, 1)
+
+    return img
+
 
 def detect_lines(img, shapes):
+    all_lines = []
     img_copy = img.copy()
 
     for shape in shapes:
@@ -1388,12 +1405,17 @@ def detect_lines(img, shapes):
 
         peri = cv2.arcLength(cnt, False)
         approx = cv2.approxPolyDP(cnt, 0.01 * peri, False)
+
+        line = Line(cnt, approx, color)
+        all_lines.append(line)
+
         # cv2.drawContours(image=img_copy, contours=[approx], contourIdx=-1, color=(0, 0, 255), thickness=-2, lineType=cv2.LINE_AA)
 
         for point in approx:
             point = point[0]
             cv2.circle(img_copy, point, 3, (0, 0, 0), -1)
 
+    img_copy = match_shapes(img_copy, shapes, all_lines)
     return img_copy
 
 
