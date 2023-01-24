@@ -18,3 +18,4 @@ class Line:
         self.contour = contour
         self.edge_points = edge_points
         self.color = color
+        self.connecting_shapes = []
