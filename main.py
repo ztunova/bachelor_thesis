@@ -1372,7 +1372,7 @@ def match_shapes(img, shapes, lines):
     for line in lines:
         for shape in shapes:
             shape_centre = find_shape_center(shape.enlarged_contour)
-            cv2.circle(img, shape_centre, 3, (0, 0, 0), -1)
+            cv2.circle(img, shape_centre, 4, (0, 0, 0), -1)
             for point in line.edge_points:
                 point = point[0]
                 point_x, point_y = point
@@ -1380,7 +1380,10 @@ def match_shapes(img, shapes, lines):
                 inside = cv2.pointPolygonTest(shape.enlarged_contour, (int(point_x), int(point_y)), measureDist=False)
 
                 if inside >= 0:
-                    cv2.line(img, shape_centre, point, line.color, 1)
+                    # cv2.line(img, shape_centre, point, line.color, 1)
+                    if shape not in line.connecting_shapes:
+                        line.connecting_shapes.append(shape)
+                        cv2.line(img, shape_centre, point, line.color, 2)
 
     return img
 
@@ -1413,7 +1416,7 @@ def detect_lines(img, shapes):
 
         for point in approx:
             point = point[0]
-            cv2.circle(img_copy, point, 3, (0, 0, 0), -1)
+            cv2.circle(img_copy, point, 4, (0, 0, 0), -1)
 
     img_copy = match_shapes(img_copy, shapes, all_lines)
     return img_copy
