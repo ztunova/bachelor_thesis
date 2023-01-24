@@ -1353,8 +1353,29 @@ def draw_shapes(img, shapes):
     return img
 
 
-def detect_lines(img):
+def enlarge_contour(shape, img_size, hull):
+    mask = np.ones(img_size, dtype="uint8") * 255
+    cv2.drawContours(mask, [hull], -1, (0, 0, 0), -1)
+    bw_swap = cv2.bitwise_not(mask)
+
+    dilated = cv2.dilate(bw_swap, np.ones((25, 25), dtype=np.uint8))
+    contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    shape.enlarged_contour = contours[0]
+
+    # cv2.drawContours(image=img, contours=contours, contourIdx=-1, color=(0, 0, 0), thickness=-2, lineType=cv2.LINE_AA)
+
+    return mask
+
+
+
+def detect_lines(img, shapes):
     img_copy = img.copy()
+
+    for shape in shapes:
+        cv2.drawContours(image=img_copy, contours=[shape.enlarged_contour], contourIdx=-1, color=(0, 0, 0), thickness=2,
+                         lineType=cv2.LINE_AA)
+
     dilated = img_preprocessing(img)
 
     hh, ww = img.shape[:2]
@@ -1371,7 +1392,7 @@ def detect_lines(img):
 
         for point in approx:
             point = point[0]
-            cv2.circle(img_copy, point, 3, (255, 0, 0), -1)
+            cv2.circle(img_copy, point, 3, (0, 0, 0), -1)
 
     return img_copy
 
@@ -1379,15 +1400,17 @@ def detect_lines(img):
 def remove_shapes_from_image(img, shapes):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     deleted_shapes_img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-    img = draw_shapes(img, shapes)
-    mask = np.ones(img.shape[:2], dtype="uint8") * 255
+    img_size = img.shape[:2]
+    mask = np.ones(img_size, dtype="uint8") * 255
 
     for shape in shapes:
         hull = cv2.convexHull(shape.contour, False)
         cv2.drawContours(mask, [hull], -1, (0, 0, 0), -1)
+        enlarge_contour(shape, img_size, hull)
 
     # removal based on contour: dilate contour, detect again and draw white
     bw_swap = cv2.bitwise_not(mask)
+
     dilated = cv2.dilate(bw_swap, np.ones((13, 13), dtype=np.uint8))
     contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     for cnt in contours:
@@ -1395,7 +1418,7 @@ def remove_shapes_from_image(img, shapes):
         cv2.drawContours(image=deleted_shapes_img, contours=[cnt], contourIdx=-1, color=color, thickness=-2,
                          lineType=cv2.LINE_AA)
 
-    img = detect_lines(deleted_shapes_img)
+    img = detect_lines(deleted_shapes_img, shapes)
     return img
 
 
@@ -1497,6 +1520,10 @@ def detect_shapes(img):
                 # angle_of_rect_rotation = rect[2]
                 angle_of_rect_rotation = angle_of_rectangle(box)
 
+                # if ellipse_area < 10000:
+                #     cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2,lineType=cv2.LINE_AA)
+                #     cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
+
                 if cnt_rect_diff < cnt_ellipse_diff and cnt_rect_diff <= 900 and rect_area >= 500:
                     # cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2,
                     #                  lineType=cv2.LINE_AA)
@@ -1519,10 +1546,10 @@ def detect_shapes(img):
                     rightmost = tuple(cnt[cnt[:, :, 0].argmax()][0])
                     bottommost = tuple(cnt[cnt[:, :, 1].argmax()][0])
 
-                    # cv2.circle(image_copy, leftmost, 5, (0, 0, 255), -1)
-                    # cv2.circle(image_copy, rightmost, 5, (0, 255, 0), -1)
+                    # cv2.circle(image_copy, leftmost, 5, (255, 0, 0), -1)
+                    # cv2.circle(image_copy, rightmost, 5, (255, 0, 0), -1)
                     # cv2.circle(image_copy, topmost, 5, (255, 0, 0), -1)
-                    # cv2.circle(image_copy, bottommost, 5, (255, 0, 255), -1)
+                    # cv2.circle(image_copy, bottommost, 5, (255, 0, 0), -1)
                     # cv2.line(image_copy, leftmost, rightmost, (0, 0, 255), 1)
 
                     left_x, left_y = leftmost
@@ -1539,6 +1566,7 @@ def detect_shapes(img):
 
                     # # print(selected)
                     # cv2.drawContours(image=image_copy, contours=selected_lower, contourIdx=-1, color=(255, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+                    # cv2.drawContours(image=image_copy, contours=selected_upper, contourIdx=-1, color=(255, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
                     absolute_deviation_upper = check_dst_point_to_line(selected_upper, leftmost, topmost, rightmost)
                     absolute_deviation_lower = check_dst_point_to_line(selected_lower, leftmost, bottommost, rightmost)
@@ -1586,6 +1614,12 @@ if __name__ == '__main__':
     # deleted = remove_shapes_from_image(img, shapes)
     # cv2.imshow("orig", img_res)
     # cv2.imshow("deleted", deleted)
+    #
+    # shape = shapes[3]
+    # hull = cv2.convexHull(shape.contour, False)
+    # enlarged = enlarge_contour(shape, img.shape[:2], hull)
+    # cv2.imshow("enlarged", enlarged)
+
 
     # bounding_shapes(img)
 
