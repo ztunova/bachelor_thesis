@@ -1368,6 +1368,25 @@ def enlarge_contour(shape, img_size, hull):
     return mask
 
 
+def connect_lines(img, line, point, all_lines):
+    min_dst = 100000
+    closest_line = None
+    closest_point = None
+    for current_line in all_lines:
+        if current_line != line:
+            for current_point in current_line.edge_points:
+                current_point = current_point[0]
+                current_dst = dst_of_points(point, current_point)
+
+                if current_dst < min_dst:
+                    min_dst = current_dst
+                    closest_line = current_line
+                    closest_point = current_point
+
+    cv2.line(img, point, closest_point, (0, 255, 255), 5)
+    return img, closest_line
+
+
 def match_shapes(img, shapes, lines):
     for line in lines:
         for shape in shapes:
@@ -1384,6 +1403,8 @@ def match_shapes(img, shapes, lines):
                     if shape not in line.connecting_shapes:
                         line.connecting_shapes.append(shape)
                         cv2.line(img, shape_centre, point, line.color, 2)
+                else:
+                    img, _ = connect_lines(img, line, point, lines)
 
     return img
 
@@ -1403,7 +1424,7 @@ def detect_lines(img, shapes):
     contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
         color = random_color()
-        # color = (255, 0, 0)
+        color = (255, 0, 0)
         cv2.drawContours(image=img_copy, contours=[cnt], contourIdx=-1, color=color, thickness=-2, lineType=cv2.LINE_AA)
 
         peri = cv2.arcLength(cnt, False)
@@ -1416,7 +1437,7 @@ def detect_lines(img, shapes):
 
         for point in approx:
             point = point[0]
-            cv2.circle(img_copy, point, 4, (0, 0, 0), -1)
+            cv2.circle(img_copy, point, 4, (0, 0, 255), -1)
 
     img_copy = match_shapes(img_copy, shapes, all_lines)
     return img_copy
@@ -1632,13 +1653,13 @@ if __name__ == '__main__':
     # resize_all_images()
 
     img = cv2.imread(
-        'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Aspen.png')
+        'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Arkadelphia.jpg')
     # cv2.imshow("img orig", img)
 
-    # img_res, shapes = detect_shapes(img)
-    # deleted = remove_shapes_from_image(img, shapes)
-    # cv2.imshow("orig", img_res)
-    # cv2.imshow("deleted", deleted)
+    img_res, shapes = detect_shapes(img)
+    lines = remove_shapes_from_image(img, shapes)
+    cv2.imshow("shapes", img_res)
+    cv2.imshow("lines", lines)
     #
     # shape = shapes[3]
     # hull = cv2.convexHull(shape.contour, False)
@@ -1695,8 +1716,8 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    getAllImages()
-    digital_images_results.show_results_html()
+    # getAllImages()
+    # digital_images_results.show_results_html()
 
     # showResultsHTML()
 
