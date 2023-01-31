@@ -1368,29 +1368,52 @@ def enlarge_contour(shape, img_size, hull):
     return mask
 
 
-def connect_lines(img, all_lines):
-    for line in all_lines:
-        for point in line.edge_points:
-            point = point[0]
-            min_dst = 100000
-            closest_line = None
-            closest_point = None
-            for next_line in all_lines:
-                if next_line != line:
-                    for next_point in next_line.edge_points:
-                        next_point = next_point[0]
+def find_closest_line(line, all_lines):
+    for point in line.edge_points:
+        point = point[0]
+        min_dst = 100000
+        closest_line = None
+        closest_point = None
+        for next_line in all_lines:
+            if next_line != line:
+                for next_point in next_line.edge_points:
+                    next_point = next_point[0]
 
-                        current_dst = dst_of_points(point, next_point)
+                    current_dst = dst_of_points(point, next_point)
 
-                        if current_dst < min_dst:
-                            min_dst = current_dst
-                            closest_line = next_line
-                            closest_point = next_point
+                    if current_dst < min_dst:
+                        min_dst = current_dst
+                        closest_line = next_line
+                        closest_point = next_point
 
-            if min_dst < 8:
-                cv2.line(img, closest_point, point, (0, 255, 255), 2)
+        if min_dst < 8:
+            cv2.line(img, closest_point, point, (0, 255, 255), 2)
+            return closest_line
 
-    return img
+    return None
+
+
+def connect_lines(all_lines):
+    cl_index = 0
+
+    while cl_index < len(all_lines):
+        A = all_lines[cl_index]
+        B = find_closest_line(A, all_lines)
+
+        if B is not None:
+            new_line_contour = np.concatenate((A.contour, B.contour), axis=0)
+            new_edge_points = np.concatenate((A.edge_points, B.edge_points), axis=0)
+
+            all_lines[cl_index].set_contour(new_line_contour)
+            all_lines[cl_index].set_edge_points(new_edge_points)
+
+            all_lines.remove(B)
+
+        else:
+            cl_index = cl_index + 1
+            continue
+
+    return all_lines
 
 
 def match_shapes(img, shapes, lines):
@@ -1413,6 +1436,17 @@ def match_shapes(img, shapes, lines):
     return img
 
 
+def draw_lines(img, all_lines):
+    for line in all_lines:
+        cv2.drawContours(image=img, contours=[line.contour], contourIdx=-1, color=line.color, thickness=-2, lineType=cv2.LINE_AA)
+
+        for point in line.edge_points:
+            point = point[0]
+            cv2.circle(img, point, 4, (0, 0, 255), -1)
+
+    return img
+
+
 def detect_lines(img, shapes):
     all_lines = []
     img_copy = img.copy()
@@ -1430,7 +1464,7 @@ def detect_lines(img, shapes):
         color = random_color()
         # color = (255, 0, 0)
 
-        cv2.drawContours(image=img_copy, contours=[cnt], contourIdx=-1, color=color, thickness=-2, lineType=cv2.LINE_AA)
+        # cv2.drawContours(image=img_copy, contours=[cnt], contourIdx=-1, color=color, thickness=-2, lineType=cv2.LINE_AA)
 
         peri = cv2.arcLength(cnt, False)
         approx = cv2.approxPolyDP(cnt, 0.01 * peri, False)
@@ -1440,12 +1474,14 @@ def detect_lines(img, shapes):
 
         # cv2.drawContours(image=img_copy, contours=[approx], contourIdx=-1, color=(0, 0, 255), thickness=-2, lineType=cv2.LINE_AA)
 
-        for point in approx:
-            point = point[0]
-            cv2.circle(img_copy, point, 4, (0, 0, 255), -1)
+        # for point in approx:
+        #     point = point[0]
+        #     cv2.circle(img_copy, point, 4, (0, 0, 255), -1)
 
     # img_copy = match_shapes(img_copy, shapes, all_lines)
-    img_copy = connect_lines(img_copy, all_lines)
+    # img_copy = connect_lines(img_copy, all_lines)
+    all_lines = connect_lines(all_lines)
+    img_copy = draw_lines(img_copy, all_lines)
     return img_copy
 
 
