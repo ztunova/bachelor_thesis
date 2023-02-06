@@ -1543,7 +1543,7 @@ def remove_shapes_from_image(img, shapes):
     return img
 
 
-def clear_shapes(all_shapes, img):
+def remove_nested_shapes(all_shapes):
     cleared_shapes = []
 
     for tested_inner_shape in all_shapes:
@@ -1561,54 +1561,7 @@ def clear_shapes(all_shapes, img):
                 break
 
         if not tested_inner_shape_is_inner:
-            # cv2.drawContours(image=img, contours=[tested_inner_shape.contour], contourIdx=-1, color=(0, 255, 255), thickness=2,
-            #                  lineType=cv2.LINE_AA)
-
             cleared_shapes.append(tested_inner_shape)
-
-
-    # for i in range(len(all_shapes) - 1):
-    #     shape1 = all_shapes[i]
-    #     for j in range(i + 1, len(all_shapes)):
-    #         shape2 = all_shapes[j]
-    #
-    #         shape1_in_shape2 = shape_inside_shape_test(shape2, shape1)
-    #         shape2_in_shape1 = shape_inside_shape_test(shape1, shape2)
-    #
-    #         if shape1_in_shape2:
-    #             cv2.drawContours(image=img, contours=[shape1.contour], contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
-    #         elif shape2_in_shape1:
-    #             cv2.drawContours(image=img, contours=[shape2.contour], contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
-
-            # intersection = cv2.rotatedRectangleIntersection(shape1.bounding_rectangle, shape2.bounding_rectangle)
-            #
-            # shape1_center = find_shape_center(shape1.contour)
-            # shape2_center = find_shape_center(shape2.contour)
-            #
-            # if intersection[1] is not None:
-            #     cv2.drawContours(image=img, contours=[shape1.contour], contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
-            #     cv2.drawContours(image=img, contours=[shape2.contour], contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
-            #
-            #     cv2.line(img, shape1_center, shape2_center, (51, 51, 51), 3)
-
-        # hull = cv2.convexHull(shape1.contour, returnPoints=False)
-        #
-        # if len(hull > 3):
-        #     convexity_defects = cv2.convexityDefects(shape1.contour, hull)
-        #     if convexity_defects is None:
-        #         continue
-        #     cnt = shape1.contour
-        #     for defect in convexity_defects:
-        #         s, e, f, d = defect[0]
-        #         start = tuple(cnt[s][0])
-        #         end = tuple(cnt[e][0])
-        #         far = tuple(cnt[f][0])
-        #         # cv2.line(img, start, end, [0, 255, 255], 2)
-        #         cv2.circle(img, far, 3, [255, 0, 0], -1)
-
-        # if shape1.hierarchy[2] >= 0:
-        #     # these are the innermost child components
-        #     cv2.drawContours(image=img, contours=shape1.contour, contourIdx=-1, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
 
     return cleared_shapes
 
@@ -1751,7 +1704,7 @@ def detect_shapes(img):
                             # cv2.ellipse(image_copy, ellipse, (0, 0, 255), 2)
                             # cv2.drawContours(image=image_copy, contours=[box], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
 
-    all_shapes = clear_shapes(all_shapes, image_copy)
+    all_shapes = remove_nested_shapes(all_shapes)
     image_copy = draw_shapes(image_copy, all_shapes)
     return image_copy, all_shapes
 
