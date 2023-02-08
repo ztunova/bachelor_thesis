@@ -12,6 +12,17 @@ class Shape:
         self.hierarchy = hierarchy
         self.shape_name = shape_name
         self.bounding_rectangle = bounding_rectangle
+        self.bounding_ellipse = None
+        self.convex_hull = None
+
+    def set_enlarged_contour(self, enlarged_contour):
+        self.enlarged_contour = enlarged_contour
+
+    def set_bounding_ellipse(self, ellipse):
+        self.bounding_ellipse = ellipse
+
+    def set_convex_hull(self, hull):
+        self.convex_hull = hull
 
 
 class Line:
