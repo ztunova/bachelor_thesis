@@ -5,6 +5,7 @@ import random
 import webbrowser
 
 import cv2
+import keras_ocr
 import matplotlib.pyplot as plt
 import math
 import numpy as np
@@ -1715,18 +1716,30 @@ def detect_shapes(img):
 
 
 if __name__ == '__main__':
-    resize_all_images()
+    # resize_all_images()
 
-    text_reader = Reader(['sk'], gpu=False)  # Initialzing the ocr
+    # text_reader = Reader(['sk'], gpu=False)  # Initialzing the ocr
+    pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
 
     img = cv2.imread(
         'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Aspen.png')
     cv2.imshow("img orig", img)
 
-    results = text_reader.readtext(img)
+    img2 = [
+        keras_ocr.tools.read(img) for img in ['C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Aspen.png']
+    ]
 
-    for (bbox, text, prob) in results:
+    img3 = [img]
+
+    pred = pipline.recognize(img3)  # img2 originalne
+
+    pred_img = pred[0]
+    for text, box in pred_img:
         print(text)
+    # results = text_reader.readtext(img)
+    #
+    # for (bbox, text, prob) in results:
+    #     print(text)
 
     # img_res, shapes = detect_shapes(img)
     # clear_shapes(shapes, img_res)
