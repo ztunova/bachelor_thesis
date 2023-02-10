@@ -14,6 +14,7 @@ from output_lines_by_hist_script import lines_by_hist_html
 from outputs import showResultsHTML
 from numpy import linalg as LA
 
+from easyocr import Reader
 from shapes import Shape, Line
 
 
@@ -1418,7 +1419,7 @@ def find_closest_line(line, all_lines):
                         closest_point = next_point
 
         if min_dst < 8:
-            cv2.line(img, closest_point, point, (0, 255, 255), 2)
+            # cv2.line(img, closest_point, point, (0, 255, 255), 2)
             return closest_line
 
     return None
@@ -1714,11 +1715,18 @@ def detect_shapes(img):
 
 
 if __name__ == '__main__':
-    # resize_all_images()
+    resize_all_images()
+
+    text_reader = Reader(['sk'], gpu=False)  # Initialzing the ocr
 
     img = cv2.imread(
-        'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Boulder.png')
-    # cv2.imshow("img orig", img)
+        'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Aspen.png')
+    cv2.imshow("img orig", img)
+
+    results = text_reader.readtext(img)
+
+    for (bbox, text, prob) in results:
+        print(text)
 
     # img_res, shapes = detect_shapes(img)
     # clear_shapes(shapes, img_res)
@@ -1781,8 +1789,8 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    getAllImages()
-    digital_images_results.show_results_html()
+    # getAllImages()
+    # digital_images_results.show_results_html()
 
     # showResultsHTML()
 
