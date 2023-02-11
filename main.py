@@ -14,6 +14,7 @@ import digital_images_results
 from output_lines_by_hist_script import lines_by_hist_html
 from outputs import showResultsHTML
 from numpy import linalg as LA
+from scipy.spatial import distance as dist
 
 from easyocr import Reader
 from shapes import Shape, Line
@@ -1716,6 +1717,62 @@ def detect_shapes(img):
     return image_copy, all_shapes
 
 
+def order_points_new(points):
+    # sort the points based on their x-coordinates
+    x_sorted = points[np.argsort(points[:, 0]), :]
+    # grab the left-most and right-most points from the sorted
+    # x-roodinate points
+    left_most = x_sorted[:2, :]
+    right_most = x_sorted[2:, :]
+    # now, sort the left-most coordinates according to their
+    # y-coordinates so we can grab the top-left and bottom-left
+    # points, respectively
+    left_most = left_most[np.argsort(left_most[:, 1]), :]
+    (tl, bl) = left_most
+    # now that we have the top-left coordinate, use it as an
+    # anchor to calculate the Euclidean distance between the
+    # top-left and right-most points; by the Pythagorean
+    # theorem, the point with the largest distance will be
+    # our bottom-right point
+    D = dist.cdist(tl[np.newaxis], right_most, "euclidean")[0]
+    (br, tr) = right_most[np.argsort(D)[::-1], :]
+    # return the coordinates in top-left, top-right,
+    # bottom-right, and bottom-left order
+    return np.array([tl, tr, br, bl], dtype="intp")
+
+
+def recognize_text(img, recognizer, shapes):
+    for shape in shapes:
+        cnt = shape.contour
+
+        bbox = shape.bounding_rectangle
+        bbox_points = cv2.boxPoints(bbox)
+        bbox_points = np.intp(bbox_points)
+
+        reordered_points = order_points_new(bbox_points)
+
+        tl, tr, br, bl = reordered_points
+
+        cv2.circle(img, tl, 5, (0, 0, 0), -1)
+        cv2.circle(img, tr, 5, (0, 255, 0), -1)
+        cv2.circle(img, br, 5, (255, 0, 0), -1)
+        cv2.circle(img, bl, 5, (0, 255, 255), -1)
+
+        if tl[1] == tr[1]:
+            # priame obdlzniky
+            img = cv2.rectangle(img, tl, br, (255, 0, 0), 2)
+
+        elif tl[1] < tr[1]:
+            # otocene doprava => najvrchnejsi bod je tl, najspodnejsi br, najlavejsi bl, najpravejsi tr
+            img = cv2.rectangle(img, tl, br, (0, 255, 0), 2)
+
+        elif tl[1] > tr[1]:
+            # otocene dolava => najvrchnejsi bod je tr, najspodnejsi bl, najlavejsi tl, najpravejsi br
+            img = cv2.rectangle(img, tl, br, (0, 0, 255), 2)
+
+    return img
+
+
 if __name__ == '__main__':
     # resize_all_images()
 
@@ -1728,6 +1785,9 @@ if __name__ == '__main__':
 
     img_res, shapes = detect_shapes(img)
     cv2.imshow("shapes", img_res)
+
+    recognize_text_img = recognize_text(img_res, None, shapes)
+    cv2.imshow("text img", recognize_text_img)
 
     # img2 = [
     #     keras_ocr.tools.read(img) for img in ['C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Aspen.png']
