@@ -1338,12 +1338,13 @@ def shape_inside_shape_test(shape_outer, shape_inner):
 
 
 def draw_shapes(img, shapes):
+    # np.intp
     for shape in shapes:
         if shape.shape_name == "triangle":
             cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(255, 0, 0), thickness=2,
                              lineType=cv2.LINE_AA)
         elif shape.shape_name == "rectangle":
-            cv2.drawContours(image=img, contours=[np.int0(cv2.boxPoints(shape.bounding_rectangle))], contourIdx=-1, color=(0, 255, 0), thickness=2,
+            cv2.drawContours(image=img, contours=[np.intp(cv2.boxPoints(shape.bounding_rectangle))], contourIdx=-1, color=(0, 255, 0), thickness=2,
                              lineType=cv2.LINE_AA)
         elif shape.shape_name == "ellipse":
             # cv2.drawContours(image=img, contours=[hull], contourIdx=-1, color=(0, 0, 255), thickness=2,
@@ -1602,7 +1603,7 @@ def detect_shapes(img):
                 rect_area = rect_width * rect_heigh
 
                 box = cv2.boxPoints(rect)
-                box = np.int0(box)
+                box = np.intp(box)
 
                 triangle_shape = Shape(cnt, cnt_hierarchy, "triangle", rect)
                 all_shapes.append(triangle_shape)
@@ -1616,7 +1617,7 @@ def detect_shapes(img):
             rect_area = rect_width * rect_heigh
 
             box = cv2.boxPoints(rect)
-            box = np.int0(box)
+            box = np.intp(box)
 
             if len(cnt) >= 5:
                 ellipse = cv2.fitEllipse(cnt)
@@ -1719,32 +1720,35 @@ if __name__ == '__main__':
     # resize_all_images()
 
     # text_reader = Reader(['sk'], gpu=False)  # Initialzing the ocr
-    pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
+    # pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
 
     img = cv2.imread(
         'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Aspen.png')
     cv2.imshow("img orig", img)
 
-    img2 = [
-        keras_ocr.tools.read(img) for img in ['C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Aspen.png']
-    ]
+    img_res, shapes = detect_shapes(img)
+    cv2.imshow("shapes", img_res)
 
-    img3 = [img]
-
-    pred = pipline.recognize(img3)  # img2 originalne
-
-    pred_img = pred[0]
-    for text, box in pred_img:
-        print(text)
+    # img2 = [
+    #     keras_ocr.tools.read(img) for img in ['C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Aspen.png']
+    # ]
+    #
+    # img3 = [img]
+    #
+    # pred = pipline.recognize(img3)  # img2 originalne
+    #
+    # pred_img = pred[0]
+    # for text, box in pred_img:
+    #     print(text)
     # results = text_reader.readtext(img)
     #
+    # easyOCR
     # for (bbox, text, prob) in results:
     #     print(text)
 
-    # img_res, shapes = detect_shapes(img)
     # clear_shapes(shapes, img_res)
     # lines = remove_shapes_from_image(img, shapes)
-    # cv2.imshow("shapes", img_res)
+
     # cv2.imshow("lines", lines)
 
     # shape = shapes[3]
