@@ -1714,6 +1714,7 @@ def detect_shapes(img):
 
     all_shapes = remove_nested_shapes(all_shapes)
     image_copy = draw_shapes(image_copy, all_shapes)
+    # image_copy = recognize_text(image_copy, None, all_shapes)
     return image_copy, all_shapes
 
 
@@ -1741,9 +1742,8 @@ def order_points_new(points):
     return np.array([tl, tr, br, bl], dtype="intp")
 
 
-def recognize_text(img, recognizer, shapes):
+def recognize_text(img, recognizer, shapes, easy_ocr, keras_ocr, tesseract_ocr):
     for shape in shapes:
-        cnt = shape.contour
 
         bbox = shape.bounding_rectangle
         bbox_points = cv2.boxPoints(bbox)
@@ -1751,24 +1751,29 @@ def recognize_text(img, recognizer, shapes):
 
         reordered_points = order_points_new(bbox_points)
 
-        tl, tr, br, bl = reordered_points
+        top_left, top_right, bottom_right, bottom_left = reordered_points
 
-        cv2.circle(img, tl, 5, (0, 0, 0), -1)
-        cv2.circle(img, tr, 5, (0, 255, 0), -1)
-        cv2.circle(img, br, 5, (255, 0, 0), -1)
-        cv2.circle(img, bl, 5, (0, 255, 255), -1)
+        if top_left[1] <= top_right[1]:
+            shape_img_slice = img[top_left[1]: bottom_right[1], bottom_left[0]: top_right[0]]
+        else:
+            shape_img_slice = img[top_right[1]: bottom_left[1], top_left[0]: bottom_right[0]]
 
-        if tl[1] == tr[1]:
-            # priame obdlzniky
-            img = cv2.rectangle(img, tl, br, (255, 0, 0), 2)
+        if easy_ocr:
+            results = recognizer.readtext(img)
 
-        elif tl[1] < tr[1]:
-            # otocene doprava => najvrchnejsi bod je tl, najspodnejsi br, najlavejsi bl, najpravejsi tr
-            img = cv2.rectangle(img, tl, br, (0, 255, 0), 2)
+            for (bbox, text, prob) in results:
+                print(text)
 
-        elif tl[1] > tr[1]:
-            # otocene dolava => najvrchnejsi bod je tr, najspodnejsi bl, najlavejsi tl, najpravejsi br
-            img = cv2.rectangle(img, tl, br, (0, 0, 255), 2)
+        elif keras_ocr:
+            shape_img_slice = [shape_img_slice]
+            try:
+                pred = recognizer.recognize(shape_img_slice)
+
+                pred_res = pred[0]
+                for text, box in pred_res:
+                    print(text)
+            except:
+                print("ERROR")
 
     return img
 
@@ -1777,17 +1782,17 @@ if __name__ == '__main__':
     # resize_all_images()
 
     # text_reader = Reader(['sk'], gpu=False)  # Initialzing the ocr
-    # pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
+    pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
 
     img = cv2.imread(
         'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Aspen.png')
-    cv2.imshow("img orig", img)
+    # cv2.imshow("img orig", img)
 
     img_res, shapes = detect_shapes(img)
-    cv2.imshow("shapes", img_res)
+    # cv2.imshow("shapes", img_res)
 
-    recognize_text_img = recognize_text(img_res, None, shapes)
-    cv2.imshow("text img", recognize_text_img)
+    recognize_text_img = recognize_text(img_res, pipline, shapes, False, True, False)
+    # cv2.imshow("text img", recognize_text_img)
 
     # img2 = [
     #     keras_ocr.tools.read(img) for img in ['C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Aspen.png']
