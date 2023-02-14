@@ -913,13 +913,27 @@ def getAllImages():
     all_images = os.listdir(folder_dir)
     # print(all_images)
 
+    # keras OCR
+    # pipline = keras_ocr.pipeline.Pipeline()
+
+    # easyOCR
+    text_reader = Reader(['sk'], gpu=False)
+
     for image_name in all_images:
         path = folder_dir + '/' + image_name
         img = cv2.imread(path)
         print(image_name)
 
         digital_contours, detected_shapes = detect_shapes(img)
+
+        # keras OCR
+        # digital_contours = recognize_text(digital_contours, pipline, detected_shapes, False, True, False)
+
+        # easyOCR
+        digital_contours = recognize_text(digital_contours, text_reader, detected_shapes, True, False, False)
+
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
+
         removed_shapes = remove_shapes_from_image(img, detected_shapes)
         saveImage(removed_shapes_dir, image_name, "", removed_shapes)
 
@@ -1067,106 +1081,6 @@ def img_preprocessing(img):
     result_img = dilated  # dilated
     # cv2.imshow('res', result_img)
     return result_img
-
-
-def feature_matching(img):
-    rect_template_img = cv2.imread('images/vzorovy_obdlznik2.png')
-    rect_template_gray = cv2.cvtColor(rect_template_img, cv2.COLOR_BGR2GRAY)
-    # ret, thresh_rect_template = cv2.threshold(rect_template_gray, 127, 255, 0)
-
-    orb = cv2.ORB_create()
-
-    source = img_preprocessing(img)
-
-    kp1, des1 = orb.detectAndCompute(rect_template_gray, None)
-    kp2, des2 = orb.detectAndCompute(img, None)
-
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-
-    matches = bf.match(des1, des2)
-    matches = sorted(matches, key=lambda x: x.distance)
-
-    img3 = cv2.drawMatches(rect_template_gray, kp1, img, kp2, matches[:50], None, flags=2)
-    plt.imshow(img3)
-    plt.show()
-
-
-def detect_corners(img):
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    image_copy = img.copy()
-
-    # max corners to detect (0 => all corners), quality, minimum distance between corners
-    corners = cv2.goodFeaturesToTrack(gray, 0, 0.1, 5)
-    corners = np.int0(corners)
-
-    for i in corners:
-        x, y = i.ravel()
-        cv2.circle(image_copy, (x, y), 5, (0, 0, 255), -1)
-
-    return image_copy
-
-
-def template_matching(target):
-    image_copy = target.copy()
-
-    rect_template_img = cv2.imread('images/vzorovy_obdlznik2.png')
-    rect_template_gray = cv2.cvtColor(rect_template_img, cv2.COLOR_BGR2GRAY)
-    ret, thresh_rect_template = cv2.threshold(rect_template_gray, 127, 255, 0)
-    bw_swap_rect_template = cv2.bitwise_not(thresh_rect_template)
-
-    # cv2.imshow('vzor', bw_swap1)
-    rect_contours, rect_hierarchy = cv2.findContours(thresh_rect_template, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-    sorted_rect_template_contours = sorted(rect_contours, key=cv2.contourArea, reverse=True)
-    rect_template = sorted_rect_template_contours[1]
-
-    # cv2.drawContours(rect_template_img, [rect_template], -1, (0, 255, 0), 3)
-    # cv2.imshow('rect templ', rect_template_img)
-
-    ellipse_template_img = cv2.imread('images/vzorova_elipsa.png')
-    ellipse_template_gray = cv2.cvtColor(ellipse_template_img, cv2.COLOR_BGR2GRAY)
-    ret, thresh_ellipse_template = cv2.threshold(ellipse_template_gray, 127, 255, 0)
-
-    ellipse_contours, ellipse_hierarchy = cv2.findContours(thresh_ellipse_template, cv2.RETR_CCOMP,
-                                                           cv2.CHAIN_APPROX_SIMPLE)
-    sorted_ellipse_template_contours = sorted(ellipse_contours, key=cv2.contourArea, reverse=True)
-    ellipse_template = sorted_ellipse_template_contours[1]
-
-    # cv2.drawContours(ellipse_template_img, [ellipse_template], -1, (0, 255, 0), 3)
-    # cv2.imshow('ellipse templ', ellipse_template_img)
-
-    target_gray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)
-    thresh_target = img_preprocessing(target)
-    # ret, thresh_target = cv2.threshold(target_gray, 127, 255, 0)
-
-    target_contours, hierarchy = cv2.findContours(thresh_target, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-
-    for cnt in target_contours:
-        match_rectangle = cv2.matchShapes(rect_template, cnt, cv2.CONTOURS_MATCH_I3, 0.0)
-        match_ellipse = cv2.matchShapes(ellipse_template, cnt, cv2.CONTOURS_MATCH_I3, 0.0)
-        # print(match)
-        # if match_rectangle < 0.25:
-        #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-        # if match_rectangle < match_ellipse and match_rectangle < 0.2:
-        #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-        # elif match_ellipse < match_rectangle and match_ellipse < 0.2:
-        #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_AA)
-
-        rect = cv2.minAreaRect(cnt)
-        box = cv2.boxPoints(rect)
-        box = np.int0(box)
-
-        box = box.reshape((*box.shape, 1))
-
-        match = cv2.matchShapes(box, cnt, 3, 0.0)
-        # print(match)
-
-        if match < 0.03:
-            cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2,
-                             lineType=cv2.LINE_AA)
-
-    # cv2.imshow('templ cnt', rect_template_img)
-
-    return image_copy
 
 
 def shape_approximation(img):
@@ -1714,7 +1628,7 @@ def detect_shapes(img):
 
     all_shapes = remove_nested_shapes(all_shapes)
     image_copy = draw_shapes(image_copy, all_shapes)
-    # image_copy = recognize_text(image_copy, None, all_shapes)
+
     return image_copy, all_shapes
 
 
@@ -1745,6 +1659,7 @@ def order_points_new(points):
 def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
 
     for shape in shapes:
+        shape_text = ""
 
         bbox = shape.bounding_rectangle
         bbox_points = cv2.boxPoints(bbox)
@@ -1760,10 +1675,12 @@ def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
             shape_img_slice = img[top_right[1]: bottom_left[1], top_left[0]: bottom_right[0]]
 
         if easy_ocr:
-            results = recognizer.readtext(img)
+            results = recognizer.readtext(shape_img_slice)
 
             for (bbox, text, prob) in results:
                 print(text)
+
+                shape_text = shape_text + text + " "
 
         elif keras:
             shape_img_slice = [shape_img_slice]
@@ -1772,15 +1689,15 @@ def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
 
                 pred_res = pred[0]
 
-                shape_text = ""
                 for text, box in pred_res:
                     print(text)
                     shape_text = shape_text + text + " "
 
-                img = cv2.putText(img, shape_text, top_left, cv2.FONT_HERSHEY_PLAIN, 1, 0, 1, cv2.LINE_AA)
-
             except:
                 print("ERROR")
+                shape_text = "ERROR"
+
+        img = cv2.putText(img, shape_text, top_left, cv2.FONT_HERSHEY_PLAIN, 1, 0, 1, cv2.LINE_AA)
 
     return img
 
@@ -1788,17 +1705,25 @@ def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
 if __name__ == '__main__':
     # resize_all_images()
 
-    # text_reader = Reader(['sk'], gpu=False)  # Initialzing the ocr
-    pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
-
+    # easy ocr
+    text_reader = Reader(['sk'], gpu=False)  # Initialzing the ocr
+    #
+    # # keras ocr
+    # # pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
+    #
     img = cv2.imread(
-        'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Aspen.png')
-    # cv2.imshow("img orig", img)
-
+        'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Gunnison.png')
+    # # cv2.imshow("img orig", img)
+    #
     img_res, shapes = detect_shapes(img)
-    # cv2.imshow("shapes", img_res)
+    # # cv2.imshow("shapes", img_res)
+    #
+    # # keras ocr
+    # # recognize_text_img = recognize_text(img_res, pipline, shapes, False, True, False)
+    #
+    # easy ocr
+    recognize_text_img = recognize_text(img_res, text_reader, shapes, True, False, False)
 
-    recognize_text_img = recognize_text(img_res, pipline, shapes, False, True, False)
     cv2.imshow("text img", recognize_text_img)
 
     # img2 = [
@@ -1878,8 +1803,8 @@ if __name__ == '__main__':
     #
     # print(bins)
 
-    # getAllImages()
-    # digital_images_results.show_results_html()
+    getAllImages()
+    digital_images_results.show_results_html()
 
     # showResultsHTML()
 
