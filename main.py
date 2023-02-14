@@ -1742,7 +1742,8 @@ def order_points_new(points):
     return np.array([tl, tr, br, bl], dtype="intp")
 
 
-def recognize_text(img, recognizer, shapes, easy_ocr, keras_ocr, tesseract_ocr):
+def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
+
     for shape in shapes:
 
         bbox = shape.bounding_rectangle
@@ -1764,14 +1765,20 @@ def recognize_text(img, recognizer, shapes, easy_ocr, keras_ocr, tesseract_ocr):
             for (bbox, text, prob) in results:
                 print(text)
 
-        elif keras_ocr:
+        elif keras:
             shape_img_slice = [shape_img_slice]
             try:
                 pred = recognizer.recognize(shape_img_slice)
 
                 pred_res = pred[0]
+
+                shape_text = ""
                 for text, box in pred_res:
                     print(text)
+                    shape_text = shape_text + text + " "
+
+                img = cv2.putText(img, shape_text, top_left, cv2.FONT_HERSHEY_PLAIN, 1, 0, 1, cv2.LINE_AA)
+
             except:
                 print("ERROR")
 
@@ -1792,7 +1799,7 @@ if __name__ == '__main__':
     # cv2.imshow("shapes", img_res)
 
     recognize_text_img = recognize_text(img_res, pipline, shapes, False, True, False)
-    # cv2.imshow("text img", recognize_text_img)
+    cv2.imshow("text img", recognize_text_img)
 
     # img2 = [
     #     keras_ocr.tools.read(img) for img in ['C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Aspen.png']
