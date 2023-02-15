@@ -15,16 +15,13 @@ import digital_images_results
 from output_lines_by_hist_script import lines_by_hist_html
 from outputs import showResultsHTML
 from numpy import linalg as LA
+from PIL import Image, ImageDraw, ImageFont
 from scipy.spatial import distance as dist
 
 from easyocr import Reader
 from shapes import Shape, Line
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\zofka\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
-
-
-def identical_lists(l1, l2):
-    pass
 
 
 def lineLength(line):
@@ -933,10 +930,10 @@ def getAllImages():
         # digital_contours = recognize_text(digital_contours, pipline, detected_shapes, False, True, False)
 
         # easyOCR
-        # digital_contours = recognize_text(digital_contours, text_reader, detected_shapes, True, False, False)
+        digital_contours = recognize_text(digital_contours, text_reader, detected_shapes, True, False, False)
 
         # tesseract OCR
-        digital_contours = recognize_text(digital_contours, None, detected_shapes, False, False, True)
+        # digital_contours = recognize_text(digital_contours, None, detected_shapes, False, False, True)
 
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
 
@@ -1666,6 +1663,9 @@ def order_points_new(points):
 
 
 def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
+    black = (0, 0, 0)
+    unicode_font = ImageFont.truetype("fonts/DejaVuSans.ttf", 15)
+
     for shape in shapes:
         shape_text = ""
 
@@ -1710,10 +1710,16 @@ def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
 
         elif tesseract_ocr:
             gray = cv2.cvtColor(shape_img_slice, cv2.COLOR_BGR2GRAY)
-            shape_text = pytesseract.image_to_string(gray)
-            print("---")
+            shape_text = pytesseract.image_to_string(gray, lang='slk', config='--tessdata-dir tessdata')
+            print(shape_text)
 
-        img = cv2.putText(img, shape_text, bottom_left, cv2.FONT_HERSHEY_PLAIN, 1, 0, 1, cv2.LINE_AA)
+        pil_image = Image.fromarray(img)
+
+        draw = ImageDraw.Draw(pil_image)
+        text_position = [bottom_left[0] + 5, bottom_left[1] + 5]
+        draw.text(text_position, shape_text, font=unicode_font, fill=black)
+
+        img = np.array(pil_image)
 
     return img
 
@@ -1742,7 +1748,7 @@ if __name__ == '__main__':
 
     # tesseract
     # recognize_text_img = recognize_text(img_res, None, shapes, False, False, True)
-    #
+
     # cv2.imshow("text img", recognize_text_img)
 
     # img2 = [
