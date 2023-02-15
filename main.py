@@ -9,6 +9,7 @@ import keras_ocr
 import matplotlib.pyplot as plt
 import math
 import numpy as np
+import pytesseract
 
 import digital_images_results
 from output_lines_by_hist_script import lines_by_hist_html
@@ -18,6 +19,8 @@ from scipy.spatial import distance as dist
 
 from easyocr import Reader
 from shapes import Shape, Line
+
+pytesseract.pytesseract.tesseract_cmd = r'C:\Users\zofka\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 
 def identical_lists(l1, l2):
@@ -930,7 +933,10 @@ def getAllImages():
         # digital_contours = recognize_text(digital_contours, pipline, detected_shapes, False, True, False)
 
         # easyOCR
-        digital_contours = recognize_text(digital_contours, text_reader, detected_shapes, True, False, False)
+        # digital_contours = recognize_text(digital_contours, text_reader, detected_shapes, True, False, False)
+
+        # tesseract OCR
+        digital_contours = recognize_text(digital_contours, None, detected_shapes, False, False, True)
 
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
 
@@ -1259,7 +1265,8 @@ def draw_shapes(img, shapes):
             cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(255, 0, 0), thickness=2,
                              lineType=cv2.LINE_AA)
         elif shape.shape_name == "rectangle":
-            cv2.drawContours(image=img, contours=[np.intp(cv2.boxPoints(shape.bounding_rectangle))], contourIdx=-1, color=(0, 255, 0), thickness=2,
+            cv2.drawContours(image=img, contours=[np.intp(cv2.boxPoints(shape.bounding_rectangle))], contourIdx=-1,
+                             color=(0, 255, 0), thickness=2,
                              lineType=cv2.LINE_AA)
         elif shape.shape_name == "ellipse":
             # cv2.drawContours(image=img, contours=[hull], contourIdx=-1, color=(0, 0, 255), thickness=2,
@@ -1387,7 +1394,8 @@ def match_shapes(img, shapes, lines):
 
 def draw_lines(img, all_lines):
     for line in all_lines:
-        cv2.drawContours(image=img, contours=[line.contour], contourIdx=-1, color=line.color, thickness=2, lineType=cv2.LINE_AA)
+        cv2.drawContours(image=img, contours=[line.contour], contourIdx=-1, color=line.color, thickness=2,
+                         lineType=cv2.LINE_AA)
 
         # cv2.polylines(img, [line.contour], False, line.color, 2)
 
@@ -1473,7 +1481,8 @@ def remove_nested_shapes(all_shapes):
             if tested_inner_shape == tested_outer_shape:
                 continue
 
-            tested_inner_shape_in_tested_outer_shape_result = shape_inside_shape_test(tested_outer_shape, tested_inner_shape)
+            tested_inner_shape_in_tested_outer_shape_result = shape_inside_shape_test(tested_outer_shape,
+                                                                                      tested_inner_shape)
 
             if tested_inner_shape_in_tested_outer_shape_result:
                 tested_inner_shape_is_inner = True
@@ -1657,7 +1666,6 @@ def order_points_new(points):
 
 
 def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
-
     for shape in shapes:
         shape_text = ""
 
@@ -1700,6 +1708,11 @@ def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
                 print("ERROR")
                 shape_text = "ERROR"
 
+        elif tesseract_ocr:
+            gray = cv2.cvtColor(shape_img_slice, cv2.COLOR_BGR2GRAY)
+            shape_text = pytesseract.image_to_string(gray)
+            print("---")
+
         img = cv2.putText(img, shape_text, bottom_left, cv2.FONT_HERSHEY_PLAIN, 1, 0, 1, cv2.LINE_AA)
 
     return img
@@ -1711,8 +1724,8 @@ if __name__ == '__main__':
     # easy ocr
     # text_reader = Reader(['sk'], gpu=False)  # Initialzing the ocr
     # #
-    # # # keras ocr
-    # # # pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
+    # # keras ocr
+    # # pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
     # #
     # img = cv2.imread(
     #     'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Gunnison.png')
@@ -1726,6 +1739,9 @@ if __name__ == '__main__':
     # #
     # # easy ocr
     # recognize_text_img = recognize_text(img_res, text_reader, shapes, True, False, False)
+
+    # tesseract
+    # recognize_text_img = recognize_text(img_res, None, shapes, False, False, True)
     #
     # cv2.imshow("text img", recognize_text_img)
 
@@ -1755,7 +1771,6 @@ if __name__ == '__main__':
     # hull = cv2.convexHull(shape.contour, False)
     # enlarged = enlarge_contour(shape, img.shape[:2], hull)
     # cv2.imshow("enlarged", enlarged)
-
 
     # bounding_shapes(img)
 
