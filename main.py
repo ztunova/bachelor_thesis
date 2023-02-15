@@ -1667,6 +1667,9 @@ def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
 
         reordered_points = order_points_new(bbox_points)
 
+        if (reordered_points < 0).any():
+            reordered_points[reordered_points < 0] = 0
+
         top_left, top_right, bottom_right, bottom_left = reordered_points
 
         if top_left[1] <= top_right[1]:
@@ -1697,7 +1700,7 @@ def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
                 print("ERROR")
                 shape_text = "ERROR"
 
-        img = cv2.putText(img, shape_text, top_left, cv2.FONT_HERSHEY_PLAIN, 1, 0, 1, cv2.LINE_AA)
+        img = cv2.putText(img, shape_text, bottom_left, cv2.FONT_HERSHEY_PLAIN, 1, 0, 1, cv2.LINE_AA)
 
     return img
 
@@ -1706,25 +1709,25 @@ if __name__ == '__main__':
     # resize_all_images()
 
     # easy ocr
-    text_reader = Reader(['sk'], gpu=False)  # Initialzing the ocr
+    # text_reader = Reader(['sk'], gpu=False)  # Initialzing the ocr
+    # #
+    # # # keras ocr
+    # # # pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
+    # #
+    # img = cv2.imread(
+    #     'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Gunnison.png')
+    # # # cv2.imshow("img orig", img)
+    # #
+    # img_res, shapes = detect_shapes(img)
+    # # # cv2.imshow("shapes", img_res)
+    # #
+    # # # keras ocr
+    # # # recognize_text_img = recognize_text(img_res, pipline, shapes, False, True, False)
+    # #
+    # # easy ocr
+    # recognize_text_img = recognize_text(img_res, text_reader, shapes, True, False, False)
     #
-    # # keras ocr
-    # # pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
-    #
-    img = cv2.imread(
-        'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Gunnison.png')
-    # # cv2.imshow("img orig", img)
-    #
-    img_res, shapes = detect_shapes(img)
-    # # cv2.imshow("shapes", img_res)
-    #
-    # # keras ocr
-    # # recognize_text_img = recognize_text(img_res, pipline, shapes, False, True, False)
-    #
-    # easy ocr
-    recognize_text_img = recognize_text(img_res, text_reader, shapes, True, False, False)
-
-    cv2.imshow("text img", recognize_text_img)
+    # cv2.imshow("text img", recognize_text_img)
 
     # img2 = [
     #     keras_ocr.tools.read(img) for img in ['C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1/Aspen.png']
