@@ -914,10 +914,10 @@ def getAllImages():
     # print(all_images)
 
     # keras OCR
-    # pipline = keras_ocr.pipeline.Pipeline()
+    pipline = keras_ocr.pipeline.Pipeline()
 
     # easyOCR
-    text_reader = Reader(['sk'], gpu=False)
+    # text_reader = Reader(['sk'], gpu=False)
 
     for image_name in all_images:
         path = folder_dir + '/' + image_name
@@ -927,13 +927,13 @@ def getAllImages():
         digital_contours, detected_shapes = detect_shapes(img)
 
         # keras OCR
-        # digital_contours = recognize_text(digital_contours, pipline, detected_shapes, False, True, False)
+        digital_contours = recognize_text(image_name, digital_contours, pipline, detected_shapes, False, True, False)
 
         # easyOCR
-        digital_contours = recognize_text(digital_contours, text_reader, detected_shapes, True, False, False)
+        # digital_contours = recognize_text(image_name, digital_contours, text_reader, detected_shapes, True, False, False)
 
         # tesseract OCR
-        # digital_contours = recognize_text(digital_contours, None, detected_shapes, False, False, True)
+        # digital_contours = recognize_text(image_name, digital_contours, None, detected_shapes, False, False, True)
 
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
 
@@ -1662,7 +1662,36 @@ def order_points_new(points):
     return np.array([tl, tr, br, bl], dtype="intp")
 
 
-def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
+def point_in_original_image(reordered_points, img_name):
+    orig_img_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1'
+    resized_img_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized'
+
+    orig_img_path = orig_img_dir + '/' + img_name
+    resized_img_path = resized_img_dir + '/' + img_name
+
+    orig_img = cv2.imread(orig_img_path)
+    resized_img = cv2.imread(resized_img_path)
+
+    orig_height, orig_width = orig_img.shape[:2]
+    resized_height, resized_width = resized_img.shape[:2]
+
+    resize_ratio_height = orig_height / resized_height
+    resize_ratio_width = orig_width / resized_width
+
+    reordered_orig_points = []
+    for point in reordered_points:
+        x_resized, y_resized = point
+        x_orig = x_resized * resize_ratio_width
+        x_orig = np.intp(x_orig)
+        y_orig = y_resized * resize_ratio_width
+        y_orig = np.intp(y_orig)
+
+        reordered_orig_points.append((x_orig, y_orig))
+
+    return orig_img, reordered_orig_points
+
+
+def recognize_text(img_name, img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
     black = (0, 0, 0)
     unicode_font = ImageFont.truetype("fonts/DejaVuSans.ttf", 15)
 
@@ -1680,24 +1709,32 @@ def recognize_text(img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
 
         top_left, top_right, bottom_right, bottom_left = reordered_points
 
-        if top_left[1] <= top_right[1]:
-            shape_img_slice = img[top_left[1]: bottom_right[1], bottom_left[0]: top_right[0]]
+        # OCR on original image
+        orig_img, reordered_orig_points = point_in_original_image(reordered_points, img_name)
+        top_left_orig, top_right_orig, bottom_right_orig, bottom_left_orig = reordered_orig_points
+
+        if top_left_orig[1] <= top_right_orig[1]:
+            shape_img_slice = orig_img[top_left_orig[1]: bottom_right_orig[1], bottom_left_orig[0]: top_right_orig[0]]
         else:
-            shape_img_slice = img[top_right[1]: bottom_left[1], top_left[0]: bottom_right[0]]
+            shape_img_slice = orig_img[top_right_orig[1]: bottom_left_orig[1], top_left_orig[0]: bottom_right_orig[0]]
+
+        #   OCR on resized img
+        # if top_left[1] <= top_right[1]:
+        #     shape_img_slice = img[top_left[1]: bottom_right[1], bottom_left[0]: top_right[0]]
+        # else:
+        #     shape_img_slice = img[top_right[1]: bottom_left[1], top_left[0]: bottom_right[0]]
 
         if easy_ocr:
             results = recognizer.readtext(shape_img_slice)
 
             for (bbox, text, prob) in results:
                 print(text)
-
                 shape_text = shape_text + text + " "
 
         elif keras:
             shape_img_slice = [shape_img_slice]
             try:
                 pred = recognizer.recognize(shape_img_slice)
-
                 pred_res = pred[0]
 
                 for text, box in pred_res:
@@ -1733,8 +1770,8 @@ if __name__ == '__main__':
     # # keras ocr
     # # pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
     # #
-    # img = cv2.imread(
-    #     'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Gunnison.png')
+    img = cv2.imread(
+        'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Gunnison.png')
     # # # cv2.imshow("img orig", img)
     # #
     # img_res, shapes = detect_shapes(img)
