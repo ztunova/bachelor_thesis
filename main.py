@@ -9,6 +9,7 @@ import keras_ocr
 import matplotlib.pyplot as plt
 import math
 import numpy as np
+import phunspell
 import pytesseract
 
 import digital_images_results
@@ -17,6 +18,7 @@ from outputs import showResultsHTML
 from numpy import linalg as LA
 from PIL import Image, ImageDraw, ImageFont
 from scipy.spatial import distance as dist
+
 
 from easyocr import Reader
 from shapes import Shape, Line
@@ -1756,12 +1758,23 @@ def recognize_text(img_name, img, recognizer, shapes, easy_ocr, keras, tesseract
         text_position = [bottom_left[0] + 5, bottom_left[1] + 5]
         draw.text(text_position, shape_text, font=unicode_font, fill=black)
 
+        shape.set_text(shape_text)
+
         img = np.array(pil_image)
 
     return img
 
 
 if __name__ == '__main__':
+    # Phunspell
+    # pspell = phunspell.Phunspell('sk_SK')
+    # mispelled = pspell.lookup_list("ahoj nieco neveim".split(" "))
+    # print(mispelled)
+    #
+    # for miss in mispelled:
+    #     for suggestion in pspell.suggest('phunspell'):
+    #         print(suggestion)
+
     # resize_all_images()
 
     # easy ocr
@@ -1810,75 +1823,10 @@ if __name__ == '__main__':
 
     # cv2.imshow("lines", lines)
 
-    # shape = shapes[3]
-    # hull = cv2.convexHull(shape.contour, False)
-    # enlarged = enlarge_contour(shape, img.shape[:2], hull)
-    # cv2.imshow("enlarged", enlarged)
-
-    # bounding_shapes(img)
-
-    # A = (53, 31)
-    # B = (14, 9)
-    # C = (5, 18)
-    # print(get_vector(A, B, C))
-
-    # find_contours(img)
-    # template_matching(img)
-    # feature_matching(img)
-
-    # # img_copy = img.copy()
-    # # resize to half of the size
-    # # img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
-
-    # hor_lines, hor_lines_in, hor_all_rec = detect_horizontal_lines(img)
-    # hor_all_rec_points = hor_all_rec[0]
-    # # hor_all_rec_box = hor_all_rec[1]
-
-    # hor_lines_copy = copy.deepcopy(hor_lines)
-    # cv2.imshow("hlc", hor_lines_copy)
-
-    # # ver_lines, ver_lines_in, ver_all_rec = detect_vertical_lines(hor_lines)
-    #
-    # # ver_all_rec_points = ver_all_rec[0]
-    # # ver_all_rec_box = ver_all_rec[1]
-
-    # closest = find_closest_horizontal_rect(hor_all_rec_points)
-    # print(closest)
-    # # hor_lines_points = draw_connected_middle_points_closest_horizontal(hor_lines, closest)
-    # hor_lines_points = draw_connected_middle_points_max_length(hor_lines, closest, 80)
-
-    # cv2.imshow("colors", hor_lines_points)
-    #
-    # # #closest_ver_hor = find_closest_vertical_to_horizontal_rec(hor_all_rec_points, ver_all_rec_points)
-    # # #hor_lines_points = draw_connected_middle_points_closest_horizontal_vertical(ver_lines, closest_ver_hor)
-    # # cv2.imshow("hor with points", hor_lines_points)
-    #
-    # pokus = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'
-    # colors, bins, binwidth = histogram_closest_distances(pokus, closest, 'Anaheim.jpg')
-    # img_copy = draw_connected_middle_points_histogram_colors(hor_lines_copy, closest, colors, bins, binwidth)
-    # cv2.imshow("colors", img_copy)
-    #
-    # #lines_by_hist_bins(bins, binwidth, closest, hor_lines_copy, 2, pokus, 'Alhambra.jpg')
-    # depict_all_bins_separetly(bins, binwidth, closest, hor_lines_copy, pokus, 'Anaheim.jpg')
-
-    #
-    # print(bins)
-
-    getAllImages()
-    digital_images_results.show_results_html()
+    # getAllImages()
+    # digital_images_results.show_results_html()
 
     # showResultsHTML()
 
-    # print(os.listdir('C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/hranice_hist'))
-
-    # lines_by_hist_for_certain_images()
-    # lines_by_hist_html()
-    #
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
-    # print(get_new_image_size(550, 561))
-    # print(get_new_image_size(1058, 522))
-
-    # res = getResultName("pokus.pg", '')
-    # print(res)

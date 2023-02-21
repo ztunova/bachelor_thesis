@@ -7,6 +7,7 @@
 
 class Shape:
     def __init__(self, contour, hierarchy, shape_name, bounding_rectangle):
+        self.text = ""
         self.contour = contour
         self.enlarged_contour = None
         self.hierarchy = hierarchy
@@ -14,6 +15,9 @@ class Shape:
         self.bounding_rectangle = bounding_rectangle
         self.bounding_ellipse = None
         self.convex_hull = None
+
+    def set_text(self, text):
+        self.text = text
 
     def set_enlarged_contour(self, enlarged_contour):
         self.enlarged_contour = enlarged_contour
