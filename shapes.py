@@ -3,6 +3,38 @@
 # hierarchy
 # type rectangle, ellipse, triangle, diamond
 # bounding rectangle
+import json
+
+
+class ImageResult:
+    # zoznam tvarov
+    # zoznam ciar
+
+    def __init__(self):
+        self.objects = []
+        self.connections = []
+
+    def to_json(self):
+        return json.dumps(self.__dict__)
+
+    def add_object(self, new_object):
+        self.objects.append(new_object)
+
+    def add_connection(self, new_connection):
+        self.connections.append(new_connection)
+
+
+class Dto:
+    # ID
+    # typ
+    # popis
+    # stred
+
+    def __init__(self):
+        pass
+
+    def to_json(self):
+        return json.dumps(self.__dict__)
 
 
 class Shape:
@@ -11,13 +43,28 @@ class Shape:
         self.contour = contour
         self.enlarged_contour = None
         self.hierarchy = hierarchy
+
+        # rectangle, ellipse, diamont, triangle
         self.shape_name = shape_name
         self.bounding_rectangle = bounding_rectangle
         self.bounding_ellipse = None
         self.convex_hull = None
+        self.shape_centre = None
+
+    def to_dto(self, id):
+        dto = Dto()
+        dto.__setattr__("ID", id)
+        dto.__setattr__("type", self.shape_name)
+        dto.__setattr__("name", self.text)
+        dto.__setattr__("centre", self.shape_centre)
+
+        return dto
 
     def set_text(self, text):
         self.text = text
+
+    def set_shape_centre(self, centre):
+        self.shape_centre = centre
 
     def set_enlarged_contour(self, enlarged_contour):
         self.enlarged_contour = enlarged_contour
