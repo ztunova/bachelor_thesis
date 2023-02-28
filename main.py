@@ -3,6 +3,7 @@ import json
 import math
 import os
 import random
+import shutil
 import webbrowser
 
 import cv2
@@ -1814,6 +1815,30 @@ def erd_data_to_json(all_shapes, all_lines):
     return result.to_json()
 
 
+def write_json_to_file(json_data, name):
+    clear_directory('test/results/json_outputs')
+
+    file_name = "test/results/json_outputs/" + name + ".json"
+
+    file = open(file_name, 'w+')
+    file.write(json_data)
+
+    file.close()
+
+
+def clear_directory(folder):
+
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason: %s' % (file_path, e))
+
+
 if __name__ == '__main__':
     # Phunspell
     # pspell = phunspell.Phunspell('sk_SK')
@@ -1840,7 +1865,8 @@ if __name__ == '__main__':
     lines_img, detected_lines = remove_shapes_from_image(img, shapes)
     cv2.imshow("shapes", img_res)
 
-    erd_data_to_json(shapes, detected_lines)
+    json_res = erd_data_to_json(shapes, detected_lines)
+    write_json_to_file(json_res, "pokus")
 
     # #
     # # # keras ocr
