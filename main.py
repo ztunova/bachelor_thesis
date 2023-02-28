@@ -1,4 +1,5 @@
 import copy
+import json
 import math
 import os
 import random
@@ -21,7 +22,7 @@ from scipy.spatial import distance as dist
 
 
 from easyocr import Reader
-from shapes import Shape, Line
+from shapes import *
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\zofka\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
@@ -916,7 +917,7 @@ def getAllImages():
     # print(all_images)
 
     # keras OCR
-    pipline = keras_ocr.pipeline.Pipeline()
+    # pipline = keras_ocr.pipeline.Pipeline()
 
     # easyOCR
     # text_reader = Reader(['sk'], gpu=False)
@@ -929,17 +930,17 @@ def getAllImages():
         digital_contours, detected_shapes = detect_shapes(img)
 
         # keras OCR
-        digital_contours = recognize_text(image_name, digital_contours, pipline, detected_shapes, False, True, False)
+        # digital_contours = recognize_text(image_name, digital_contours, pipline, detected_shapes, False, True, False)
 
         # easyOCR
         # digital_contours = recognize_text(image_name, digital_contours, text_reader, detected_shapes, True, False, False)
 
         # tesseract OCR
-        # digital_contours = recognize_text(image_name, digital_contours, None, detected_shapes, False, False, True)
+        digital_contours = recognize_text(image_name, digital_contours, None, detected_shapes, False, False, True)
 
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
 
-        removed_shapes = remove_shapes_from_image(img, detected_shapes)
+        removed_shapes, detected_lines = remove_shapes_from_image(img, detected_shapes)
         saveImage(removed_shapes_dir, image_name, "", removed_shapes)
 
         # img_hlines, lines, input_img = detectLinesHough(img)
@@ -1375,6 +1376,7 @@ def match_shapes(img, shapes, lines):
     for line in lines:
         for shape in shapes:
             shape_centre = find_shape_center(shape.enlarged_contour)
+            shape.set_shape_centre(shape_centre)
             cv2.circle(img, shape_centre, 4, (0, 0, 0), -1)
             for point in line.edge_points:
                 point = point[0]
@@ -1440,7 +1442,7 @@ def detect_lines(img, shapes):
     img_copy = draw_lines(img_copy, all_lines)
     img_copy = match_shapes(img_copy, shapes, all_lines)
 
-    return img_copy
+    return img_copy, all_lines
 
 
 def remove_shapes_from_image(img, shapes):
@@ -1465,8 +1467,8 @@ def remove_shapes_from_image(img, shapes):
         cv2.drawContours(image=deleted_shapes_img, contours=[cnt], contourIdx=-1, color=color, thickness=-2,
                          lineType=cv2.LINE_AA)
 
-    img = detect_lines(deleted_shapes_img, shapes)
-    return img
+    img, detected_lines = detect_lines(deleted_shapes_img, shapes)
+    return img, detected_lines
 
 
 def remove_nested_shapes(all_shapes):
@@ -1765,6 +1767,53 @@ def recognize_text(img_name, img, recognizer, shapes, easy_ocr, keras, tesseract
     return img
 
 
+def erd_data_to_json(all_shapes, all_lines):
+    mapping = {}
+    result = ImageResult()
+
+    entity_id_counter = 1
+    attribute_id_counter = 1
+    relationship_id_counter = 1
+    generalization_id_counter = 1
+
+    for shape in all_shapes:
+        match shape.shape_name:
+            case "rectangle":
+                shape_id = "E" + str(entity_id_counter)
+                entity_id_counter = entity_id_counter + 1
+
+            case "ellipse":
+                shape_id = "A" + str(attribute_id_counter)
+                attribute_id_counter = attribute_id_counter + 1
+
+            case "diamond":
+                shape_id = "R" + str(relationship_id_counter)
+                relationship_id_counter = relationship_id_counter + 1
+
+            case "triangle":
+                shape_id = "G" + str(generalization_id_counter)
+                generalization_id_counter = generalization_id_counter + 1
+
+            case _:
+                shape_id = "XXX"
+
+        dto_shape = shape.to_dto(shape_id)
+
+        mapping[shape] = dto_shape
+
+        result.add_object(dto_shape.to_json())
+
+    for line in all_lines:
+        connection = []
+        for shape in line.connecting_shapes:
+            corresponding_dto_shape = mapping[shape]
+            connection.append(corresponding_dto_shape.ID)
+
+        result.add_connection(connection)
+
+    return result.to_json()
+
+
 if __name__ == '__main__':
     # Phunspell
     # pspell = phunspell.Phunspell('sk_SK')
@@ -1787,8 +1836,12 @@ if __name__ == '__main__':
         'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Gunnison.png')
     # # # cv2.imshow("img orig", img)
     # #
-    # img_res, shapes = detect_shapes(img)
-    # # # cv2.imshow("shapes", img_res)
+    img_res, shapes = detect_shapes(img)
+    lines_img, detected_lines = remove_shapes_from_image(img, shapes)
+    cv2.imshow("shapes", img_res)
+
+    erd_data_to_json(shapes, detected_lines)
+
     # #
     # # # keras ocr
     # # # recognize_text_img = recognize_text(img_res, pipline, shapes, False, True, False)
