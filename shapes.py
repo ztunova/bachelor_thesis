@@ -15,7 +15,7 @@ class ImageResult:
         self.connections = []
 
     def to_json(self):
-        return json.dumps(self.__dict__)
+        return json.dumps(self.__dict__, indent=4)
 
     def add_object(self, new_object):
         self.objects.append(new_object)
@@ -34,7 +34,7 @@ class Dto:
         pass
 
     def to_json(self):
-        return json.dumps(self.__dict__)
+        return json.dumps(self.__dict__, indent=4)
 
 
 class Shape:
