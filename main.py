@@ -918,10 +918,12 @@ def getAllImages():
     # print(all_images)
 
     # keras OCR
-    # pipline = keras_ocr.pipeline.Pipeline()
+    pipline = keras_ocr.pipeline.Pipeline()
 
     # easyOCR
     # text_reader = Reader(['sk'], gpu=False)
+
+    clear_directory('test/results/json_outputs')
 
     for image_name in all_images:
         path = folder_dir + '/' + image_name
@@ -931,18 +933,21 @@ def getAllImages():
         digital_contours, detected_shapes = detect_shapes(img)
 
         # keras OCR
-        # digital_contours = recognize_text(image_name, digital_contours, pipline, detected_shapes, False, True, False)
+        digital_contours = recognize_text(image_name, digital_contours, pipline, detected_shapes, False, True, False)
 
         # easyOCR
         # digital_contours = recognize_text(image_name, digital_contours, text_reader, detected_shapes, True, False, False)
 
         # tesseract OCR
-        digital_contours = recognize_text(image_name, digital_contours, None, detected_shapes, False, False, True)
+        # digital_contours = recognize_text(image_name, digital_contours, None, detected_shapes, False, False, True)
 
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
 
         removed_shapes, detected_lines = remove_shapes_from_image(img, detected_shapes)
         saveImage(removed_shapes_dir, image_name, "", removed_shapes)
+
+        json_res = erd_data_to_json(detected_shapes, detected_lines)
+        write_json_to_file(json_res, image_name)
 
         # img_hlines, lines, input_img = detectLinesHough(img)
         # saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
@@ -1816,9 +1821,11 @@ def erd_data_to_json(all_shapes, all_lines):
 
 
 def write_json_to_file(json_data, name):
-    clear_directory('test/results/json_outputs')
+    start = len(name) - 6
+    exten_index = name.find('.', start)
+    name_no_extension = name[:exten_index]
 
-    file_name = "test/results/json_outputs/" + name + ".json"
+    file_name = "test/results/json_outputs/" + name_no_extension + ".json"
 
     file = open(file_name, 'w+')
     file.write(json_data)
@@ -1857,16 +1864,16 @@ if __name__ == '__main__':
     # # keras ocr
     # # pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
     # #
-    img = cv2.imread(
-        'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Gunnison.png')
-    # # # cv2.imshow("img orig", img)
-    # #
-    img_res, shapes = detect_shapes(img)
-    lines_img, detected_lines = remove_shapes_from_image(img, shapes)
-    cv2.imshow("shapes", img_res)
-
-    json_res = erd_data_to_json(shapes, detected_lines)
-    write_json_to_file(json_res, "pokus")
+    # img = cv2.imread(
+    #     'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Gunnison.png')
+    # # # # cv2.imshow("img orig", img)
+    # # #
+    # img_res, shapes = detect_shapes(img)
+    # lines_img, detected_lines = remove_shapes_from_image(img, shapes)
+    # cv2.imshow("shapes", img_res)
+    #
+    # json_res = erd_data_to_json(shapes, detected_lines)
+    # write_json_to_file(json_res, "pokus")
 
     # #
     # # # keras ocr
@@ -1902,8 +1909,8 @@ if __name__ == '__main__':
 
     # cv2.imshow("lines", lines)
 
-    # getAllImages()
-    # digital_images_results.show_results_html()
+    getAllImages()
+    digital_images_results.show_results_html()
 
     # showResultsHTML()
 
