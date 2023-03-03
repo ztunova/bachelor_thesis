@@ -39,6 +39,7 @@ class Dto:
 
 class Shape:
     def __init__(self, contour, hierarchy, shape_name, bounding_rectangle):
+        self.id = None
         self.text = ""
         self.contour = contour
         self.enlarged_contour = None
@@ -59,6 +60,9 @@ class Shape:
         dto.__setattr__("centre", self.shape_centre)
 
         return dto
+
+    def set_id(self, id):
+        self.id = id
 
     def set_text(self, text):
         self.text = text
