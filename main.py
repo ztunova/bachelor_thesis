@@ -1,4 +1,5 @@
 import copy
+import csv
 import json
 import math
 import os
@@ -1496,6 +1497,34 @@ def remove_nested_shapes(all_shapes):
                 break
 
         if not tested_inner_shape_is_inner:
+
+            # entity_id_counter = 1
+            # attribute_id_counter = 1
+            # relationship_id_counter = 1
+            # generalization_id_counter = 1
+            #
+            # match tested_inner_shape.shape_name:
+            #     case "rectangle":
+            #         shape_id = "E" + str(entity_id_counter)
+            #         entity_id_counter = entity_id_counter + 1
+            #
+            #     case "ellipse":
+            #         shape_id = "A" + str(attribute_id_counter)
+            #         attribute_id_counter = attribute_id_counter + 1
+            #
+            #     case "diamond":
+            #         shape_id = "R" + str(relationship_id_counter)
+            #         relationship_id_counter = relationship_id_counter + 1
+            #
+            #     case "triangle":
+            #         shape_id = "G" + str(generalization_id_counter)
+            #         generalization_id_counter = generalization_id_counter + 1
+            #
+            #     case _:
+            #         shape_id = "XXX"
+            #
+            # tested_inner_shape.set_id(shape_id)
+
             cleared_shapes.append(tested_inner_shape)
 
     return cleared_shapes
@@ -1728,12 +1757,6 @@ def recognize_text(img_name, img, recognizer, shapes, easy_ocr, keras, tesseract
         else:
             shape_img_slice = orig_img[top_right_orig[1]: bottom_left_orig[1], top_left_orig[0]: bottom_right_orig[0]]
 
-        #   OCR on resized img
-        # if top_left[1] <= top_right[1]:
-        #     shape_img_slice = img[top_left[1]: bottom_right[1], bottom_left[0]: top_right[0]]
-        # else:
-        #     shape_img_slice = img[top_right[1]: bottom_left[1], top_left[0]: bottom_right[0]]
-
         if easy_ocr:
             results = recognizer.readtext(shape_img_slice)
 
@@ -1815,7 +1838,8 @@ def erd_data_to_json(all_shapes, all_lines):
             corresponding_dto_shape = mapping[shape]
             connection.append(corresponding_dto_shape.ID)
 
-        result.add_connection(connection)
+        if connection:
+            result.add_connection(connection)
 
     return result.to_json()
 
@@ -1826,10 +1850,8 @@ def write_json_to_file(json_data, name):
     name_no_extension = name[:exten_index]
 
     file_name = "test/results/json_outputs/" + name_no_extension + ".json"
-
     file = open(file_name, 'w+')
-    file.write(json_data)
-
+    file.write(json.dumps(json_data, indent=4))
     file.close()
 
 
@@ -1866,12 +1888,13 @@ if __name__ == '__main__':
     # #
     # img = cv2.imread(
     #     'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Gunnison.png')
-    # # # # cv2.imshow("img orig", img)
-    # # #
+    # # # # # cv2.imshow("img orig", img)
+    # # # #
     # img_res, shapes = detect_shapes(img)
     # lines_img, detected_lines = remove_shapes_from_image(img, shapes)
-    # cv2.imshow("shapes", img_res)
-    #
+    # # cv2.imshow("shapes", img_res)
+    # #
+    # clear_directory("test/results/json_outputs")
     # json_res = erd_data_to_json(shapes, detected_lines)
     # write_json_to_file(json_res, "pokus")
 
@@ -1913,6 +1936,12 @@ if __name__ == '__main__':
     digital_images_results.show_results_html()
 
     # showResultsHTML()
+
+    # header = ['id', 'keras', 'easy_ocr', 'tesseract']
+    #
+    # with open('test/results/statistics/ocr_statistic.csv', 'w') as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(header)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
