@@ -933,8 +933,13 @@ def getAllImages():
 
         digital_contours, detected_shapes = detect_shapes(img)
 
-        # keras OCR
-        digital_contours = recognize_text(image_name, digital_contours, pipline, detected_shapes, False, True, False)
+        removed_shapes, detected_lines = remove_shapes_from_image(img, detected_shapes)
+        saveImage(removed_shapes_dir, image_name, "", removed_shapes)
+
+        # Keras OCR without statistics
+        digital_contours = recognize_text_no_statistics(image_name, digital_contours, pipline, detected_shapes, False, True, False)
+        # Keras OCR with statistics
+        # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, False, True, False)
 
         # easyOCR
         # digital_contours = recognize_text(image_name, digital_contours, text_reader, detected_shapes, True, False, False)
@@ -943,9 +948,6 @@ def getAllImages():
         # digital_contours = recognize_text(image_name, digital_contours, None, detected_shapes, False, False, True)
 
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
-
-        removed_shapes, detected_lines = remove_shapes_from_image(img, detected_shapes)
-        saveImage(removed_shapes_dir, image_name, "", removed_shapes)
 
         json_res = erd_data_to_json(detected_shapes, detected_lines)
         write_json_to_file(json_res, image_name)
@@ -1497,34 +1499,6 @@ def remove_nested_shapes(all_shapes):
                 break
 
         if not tested_inner_shape_is_inner:
-
-            # entity_id_counter = 1
-            # attribute_id_counter = 1
-            # relationship_id_counter = 1
-            # generalization_id_counter = 1
-            #
-            # match tested_inner_shape.shape_name:
-            #     case "rectangle":
-            #         shape_id = "E" + str(entity_id_counter)
-            #         entity_id_counter = entity_id_counter + 1
-            #
-            #     case "ellipse":
-            #         shape_id = "A" + str(attribute_id_counter)
-            #         attribute_id_counter = attribute_id_counter + 1
-            #
-            #     case "diamond":
-            #         shape_id = "R" + str(relationship_id_counter)
-            #         relationship_id_counter = relationship_id_counter + 1
-            #
-            #     case "triangle":
-            #         shape_id = "G" + str(generalization_id_counter)
-            #         generalization_id_counter = generalization_id_counter + 1
-            #
-            #     case _:
-            #         shape_id = "XXX"
-            #
-            # tested_inner_shape.set_id(shape_id)
-
             cleared_shapes.append(tested_inner_shape)
 
     return cleared_shapes
@@ -1730,7 +1704,7 @@ def point_in_original_image(reordered_points, img_name):
     return orig_img, reordered_orig_points
 
 
-def recognize_text(img_name, img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
+def recognize_text_no_statistics(img_name, img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
     black = (0, 0, 0)
     unicode_font = ImageFont.truetype("fonts/DejaVuSans.ttf", 15)
 
@@ -1794,6 +1768,88 @@ def recognize_text(img_name, img, recognizer, shapes, easy_ocr, keras, tesseract
         img = np.array(pil_image)
 
     return img
+
+
+def recognize_text_with_statistics(img_name, img, recognizer_keras, recognizer_easy_ocr, shapes, easy_ocr, keras, tesseract_ocr):
+    black = (0, 0, 0)
+    unicode_font = ImageFont.truetype("fonts/DejaVuSans.ttf", 15)
+
+    statistic_data = []
+
+    for shape in shapes:
+        shape_centre_id = 'x' + str(shape.shape_centre[0]) + 'y' + str(shape.shape_centre[1])
+        statistic_data.append(shape_centre_id)
+
+        bbox = shape.bounding_rectangle
+        bbox_points = cv2.boxPoints(bbox)
+        bbox_points = np.intp(bbox_points)
+
+        reordered_points = order_points_new(bbox_points)
+
+        if (reordered_points < 0).any():
+            reordered_points[reordered_points < 0] = 0
+
+        top_left, top_right, bottom_right, bottom_left = reordered_points
+
+        # OCR on original image
+        orig_img, reordered_orig_points = point_in_original_image(reordered_points, img_name)
+        top_left_orig, top_right_orig, bottom_right_orig, bottom_left_orig = reordered_orig_points
+
+        if top_left_orig[1] <= top_right_orig[1]:
+            shape_img_slice = orig_img[top_left_orig[1]: bottom_right_orig[1], bottom_left_orig[0]: top_right_orig[0]]
+        else:
+            shape_img_slice = orig_img[top_right_orig[1]: bottom_left_orig[1], top_left_orig[0]: bottom_right_orig[0]]
+
+        # text recognition
+        # easy OCR
+        easy_ocr_text = ""
+        easy_ocr_results = recognizer_easy_ocr.readtext(shape_img_slice)
+        for (bbox, text, prob) in easy_ocr_results:
+            # print(text)
+            easy_ocr_text = easy_ocr_text + text + " "
+
+        # Keras
+        keras_text = ""
+        keras_shape_img_slice = [shape_img_slice]
+        try:
+            pred = recognizer_keras.recognize(keras_shape_img_slice)
+            pred_res = pred[0]
+
+            for text, box in pred_res:
+                # print(text)
+                keras_text = keras_text + text + " "
+
+        except:
+            # print("ERROR")
+            keras_text = ""
+
+        # Tesseract
+        tesseract_text = ""
+        gray = cv2.cvtColor(shape_img_slice, cv2.COLOR_BGR2GRAY)
+        tesseract_text = pytesseract.image_to_string(gray, lang='slk', config='--tessdata-dir tessdata')
+        # print(shape_text)
+
+        # draw text to img
+        pil_image = Image.fromarray(img)
+
+        draw = ImageDraw.Draw(pil_image)
+        text_position = [bottom_left[0] + 5, bottom_left[1] + 5]
+
+        if easy_ocr:
+            draw.text(text_position, easy_ocr_text, font=unicode_font, fill=black)
+            shape.set_text(easy_ocr_text)
+        elif keras:
+            draw.text(text_position, keras_text, font=unicode_font, fill=black)
+            shape.set_text(keras_text)
+        elif tesseract_ocr:
+            draw.text(text_position, tesseract_text, font=unicode_font, fill=black)
+            shape.set_text(tesseract_text)
+
+        img = np.array(pil_image)
+
+        statistic_data.extend((easy_ocr_text, keras_text, tesseract_text))
+
+    return img, statistic_data
 
 
 def erd_data_to_json(all_shapes, all_lines):
@@ -1939,9 +1995,11 @@ if __name__ == '__main__':
 
     # header = ['id', 'keras', 'easy_ocr', 'tesseract']
     #
-    # with open('test/results/statistics/ocr_statistic.csv', 'w') as f:
+    # with open('test/results/statistics/ocr_statistic.csv', 'w', newline='') as f:
     #     writer = csv.writer(f)
     #     writer.writerow(header)
+    #     writer.writerow([2, '', '', 'pokus'])
+    #     writer.writerow([3, 'k', 'e', 't'])
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
