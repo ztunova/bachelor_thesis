@@ -1,0 +1,178 @@
+{
+    "objects": [
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "obed ",
+            "centre": [
+                665,
+                666
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "objednanie ",
+            "centre": [
+                476,
+                660
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "kupujuci ",
+            "centre": [
+                371,
+                546
+            ]
+        },
+        {
+            "ID": "G1",
+            "type": "triangle",
+            "name": "",
+            "centre": [
+                456,
+                457
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "stravnik ",
+            "centre": [
+                232,
+                355
+            ]
+        },
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                365,
+                199
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "poradove cislo ",
+            "centre": [
+                98,
+                194
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                821,
+                188
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                576,
+                172
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "kuchar ",
+            "centre": [
+                626,
+                335
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                932,
+                227
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "plat ",
+            "centre": [
+                699,
+                166
+            ]
+        },
+        {
+            "ID": "A7",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                232,
+                188
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "E1",
+            "R1"
+        ],
+        [
+            "R1",
+            "E2"
+        ],
+        [
+            "R1"
+        ],
+        [
+            "E2",
+            "G1"
+        ],
+        [
+            "G1",
+            "E4"
+        ],
+        [
+            "G1",
+            "E3"
+        ],
+        [
+            "E3",
+            "A2",
+            "A7"
+        ],
+        [
+            "E4",
+            "A5"
+        ],
+        [
+            "E3",
+            "A1"
+        ],
+        [
+            "A3",
+            "E4"
+        ],
+        [
+            "E3",
+            "A7"
+        ],
+        [
+            "A4",
+            "E4"
+        ],
+        [
+            "E4",
+            "A6"
+        ],
+        [
+            "A7"
+        ]
+    ]
+}

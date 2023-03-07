@@ -1,0 +1,181 @@
+{
+    "objects": [
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "ponuka ",
+            "centre": [
+                724,
+                292
+            ]
+        },
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "jedalen ",
+            "centre": [
+                724,
+                149
+            ]
+        },
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                600,
+                569
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                600,
+                502
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "stravnik ",
+            "centre": [
+                343,
+                483
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                600,
+                435
+            ]
+        },
+        {
+            "ID": "G1",
+            "type": "triangle",
+            "name": "",
+            "centre": [
+                200,
+                310
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "id stravnika ",
+            "centre": [
+                543,
+                244
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "menu ",
+            "centre": [
+                419,
+                244
+            ]
+        },
+        {
+            "ID": "R2",
+            "type": "diamond",
+            "name": "varenie ",
+            "centre": [
+                276,
+                216
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                476,
+                149
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "kuchar ",
+            "centre": [
+                200,
+                130
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "flat ",
+            "centre": [
+                85,
+                63
+            ]
+        },
+        {
+            "ID": "R3",
+            "type": "diamond",
+            "name": "objed dnat ",
+            "centre": [
+                476,
+                45
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "A1",
+            "A2",
+            "E2",
+            "A3"
+        ],
+        [
+            "E2",
+            "G1"
+        ],
+        [
+            "E4",
+            "A6"
+        ],
+        [
+            "R1",
+            "E1"
+        ],
+        [
+            "A4",
+            "A5",
+            "E3"
+        ],
+        [
+            "G1",
+            "E4"
+        ],
+        [
+            "R2",
+            "E4"
+        ],
+        [
+            "E3",
+            "R3"
+        ],
+        [
+            "E4",
+            "A6"
+        ],
+        [
+            "E1",
+            "R3"
+        ],
+        [
+            "E2",
+            "A5",
+            "R2",
+            "R3"
+        ]
+    ]
+}

@@ -1,0 +1,192 @@
+{
+    "objects": [
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "kuchar ",
+            "centre": [
+                823,
+                543
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "ponuka ",
+            "centre": [
+                137,
+                501
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "jedalen ",
+            "centre": [
+                326,
+                493
+            ]
+        },
+        {
+            "ID": "R2",
+            "type": "diamond",
+            "name": "objednat ",
+            "centre": [
+                613,
+                411
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                145,
+                345
+            ]
+        },
+        {
+            "ID": "R3",
+            "type": "diamond",
+            "name": "vari ",
+            "centre": [
+                663,
+                346
+            ]
+        },
+        {
+            "ID": "G1",
+            "type": "triangle",
+            "name": "",
+            "centre": [
+                769,
+                327
+            ]
+        },
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "plat ",
+            "centre": [
+                847,
+                321
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "jedlo ",
+            "centre": [
+                461,
+                288
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "stravnik id ",
+            "centre": [
+                330,
+                288
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "stravnik ",
+            "centre": [
+                392,
+                149
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                666,
+                75
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                289,
+                66
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                404,
+                42
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "R1",
+            "E2"
+        ],
+        [
+            "E2",
+            "R2"
+        ],
+        [
+            "E1",
+            "R3"
+        ],
+        [
+            "E1",
+            "A1"
+        ],
+        [
+            "E1",
+            "G1"
+        ],
+        [
+            "R2",
+            "E3"
+        ],
+        [
+            "E3",
+            "A3"
+        ],
+        [
+            "A2",
+            "A3"
+        ],
+        [
+            "R2",
+            "R3",
+            "A2"
+        ],
+        [
+            "A1"
+        ],
+        [
+            "G1",
+            "A2",
+            "E4"
+        ],
+        [
+            "E4",
+            "A5"
+        ],
+        [
+            "E4",
+            "A4"
+        ],
+        [
+            "E4"
+        ],
+        [
+            "E4",
+            "A6"
+        ]
+    ]
+}

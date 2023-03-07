@@ -1,0 +1,238 @@
+{
+    "objects": [
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "eeor ",
+            "centre": [
+                418,
+                670
+            ]
+        },
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "sce ",
+            "centre": [
+                418,
+                566
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "sa tarl ",
+            "centre": [
+                592,
+                560
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                620,
+                316
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                216,
+                295
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                564,
+                79
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "near ohe ",
+            "centre": [
+                229,
+                775
+            ]
+        },
+        {
+            "ID": "R2",
+            "type": "diamond",
+            "name": "veri ",
+            "centre": [
+                683,
+                726
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "don ",
+            "centre": [
+                216,
+                664
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "scaen ",
+            "centre": [
+                662,
+                615
+            ]
+        },
+        {
+            "ID": "R3",
+            "type": "diamond",
+            "name": "ceccule ",
+            "centre": [
+                230,
+                566
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "eeor ",
+            "centre": [
+                682,
+                462
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "cuers ",
+            "centre": [
+                543,
+                392
+            ]
+        },
+        {
+            "ID": "E5",
+            "type": "rectangle",
+            "name": "stravnis ",
+            "centre": [
+                369,
+                392
+            ]
+        },
+        {
+            "ID": "G1",
+            "type": "triangle",
+            "name": "",
+            "centre": [
+                449,
+                293
+            ]
+        },
+        {
+            "ID": "E6",
+            "type": "rectangle",
+            "name": "ada ",
+            "centre": [
+                453,
+                190
+            ]
+        },
+        {
+            "ID": "A7",
+            "type": "ellipse",
+            "name": "aoee ",
+            "centre": [
+                439,
+                79
+            ]
+        },
+        {
+            "ID": "A8",
+            "type": "ellipse",
+            "name": "dero ",
+            "centre": [
+                306,
+                79
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "A5",
+            "E2"
+        ],
+        [
+            "R2",
+            "E3"
+        ],
+        [
+            "E2",
+            "R3"
+        ],
+        [
+            "A1",
+            "E1"
+        ],
+        [
+            "E1",
+            "R1"
+        ],
+        [
+            "R1",
+            "E3",
+            "A6"
+        ],
+        [
+            "E1",
+            "R3",
+            "E4"
+        ],
+        [
+            "R3",
+            "E5"
+        ],
+        [
+            "R2",
+            "E4"
+        ],
+        [
+            "A2",
+            "E4"
+        ],
+        [
+            "A3",
+            "E5"
+        ],
+        [
+            "E4",
+            "G1"
+        ],
+        [
+            "E5",
+            "G1"
+        ],
+        [
+            "G1",
+            "E6"
+        ],
+        [
+            "E6",
+            "A8"
+        ],
+        [
+            "A4",
+            "E6"
+        ],
+        [
+            "E6",
+            "A7"
+        ]
+    ]
+}

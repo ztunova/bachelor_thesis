@@ -1,0 +1,260 @@
+{
+    "objects": [
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                454,
+                873
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "nazov ",
+            "centre": [
+                334,
+                863
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "datum ",
+            "centre": [
+                223,
+                838
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "nazov dna ",
+            "centre": [
+                83,
+                838
+            ]
+        },
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                123,
+                748
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "nazov ",
+            "centre": [
+                811,
+                745
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "jedalen ",
+            "centre": [
+                635,
+                743
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "jedlo ",
+            "centre": [
+                334,
+                743
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "vari sa ",
+            "centre": [
+                469,
+                743
+            ]
+        },
+        {
+            "ID": "R2",
+            "type": "diamond",
+            "name": "vari ",
+            "centre": [
+                595,
+                617
+            ]
+        },
+        {
+            "ID": "R3",
+            "type": "diamond",
+            "name": "obeduje ",
+            "centre": [
+                183,
+                592
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                65,
+                477
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "stravnik ",
+            "centre": [
+                213,
+                447
+            ]
+        },
+        {
+            "ID": "A7",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                686,
+                446
+            ]
+        },
+        {
+            "ID": "E5",
+            "type": "rectangle",
+            "name": "kuchar ",
+            "centre": [
+                484,
+                437
+            ]
+        },
+        {
+            "ID": "G1",
+            "type": "triangle",
+            "name": "",
+            "centre": [
+                305,
+                305
+            ]
+        },
+        {
+            "ID": "E6",
+            "type": "rectangle",
+            "name": "osoba ",
+            "centre": [
+                284,
+                186
+            ]
+        },
+        {
+            "ID": "A8",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                143,
+                56
+            ]
+        },
+        {
+            "ID": "A9",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                464,
+                43
+            ]
+        },
+        {
+            "ID": "A10",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                314,
+                42
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "A3",
+            "E1"
+        ],
+        [
+            "A4",
+            "E1"
+        ],
+        [
+            "A1",
+            "A2",
+            "E3"
+        ],
+        [
+            "E2",
+            "R1"
+        ],
+        [
+            "E3",
+            "R1"
+        ],
+        [
+            "A5",
+            "E2"
+        ],
+        [
+            "E2",
+            "R2"
+        ],
+        [
+            "E3",
+            "R3"
+        ],
+        [
+            "E1",
+            "R3"
+        ],
+        [
+            "R3",
+            "E4"
+        ],
+        [
+            "R2",
+            "E5"
+        ],
+        [
+            "A6",
+            "E4"
+        ],
+        [
+            "A7",
+            "E5"
+        ],
+        [
+            "E4",
+            "G1"
+        ],
+        [
+            "E5",
+            "G1"
+        ],
+        [
+            "G1",
+            "E6"
+        ],
+        [
+            "E6",
+            "A8"
+        ],
+        [
+            "E6",
+            "A9",
+            "A10"
+        ]
+    ]
+}

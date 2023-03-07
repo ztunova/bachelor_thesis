@@ -1,0 +1,255 @@
+{
+    "objects": [
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                269,
+                636
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "nazov ",
+            "centre": [
+                922,
+                636
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                102,
+                627
+            ]
+        },
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                730,
+                615
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "stravnik ",
+            "centre": [
+                269,
+                511
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "objednava ",
+            "centre": [
+                512,
+                474
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "nazov jedla ",
+            "centre": [
+                931,
+                461
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "jedlo ",
+            "centre": [
+                717,
+                435
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "idi jedla ",
+            "centre": [
+                858,
+                345
+            ]
+        },
+        {
+            "ID": "G1",
+            "type": "triangle",
+            "name": "",
+            "centre": [
+                262,
+                415
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "zakaznik ",
+            "centre": [
+                397,
+                346
+            ]
+        },
+        {
+            "ID": "E5",
+            "type": "rectangle",
+            "name": "kuchar ",
+            "centre": [
+                140,
+                307
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "koniec ",
+            "centre": [
+                345,
+                243
+            ]
+        },
+        {
+            "ID": "A7",
+            "type": "ellipse",
+            "name": "flat ",
+            "centre": [
+                67,
+                204
+            ]
+        },
+        {
+            "ID": "R2",
+            "type": "diamond",
+            "name": "pracuje ",
+            "centre": [
+                224,
+                179
+            ]
+        },
+        {
+            "ID": "A8",
+            "type": "ellipse",
+            "name": "zaciatok ",
+            "centre": [
+                397,
+                166
+            ]
+        },
+        {
+            "ID": "A9",
+            "type": "ellipse",
+            "name": "datum ",
+            "centre": [
+                435,
+                76
+            ]
+        },
+        {
+            "ID": "E6",
+            "type": "rectangle",
+            "name": "pracowvna doba ",
+            "centre": [
+                256,
+                77
+            ]
+        },
+        {
+            "ID": "A10",
+            "type": "ellipse",
+            "name": "den tyzdni v ",
+            "centre": [
+                115,
+                29
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "E2"
+        ],
+        [
+            "A2",
+            "E1"
+        ],
+        [
+            "A1",
+            "E2"
+        ],
+        [
+            "E1",
+            "R1"
+        ],
+        [
+            "A3",
+            "E2"
+        ],
+        [
+            "E2",
+            "R1"
+        ],
+        [
+            "R1",
+            "E3"
+        ],
+        [
+            "A4",
+            "E3"
+        ],
+        [
+            "E2",
+            "G1"
+        ],
+        [
+            "E3",
+            "A5"
+        ],
+        [
+            "G1",
+            "E4"
+        ],
+        [
+            "G1",
+            "E5"
+        ],
+        [
+            "E5",
+            "A7"
+        ],
+        [
+            "E5",
+            "R2"
+        ],
+        [
+            "A6",
+            "R2"
+        ],
+        [
+            "R2"
+        ],
+        [
+            "R2",
+            "A8"
+        ],
+        [
+            "R2",
+            "E6"
+        ],
+        [
+            "A9",
+            "E6"
+        ],
+        [
+            "E6",
+            "A10"
+        ]
+    ]
+}

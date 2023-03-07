@@ -1,0 +1,340 @@
+{
+    "objects": [
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "jcule ",
+            "centre": [
+                793,
+                213
+            ]
+        },
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                900,
+                130
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "wend ",
+            "centre": [
+                769,
+                130
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "stramnilk ",
+            "centre": [
+                124,
+                213
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "arees ",
+            "centre": [
+                339,
+                130
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                196,
+                130
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "wend ",
+            "centre": [
+                66,
+                130
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "lones ",
+            "centre": [
+                518,
+                763
+            ]
+        },
+        {
+            "ID": "A7",
+            "type": "ellipse",
+            "name": "acialol ",
+            "centre": [
+                375,
+                763
+            ]
+        },
+        {
+            "ID": "A8",
+            "type": "ellipse",
+            "name": "id eucas ",
+            "centre": [
+                351,
+                655
+            ]
+        },
+        {
+            "ID": "A9",
+            "type": "ellipse",
+            "name": "leamy ",
+            "centre": [
+                512,
+                643
+            ]
+        },
+        {
+            "ID": "A10",
+            "type": "ellipse",
+            "name": "farees ",
+            "centre": [
+                66,
+                596
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "prague ",
+            "centre": [
+                267,
+                548
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "prcovns cabes ",
+            "centre": [
+                471,
+                548
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "kucher ",
+            "centre": [
+                124,
+                476
+            ]
+        },
+        {
+            "ID": "R2",
+            "type": "diamond",
+            "name": "vyvars ",
+            "centre": [
+                793,
+                476
+            ]
+        },
+        {
+            "ID": "A11",
+            "type": "ellipse",
+            "name": "dalum ",
+            "centre": [
+                614,
+                405
+            ]
+        },
+        {
+            "ID": "A12",
+            "type": "ellipse",
+            "name": "pal ",
+            "centre": [
+                327,
+                369
+            ]
+        },
+        {
+            "ID": "A13",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                196,
+                369
+            ]
+        },
+        {
+            "ID": "A14",
+            "type": "ellipse",
+            "name": "wend ",
+            "centre": [
+                66,
+                369
+            ]
+        },
+        {
+            "ID": "E5",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                632,
+                309
+            ]
+        },
+        {
+            "ID": "R3",
+            "type": "diamond",
+            "name": "oojeunav ",
+            "centre": [
+                482,
+                214
+            ]
+        },
+        {
+            "ID": "E6",
+            "type": "rectangle",
+            "name": "hieloris objednates ",
+            "centre": [
+                470,
+                106
+            ]
+        },
+        {
+            "ID": "A15",
+            "type": "ellipse",
+            "name": "id jedka ",
+            "centre": [
+                518,
+                46
+            ]
+        },
+        {
+            "ID": "A16",
+            "type": "ellipse",
+            "name": "d obeanarcaea ",
+            "centre": [
+                375,
+                46
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "A6",
+            "A7",
+            "A9"
+        ],
+        [
+            "A9",
+            "E3"
+        ],
+        [
+            "A8",
+            "E3"
+        ],
+        [
+            "R1",
+            "E3"
+        ],
+        [
+            "R1",
+            "E4"
+        ],
+        [
+            "A10",
+            "E4"
+        ],
+        [
+            "E4",
+            "R2"
+        ],
+        [
+            "E4",
+            "A13"
+        ],
+        [
+            "E4",
+            "A14"
+        ],
+        [
+            "E4",
+            "A12"
+        ],
+        [
+            "A11",
+            "E5"
+        ],
+        [
+            "R2",
+            "E5"
+        ],
+        [
+            "E4",
+            "R3"
+        ],
+        [
+            "E1",
+            "E5"
+        ],
+        [
+            "E5",
+            "R3"
+        ],
+        [
+            "E2",
+            "R3"
+        ],
+        [
+            "E1",
+            "A1"
+        ],
+        [
+            "E1",
+            "A2"
+        ],
+        [
+            "E2",
+            "A5"
+        ],
+        [
+            "E2",
+            "A4"
+        ],
+        [
+            "E2",
+            "A3"
+        ],
+        [
+            "R3",
+            "E6"
+        ],
+        [
+            "E2",
+            "A4",
+            "A5"
+        ],
+        [
+            "E6",
+            "A15"
+        ],
+        [
+            "E6",
+            "A16"
+        ],
+        [
+            "A15",
+            "A16"
+        ],
+        [
+            "A16"
+        ]
+    ]
+}

@@ -1,0 +1,200 @@
+{
+    "objects": [
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "gramaz ",
+            "centre": [
+                359,
+                658
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "nazov ",
+            "centre": [
+                247,
+                650
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "c vmenu ",
+            "centre": [
+                181,
+                613
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "nazov dnia ",
+            "centre": [
+                518,
+                512
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "datum ",
+            "centre": [
+                413,
+                509
+            ]
+        },
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                463,
+                425
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                571,
+                407
+            ]
+        },
+        {
+            "ID": "A7",
+            "type": "ellipse",
+            "name": "fracoval ",
+            "centre": [
+                661,
+                367
+            ]
+        },
+        {
+            "ID": "A8",
+            "type": "ellipse",
+            "name": "pracovna doba ",
+            "centre": [
+                670,
+                307
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "kuchar ",
+            "centre": [
+                470,
+                289
+            ]
+        },
+        {
+            "ID": "A9",
+            "type": "ellipse",
+            "name": "do ",
+            "centre": [
+                738,
+                260
+            ]
+        },
+        {
+            "ID": "A10",
+            "type": "ellipse",
+            "name": "od ",
+            "centre": [
+                600,
+                256
+            ]
+        },
+        {
+            "ID": "G1",
+            "type": "triangle",
+            "name": "",
+            "centre": [
+                393,
+                192
+            ]
+        },
+        {
+            "ID": "A11",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                268,
+                45
+            ]
+        },
+        {
+            "ID": "A12",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                488,
+                38
+            ]
+        },
+        {
+            "ID": "A13",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                388,
+                29
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "A1",
+            "A2",
+            "A3",
+            "E1",
+            "G1"
+        ],
+        [
+            "A5"
+        ],
+        [
+            "A4",
+            "E1"
+        ],
+        [
+            "A5",
+            "E1"
+        ],
+        [
+            "A6"
+        ],
+        [
+            "A7",
+            "A8"
+        ],
+        [
+            "A7",
+            "R1"
+        ],
+        [
+            "A8",
+            "A9"
+        ],
+        [
+            "A8",
+            "A10"
+        ],
+        [
+            "R1",
+            "G1"
+        ],
+        [
+            "G1"
+        ],
+        [
+            "G1",
+            "A11",
+            "A12",
+            "A13"
+        ]
+    ]
+}

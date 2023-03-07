@@ -1,0 +1,140 @@
+{
+    "objects": [
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "ss ",
+            "centre": [
+                916,
+                439
+            ]
+        },
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                307,
+                400
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "zlava ",
+            "centre": [
+                294,
+                321
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                49,
+                215
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "kuchar ",
+            "centre": [
+                691,
+                254
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "flat ",
+            "centre": [
+                704,
+                174
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "stravnik ",
+            "centre": [
+                504,
+                201
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                512,
+                134
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                458,
+                134
+            ]
+        },
+        {
+            "ID": "A7",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                405,
+                134
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "A1"
+        ],
+        [
+            "A1"
+        ],
+        [
+            "E1",
+            "E3"
+        ],
+        [
+            "E1",
+            "A2"
+        ],
+        [
+            "A2"
+        ],
+        [
+            "A3"
+        ],
+        [
+            "E2",
+            "E3"
+        ],
+        [
+            "E2",
+            "A4"
+        ],
+        [
+            "E3",
+            "A5",
+            "A6"
+        ],
+        [
+            "E3",
+            "A7"
+        ],
+        [
+            "E3",
+            "A5"
+        ],
+        [
+            "A4"
+        ]
+    ]
+}

@@ -1,0 +1,393 @@
+{
+    "objects": [
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "osoba ",
+            "centre": [
+                440,
+                216
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                872,
+                475
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                484,
+                439
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "",
+            "centre": [
+                934,
+                451
+            ]
+        },
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "koniec pracovne doby ",
+            "centre": [
+                953,
+                417
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "zacitatok doby pra covnej ",
+            "centre": [
+                917,
+                380
+            ]
+        },
+        {
+            "ID": "R2",
+            "type": "diamond",
+            "name": "objednava jedlo ",
+            "centre": [
+                482,
+                372
+            ]
+        },
+        {
+            "ID": "R3",
+            "type": "diamond",
+            "name": "pracuje ",
+            "centre": [
+                835,
+                357
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "",
+            "centre": [
+                253,
+                324
+            ]
+        },
+        {
+            "ID": "E5",
+            "type": "rectangle",
+            "name": "stravnik ",
+            "centre": [
+                163,
+                320
+            ]
+        },
+        {
+            "ID": "G1",
+            "type": "triangle",
+            "name": "",
+            "centre": [
+                439,
+                279
+            ]
+        },
+        {
+            "ID": "E6",
+            "type": "rectangle",
+            "name": "kuchar ",
+            "centre": [
+                715,
+                275
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                45,
+                268
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                216,
+                245
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                126,
+                245
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                559,
+                230
+            ]
+        },
+        {
+            "ID": "A7",
+            "type": "ellipse",
+            "name": "plat ",
+            "centre": [
+                827,
+                208
+            ]
+        },
+        {
+            "ID": "A8",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                730,
+                208
+            ]
+        },
+        {
+            "ID": "A9",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                641,
+                208
+            ]
+        },
+        {
+            "ID": "A10",
+            "type": "ellipse",
+            "name": "priezvisko ",
+            "centre": [
+                134,
+                201
+            ]
+        },
+        {
+            "ID": "A11",
+            "type": "ellipse",
+            "name": "krstne meno ",
+            "centre": [
+                45,
+                201
+            ]
+        },
+        {
+            "ID": "A12",
+            "type": "ellipse",
+            "name": "priezvisko ",
+            "centre": [
+                648,
+                163
+            ]
+        },
+        {
+            "ID": "A13",
+            "type": "ellipse",
+            "name": "krstne meno ",
+            "centre": [
+                559,
+                163
+            ]
+        },
+        {
+            "ID": "E7",
+            "type": "rectangle",
+            "name": "",
+            "centre": [
+                228,
+                129
+            ]
+        },
+        {
+            "ID": "A14",
+            "type": "ellipse",
+            "name": "psc ",
+            "centre": [
+                141,
+                104
+            ]
+        },
+        {
+            "ID": "A15",
+            "type": "ellipse",
+            "name": "popisne cislo ",
+            "centre": [
+                313,
+                96
+            ]
+        },
+        {
+            "ID": "E8",
+            "type": "rectangle",
+            "name": "",
+            "centre": [
+                743,
+                92
+            ]
+        },
+        {
+            "ID": "A16",
+            "type": "ellipse",
+            "name": "psc ",
+            "centre": [
+                656,
+                66
+            ]
+        },
+        {
+            "ID": "A17",
+            "type": "ellipse",
+            "name": "popisne cislo ",
+            "centre": [
+                827,
+                59
+            ]
+        },
+        {
+            "ID": "A18",
+            "type": "ellipse",
+            "name": "ulica ",
+            "centre": [
+                268,
+                59
+            ]
+        },
+        {
+            "ID": "A19",
+            "type": "ellipse",
+            "name": "mesto ",
+            "centre": [
+                186,
+                59
+            ]
+        },
+        {
+            "ID": "A20",
+            "type": "ellipse",
+            "name": "ulica ",
+            "centre": [
+                782,
+                23
+            ]
+        },
+        {
+            "ID": "A21",
+            "type": "ellipse",
+            "name": "mesto ",
+            "centre": [
+                700,
+                23
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "A1",
+            "A2"
+        ],
+        [
+            "E3",
+            "R2"
+        ],
+        [
+            "E2",
+            "R3"
+        ],
+        [
+            "R2",
+            "E5"
+        ],
+        [
+            "R3",
+            "E6"
+        ],
+        [
+            "R2",
+            "E6"
+        ],
+        [
+            "E4",
+            "G1",
+            "E6"
+        ],
+        [
+            "E5",
+            "A3",
+            "A4",
+            "A5"
+        ],
+        [
+            "E4"
+        ],
+        [
+            "E1",
+            "G1"
+        ],
+        [
+            "E6",
+            "A6",
+            "A7",
+            "A8",
+            "A9"
+        ],
+        [
+            "E6"
+        ],
+        [
+            "A5",
+            "A10",
+            "A11"
+        ],
+        [
+            "A9",
+            "A12",
+            "A13"
+        ],
+        [
+            "A4",
+            "E7",
+            "A14"
+        ],
+        [
+            "E7",
+            "A15",
+            "A18"
+        ],
+        [
+            "A8",
+            "E8",
+            "A16"
+        ],
+        [
+            "E7",
+            "A19"
+        ],
+        [
+            "E8",
+            "A17",
+            "A20"
+        ],
+        [
+            "E8",
+            "A21"
+        ]
+    ]
+}

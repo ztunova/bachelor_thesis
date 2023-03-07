@@ -1,0 +1,262 @@
+{
+    "objects": [
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "cina nazov ",
+            "centre": [
+                299,
+                856
+            ]
+        },
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "dlen ",
+            "centre": [
+                264,
+                776
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "vari ",
+            "centre": [
+                780,
+                765
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "jecalen ",
+            "centre": [
+                770,
+                634
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "zlavaa ",
+            "centre": [
+                69,
+                586
+            ]
+        },
+        {
+            "ID": "R2",
+            "type": "diamond",
+            "name": "obecuie ",
+            "centre": [
+                244,
+                590
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "nazov ",
+            "centre": [
+                481,
+                682
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "jedlo ",
+            "centre": [
+                443,
+                598
+            ]
+        },
+        {
+            "ID": "R3",
+            "type": "diamond",
+            "name": "vari so ",
+            "centre": [
+                620,
+                589
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "nazov ",
+            "centre": [
+                741,
+                544
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "",
+            "centre": [
+                239,
+                463
+            ]
+        },
+        {
+            "ID": "E5",
+            "type": "rectangle",
+            "name": "stravnik ",
+            "centre": [
+                290,
+                373
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                789,
+                313
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                205,
+                309
+            ]
+        },
+        {
+            "ID": "E6",
+            "type": "rectangle",
+            "name": "kucher ",
+            "centre": [
+                717,
+                370
+            ]
+        },
+        {
+            "ID": "G1",
+            "type": "triangle",
+            "name": "",
+            "centre": [
+                465,
+                222
+            ]
+        },
+        {
+            "ID": "E7",
+            "type": "rectangle",
+            "name": "osoba ",
+            "centre": [
+                463,
+                91
+            ]
+        },
+        {
+            "ID": "A7",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                626,
+                23
+            ]
+        },
+        {
+            "ID": "A8",
+            "type": "ellipse",
+            "name": "acresa ",
+            "centre": [
+                508,
+                23
+            ]
+        },
+        {
+            "ID": "A9",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                404,
+                22
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "A1",
+            "E1"
+        ],
+        [
+            "R1",
+            "E2"
+        ],
+        [
+            "E1",
+            "R2"
+        ],
+        [
+            "A3",
+            "E3"
+        ],
+        [
+            "E2",
+            "R3"
+        ],
+        [
+            "R2",
+            "E3"
+        ],
+        [
+            "A2",
+            "R2"
+        ],
+        [
+            "E3",
+            "R3"
+        ],
+        [
+            "E2",
+            "A4"
+        ],
+        [
+            "R2",
+            "E6"
+        ],
+        [
+            "R1",
+            "E6"
+        ],
+        [
+            "A5",
+            "E6"
+        ],
+        [
+            "E5",
+            "A6"
+        ],
+        [
+            "E6",
+            "G1"
+        ],
+        [
+            "E5",
+            "G1"
+        ],
+        [
+            "G1",
+            "E7"
+        ],
+        [
+            "E7",
+            "A8"
+        ],
+        [
+            "E7",
+            "A9"
+        ],
+        [
+            "E7",
+            "A7"
+        ]
+    ]
+}

@@ -1,0 +1,210 @@
+{
+    "objects": [
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "jedalen ",
+            "centre": [
+                447,
+                654
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "ponika ",
+            "centre": [
+                180,
+                654
+            ]
+        },
+        {
+            "ID": "R2",
+            "type": "diamond",
+            "name": "objednat ",
+            "centre": [
+                447,
+                409
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                164,
+                377
+            ]
+        },
+        {
+            "ID": "R3",
+            "type": "diamond",
+            "name": "vari ",
+            "centre": [
+                532,
+                335
+            ]
+        },
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "menu ",
+            "centre": [
+                249,
+                249
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "stamikid ",
+            "centre": [
+                79,
+                249
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "kuchar ",
+            "centre": [
+                724,
+                430
+            ]
+        },
+        {
+            "ID": "G1",
+            "type": "triangle",
+            "name": "",
+            "centre": [
+                649,
+                300
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "flat ",
+            "centre": [
+                750,
+                292
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "stra vnik ",
+            "centre": [
+                447,
+                207
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                649,
+                78
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                388,
+                68
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                217,
+                57
+            ]
+        },
+        {
+            "ID": "E5",
+            "type": "rectangle",
+            "name": "histonia ",
+            "centre": [
+                852,
+                40
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "E1",
+            "R1"
+        ],
+        [
+            "E1",
+            "R2"
+        ],
+        [
+            "R2",
+            "E2"
+        ],
+        [
+            "R3",
+            "E3"
+        ],
+        [
+            "E3",
+            "A3"
+        ],
+        [
+            "E3",
+            "G1"
+        ],
+        [
+            "E2",
+            "A1"
+        ],
+        [
+            "E2",
+            "A2"
+        ],
+        [
+            "G1",
+            "E4"
+        ],
+        [
+            "R2",
+            "R3",
+            "A1",
+            "E4"
+        ],
+        [
+            "A3"
+        ],
+        [
+            "E4",
+            "A4"
+        ],
+        [
+            "E4",
+            "A5"
+        ],
+        [
+            "E4"
+        ],
+        [
+            "E4",
+            "A6"
+        ],
+        [
+            "A5"
+        ],
+        [
+            "A5"
+        ],
+        [
+            "A5"
+        ]
+    ]
+}

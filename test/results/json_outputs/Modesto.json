@@ -1,0 +1,213 @@
+{
+    "objects": [
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "osoba ",
+            "centre": [
+                195,
+                132
+            ]
+        },
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                319,
+                54
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "adress ",
+            "centre": [
+                206,
+                54
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                71,
+                54
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                386,
+                671
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "cena ",
+            "centre": [
+                251,
+                671
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "hmotnost ",
+            "centre": [
+                521,
+                671
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "jedlo ",
+            "centre": [
+                375,
+                559
+            ]
+        },
+        {
+            "ID": "A7",
+            "type": "ellipse",
+            "name": "daum ",
+            "centre": [
+                622,
+                503
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "objedna ",
+            "centre": [
+                364,
+                413
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                577,
+                402
+            ]
+        },
+        {
+            "ID": "R2",
+            "type": "diamond",
+            "name": "pracue ",
+            "centre": [
+                600,
+                278
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "stravnik n ",
+            "centre": [
+                274,
+                267
+            ]
+        },
+        {
+            "ID": "A8",
+            "type": "ellipse",
+            "name": "ca ",
+            "centre": [
+                790,
+                233
+            ]
+        },
+        {
+            "ID": "A9",
+            "type": "ellipse",
+            "name": "od ",
+            "centre": [
+                689,
+                155
+            ]
+        },
+        {
+            "ID": "A10",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                745,
+                43
+            ]
+        },
+        {
+            "ID": "A11",
+            "type": "ellipse",
+            "name": "adress ",
+            "centre": [
+                611,
+                43
+            ]
+        },
+        {
+            "ID": "A12",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                476,
+                43
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "A6",
+            "E2"
+        ],
+        [
+            "A4",
+            "E2"
+        ],
+        [
+            "A5",
+            "E2"
+        ],
+        [
+            "E2",
+            "R1"
+        ],
+        [
+            "A7",
+            "E3"
+        ],
+        [
+            "R1",
+            "E3"
+        ],
+        [
+            "E3"
+        ],
+        [
+            "E3",
+            "R2"
+        ],
+        [
+            "R1",
+            "E4"
+        ],
+        [
+            "R2",
+            "A8",
+            "A9"
+        ],
+        [
+            "R2",
+            "A11",
+            "A12"
+        ]
+    ]
+}

@@ -1,0 +1,175 @@
+{
+    "objects": [
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "nazoy ",
+            "centre": [
+                417,
+                518
+            ]
+        },
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "jedlo ",
+            "centre": [
+                367,
+                420
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "nazov ",
+            "centre": [
+                848,
+                325
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "kuchar ",
+            "centre": [
+                623,
+                312
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                783,
+                179
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                133,
+                497
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "obeduje ",
+            "centre": [
+                89,
+                416
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "stravnik ",
+            "centre": [
+                150,
+                292
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "id ",
+            "centre": [
+                63,
+                196
+            ]
+        },
+        {
+            "ID": "E5",
+            "type": "rectangle",
+            "name": "osoba ",
+            "centre": [
+                373,
+                129
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "",
+            "centre": [
+                529,
+                44
+            ]
+        },
+        {
+            "ID": "A6",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                365,
+                43
+            ]
+        },
+        {
+            "ID": "A7",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                213,
+                44
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "E3"
+        ],
+        [
+            "A1",
+            "E1"
+        ],
+        [
+            "E3",
+            "R1"
+        ],
+        [
+            "E1",
+            "R1"
+        ],
+        [
+            "E1",
+            "A2"
+        ],
+        [
+            "R1",
+            "E4"
+        ],
+        [
+            "A2",
+            "E2"
+        ],
+        [
+            "E4",
+            "A4"
+        ],
+        [
+            "E2",
+            "A3"
+        ],
+        [
+            "E2",
+            "E4",
+            "E5"
+        ],
+        [
+            "E5",
+            "A6"
+        ],
+        [
+            "E5",
+            "A5"
+        ],
+        [
+            "E5",
+            "A7"
+        ]
+    ]
+}

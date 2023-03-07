@@ -1,0 +1,162 @@
+{
+    "objects": [
+        {
+            "ID": "E1",
+            "type": "rectangle",
+            "name": "den ",
+            "centre": [
+                256,
+                544
+            ]
+        },
+        {
+            "ID": "A1",
+            "type": "ellipse",
+            "name": "plat ",
+            "centre": [
+                860,
+                492
+            ]
+        },
+        {
+            "ID": "A2",
+            "type": "ellipse",
+            "name": "pracovna doba ",
+            "centre": [
+                643,
+                492
+            ]
+        },
+        {
+            "ID": "E2",
+            "type": "rectangle",
+            "name": "kuchar ",
+            "centre": [
+                738,
+                380
+            ]
+        },
+        {
+            "ID": "E3",
+            "type": "rectangle",
+            "name": "stravnik ",
+            "centre": [
+                376,
+                380
+            ]
+        },
+        {
+            "ID": "G1",
+            "type": "triangle",
+            "name": "",
+            "centre": [
+                555,
+                255
+            ]
+        },
+        {
+            "ID": "E4",
+            "type": "rectangle",
+            "name": "jedlo ",
+            "centre": [
+                98,
+                207
+            ]
+        },
+        {
+            "ID": "R1",
+            "type": "diamond",
+            "name": "objednat ",
+            "centre": [
+                312,
+                164
+            ]
+        },
+        {
+            "ID": "E5",
+            "type": "rectangle",
+            "name": "osoba ",
+            "centre": [
+                556,
+                145
+            ]
+        },
+        {
+            "ID": "A3",
+            "type": "ellipse",
+            "name": "adresa ",
+            "centre": [
+                762,
+                42
+            ]
+        },
+        {
+            "ID": "A4",
+            "type": "ellipse",
+            "name": "meno ",
+            "centre": [
+                626,
+                42
+            ]
+        },
+        {
+            "ID": "A5",
+            "type": "ellipse",
+            "name": "cislo obcian preukazu ",
+            "centre": [
+                485,
+                42
+            ]
+        }
+    ],
+    "connections": [
+        [
+            "E1",
+            "A2"
+        ],
+        [
+            "A1",
+            "E2"
+        ],
+        [
+            "A2",
+            "E2"
+        ],
+        [
+            "E3",
+            "G1"
+        ],
+        [
+            "E2",
+            "G1"
+        ],
+        [
+            "G1",
+            "E5"
+        ],
+        [
+            "E4",
+            "R1"
+        ],
+        [
+            "R1",
+            "E5"
+        ],
+        [
+            "E5",
+            "A5"
+        ],
+        [
+            "E5",
+            "A3"
+        ],
+        [
+            "E5",
+            "A4"
+        ],
+        [
+            "R1",
+            "E5"
+        ]
+    ]
+}
