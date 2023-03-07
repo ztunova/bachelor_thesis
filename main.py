@@ -12,6 +12,7 @@ import keras_ocr
 import matplotlib.pyplot as plt
 import math
 import numpy as np
+import pandas
 import phunspell
 import pytesseract
 
@@ -1948,6 +1949,21 @@ def clear_directory(folder):
             print('Failed to delete %s. Reason: %s' % (file_path, e))
 
 
+def copy_columns_csv():
+    data = pandas.read_csv("test/results/statistics/ocr_statistic.csv")
+
+    img_names = data['image_name'].tolist()
+    ids = data['id'].tolist()
+
+    header = ['image_name', 'id', 'original_text']
+    csv_columns = list(zip(img_names, ids))
+
+    with open('test/results/statistics/original_texts.csv', 'a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        writer.writerows(csv_columns)
+
+
 if __name__ == '__main__':
     # Phunspell
     # pspell = phunspell.Phunspell('sk_SK')
@@ -2012,8 +2028,8 @@ if __name__ == '__main__':
 
     # cv2.imshow("lines", lines)
 
-    getAllImages()
-    digital_images_results.show_results_html()
+    # getAllImages()
+    # digital_images_results.show_results_html()
 
     # showResultsHTML()
 
@@ -2030,6 +2046,8 @@ if __name__ == '__main__':
     # writer.writerow(header)
     # writer.writerow([1, 2, 3, 4])
     # file.close()
+
+    copy_columns_csv()
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
