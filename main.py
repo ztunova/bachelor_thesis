@@ -922,9 +922,18 @@ def getAllImages():
     pipline = keras_ocr.pipeline.Pipeline()
 
     # easyOCR
-    # text_reader = Reader(['sk'], gpu=False)
+    text_reader = Reader(['sk'], gpu=False)
 
     clear_directory('test/results/json_outputs')
+
+    # clear content of file
+    # statistics_file = open('test/results/statistics/ocr_statistic.csv', 'w')
+    # statistics_file.truncate()
+    # statistics_file.close()
+
+    # csv_header = ['image_name', 'id', 'easy_ocr', 'keras', 'tesseract']
+    # writer.writerow(csv_header)
+    # write_statistics_to_csv(csv_header)
 
     for image_name in all_images:
         path = folder_dir + '/' + image_name
@@ -938,14 +947,21 @@ def getAllImages():
 
         # Keras OCR without statistics
         digital_contours = recognize_text_no_statistics(image_name, digital_contours, pipline, detected_shapes, False, True, False)
-        # Keras OCR with statistics
-        # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, False, True, False)
 
-        # easyOCR
+        # Keras OCR with statistics
+        # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'keras')
+
+        # EasyOCR
         # digital_contours = recognize_text(image_name, digital_contours, text_reader, detected_shapes, True, False, False)
 
-        # tesseract OCR
+        # Easy OCR with statistics
+        # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'easy_ocr')
+
+        # Tesseract OCR
         # digital_contours = recognize_text(image_name, digital_contours, None, detected_shapes, False, False, True)
+
+        # Tesseract OCR with statistics
+        # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'tesseract_ocr')
 
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
 
@@ -1770,15 +1786,15 @@ def recognize_text_no_statistics(img_name, img, recognizer, shapes, easy_ocr, ke
     return img
 
 
-def recognize_text_with_statistics(img_name, img, recognizer_keras, recognizer_easy_ocr, shapes, easy_ocr, keras, tesseract_ocr):
+def recognize_text_with_statistics(img_name, img, recognizer_keras, recognizer_easy_ocr, shapes, result_model):
     black = (0, 0, 0)
     unicode_font = ImageFont.truetype("fonts/DejaVuSans.ttf", 15)
 
-    statistic_data = []
-
     for shape in shapes:
         shape_centre_id = 'x' + str(shape.shape_centre[0]) + 'y' + str(shape.shape_centre[1])
-        statistic_data.append(shape_centre_id)
+
+        statistic_data = []
+        statistic_data.extend((img_name, shape_centre_id))
 
         bbox = shape.bounding_rectangle
         bbox_points = cv2.boxPoints(bbox)
@@ -1835,19 +1851,22 @@ def recognize_text_with_statistics(img_name, img, recognizer_keras, recognizer_e
         draw = ImageDraw.Draw(pil_image)
         text_position = [bottom_left[0] + 5, bottom_left[1] + 5]
 
-        if easy_ocr:
-            draw.text(text_position, easy_ocr_text, font=unicode_font, fill=black)
+        text_to_img = shape_centre_id + ": "
+        if result_model == 'easy_ocr':
+            text_to_img = text_to_img + easy_ocr_text
             shape.set_text(easy_ocr_text)
-        elif keras:
-            draw.text(text_position, keras_text, font=unicode_font, fill=black)
+        elif result_model == 'keras':
+            text_to_img = text_to_img + keras_text
             shape.set_text(keras_text)
-        elif tesseract_ocr:
-            draw.text(text_position, tesseract_text, font=unicode_font, fill=black)
+        elif result_model == 'tesseract_ocr':
+            text_to_img = text_to_img + tesseract_text
             shape.set_text(tesseract_text)
 
+        draw.text(text_position, text_to_img, font=unicode_font, fill=black)
         img = np.array(pil_image)
 
         statistic_data.extend((easy_ocr_text, keras_text, tesseract_text))
+        write_statistics_to_csv(statistic_data)
 
     return img, statistic_data
 
@@ -1911,8 +1930,13 @@ def write_json_to_file(json_data, name):
     file.close()
 
 
-def clear_directory(folder):
+def write_statistics_to_csv(row):
+    with open('test/results/statistics/ocr_statistic.csv', 'a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(row)
 
+
+def clear_directory(folder):
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)
         try:
@@ -1994,12 +2018,18 @@ if __name__ == '__main__':
     # showResultsHTML()
 
     # header = ['id', 'keras', 'easy_ocr', 'tesseract']
-    #
+
     # with open('test/results/statistics/ocr_statistic.csv', 'w', newline='') as f:
     #     writer = csv.writer(f)
     #     writer.writerow(header)
     #     writer.writerow([2, '', '', 'pokus'])
     #     writer.writerow([3, 'k', 'e', 't'])
+
+    # file = open('test/results/statistics/ocr_statistic.csv', 'a', newline='')
+    # writer = csv.writer(file)
+    # writer.writerow(header)
+    # writer.writerow([1, 2, 3, 4])
+    # file.close()
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
