@@ -13,10 +13,11 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 import pandas
-import phunspell
 import pytesseract
+import unicodedata
 
 import digital_images_results
+from jiwer import cer
 from output_lines_by_hist_script import lines_by_hist_html
 from outputs import showResultsHTML
 from numpy import linalg as LA
@@ -762,7 +763,11 @@ def detect_horizontal_lines(img, copy=None):
 
     bw_swap = cv2.bitwise_not(threshold)
     dilated = cv2.dilate(bw_swap, np.ones((4, 2), dtype=np.uint8))  # vodorovne: 4,1
+    cv2.imshow("dilate 4,2", dilated)
     eroded = cv2.erode(dilated, np.ones((1, 13), dtype=np.uint8))  # vodorovne: 1, 9
+    cv2.imshow("eroded 1,13", eroded)
+    # print("dilation: ", np.ones((4, 2), dtype=np.uint8))
+    # print("erosion: ", np.ones((1, 13), dtype=np.uint8))
 
     contours, _ = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -786,6 +791,7 @@ def detect_horizontal_lines(img, copy=None):
     all_rect = [all_rect_points, all_rect_box]
 
     copy = draw_rectangles(copy, all_rect_points, True)
+    cv2.imshow("res", copy)
 
     return copy, eroded, all_rect
 
@@ -947,19 +953,19 @@ def getAllImages():
         saveImage(removed_shapes_dir, image_name, "", removed_shapes)
 
         # Keras OCR without statistics
-        digital_contours = recognize_text_no_statistics(image_name, digital_contours, pipline, detected_shapes, False, True, False)
+        # digital_contours = recognize_text_no_statistics(image_name, digital_contours, pipline, detected_shapes, False, True, False)
 
         # Keras OCR with statistics
-        # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'keras')
+        digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'keras')
 
         # EasyOCR
-        # digital_contours = recognize_text(image_name, digital_contours, text_reader, detected_shapes, True, False, False)
+        # digital_contours = recognize_text_no_statistics(image_name, digital_contours, text_reader, detected_shapes, True, False, False)
 
         # Easy OCR with statistics
         # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'easy_ocr')
 
         # Tesseract OCR
-        # digital_contours = recognize_text(image_name, digital_contours, None, detected_shapes, False, False, True)
+        # digital_contours = recognize_text_no_statistics(image_name, digital_contours, None, detected_shapes, False, False, True)
 
         # Tesseract OCR with statistics
         # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'tesseract_ocr')
@@ -1103,11 +1109,16 @@ def resize_all_images():
 
 def img_preprocessing(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # cv2.imshow("gray", gray)
     blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+    # cv2.imshow("blured", blurred)
     threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 3)
+    # cv2.imshow("thresh", threshold)
 
     bw_swap = cv2.bitwise_not(threshold)
+    # cv2.imshow("bw swap", bw_swap)
     dilated = cv2.dilate(bw_swap, np.ones((3, 3), dtype=np.uint8))  # 2, 2
+    # cv2.imshow("dilated", dilated)
     eroded = cv2.erode(dilated, np.ones((2, 2), dtype=np.uint8))  # 2, 2
 
     result_img = dilated  # dilated
@@ -1290,6 +1301,13 @@ def draw_shapes(img, shapes):
         if shape.shape_name == "triangle":
             cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(255, 0, 0), thickness=2,
                              lineType=cv2.LINE_AA)
+
+        # else:
+        #     cv2.drawContours(image=img, contours=[np.intp(cv2.boxPoints(shape.bounding_rectangle))], contourIdx=-1,
+        #                      color=(0, 255, 0), thickness=2,
+        #                      lineType=cv2.LINE_AA)
+        #     cv2.ellipse(img, shape.bounding_ellipse, (0, 0, 255), 2)
+
         elif shape.shape_name == "rectangle":
             cv2.drawContours(image=img, contours=[np.intp(cv2.boxPoints(shape.bounding_rectangle))], contourIdx=-1,
                              color=(0, 255, 0), thickness=2,
@@ -1437,6 +1455,7 @@ def detect_lines(img, shapes):
     all_lines = []
     img_copy = img.copy()
 
+    # vykreslenie dilatovanych tvarov
     # for shape in shapes:
     #     cv2.drawContours(image=img_copy, contours=[shape.enlarged_contour], contourIdx=-1, color=(0, 0, 0), thickness=2,
     #                      lineType=cv2.LINE_AA)
@@ -1458,8 +1477,9 @@ def detect_lines(img, shapes):
         line = Line(cnt, approx, color)
         all_lines.append(line)
 
-        # cv2.drawContours(image=img_copy, contours=[approx], contourIdx=-1, color=(0, 0, 255), thickness=-2, lineType=cv2.LINE_AA)
+        # cv2.drawContours(image=img_copy, contours=[approx], contourIdx=-1, color=color, thickness=-2, lineType=cv2.LINE_AA)
 
+        # vykreslenie bodov ciary
         # for point in approx:
         #     point = point[0]
         #     cv2.circle(img_copy, point, 4, (0, 0, 255), -1)
@@ -1713,7 +1733,7 @@ def point_in_original_image(reordered_points, img_name):
         x_resized, y_resized = point
         x_orig = x_resized * resize_ratio_width
         x_orig = np.intp(x_orig)
-        y_orig = y_resized * resize_ratio_width
+        y_orig = y_resized * resize_ratio_height
         y_orig = np.intp(y_orig)
 
         reordered_orig_points.append((x_orig, y_orig))
@@ -1771,6 +1791,13 @@ def recognize_text_no_statistics(img_name, img, recognizer, shapes, easy_ocr, ke
 
         elif tesseract_ocr:
             gray = cv2.cvtColor(shape_img_slice, cv2.COLOR_BGR2GRAY)
+            # blur = cv2.GaussianBlur(gray, (3, 3), 0)
+            # thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+            # # Morph open to remove noise and invert image
+            # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+            # opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
+            # invert = 255 - opening
+
             shape_text = pytesseract.image_to_string(gray, lang='slk', config='--tessdata-dir tessdata')
             print(shape_text)
 
@@ -1964,7 +1991,29 @@ def copy_columns_csv():
         writer.writerows(csv_columns)
 
 
+def original_text_modify():
+    data = pandas.read_csv("test/results/statistics/original_texts.csv")
+    # print(data['original_text'].str.lower())
+    data = data.fillna('')
+    data['lowercase'] = data['original_text'].str.lower()
+    data['diakritika'] = data['lowercase'].map(lambda x: strip_accents(x))
+    # print("------------------")
+    print(data.head())
+    data.to_csv("test/results/statistics/original_texts.csv", index=False)
+
+
+def strip_accents(s):
+    print(s)
+    return ''.join(c for c in unicodedata.normalize('NFD', s)
+                  if unicodedata.category(c) != 'Mn')
+
+
 if __name__ == '__main__':
+
+    original_text_modify()
+
+    # print(strip_accents("Žofka nevie čo robiť"))
+
     # Phunspell
     # pspell = phunspell.Phunspell('sk_SK')
     # mispelled = pspell.lookup_list("ahoj nieco neveim".split(" "))
@@ -1983,8 +2032,29 @@ if __name__ == '__main__':
     # # pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
     # #
     # img = cv2.imread(
-    #     'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Gunnison.png')
-    # # # # # cv2.imshow("img orig", img)
+    #     'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Aurora.jpg')
+    # cv2.imshow("img orig", img)
+    # image_copy = img.copy()
+    # detect_horizontal_lines(img)
+
+    #
+    # dilated = img_preprocessing(img)
+    # contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    # for component in zip(contours, hierarchy):
+    #     cnt = component[0]
+    #     cnt_hierarchy = component[1]
+    #     color = random_color()
+    #     print(color)
+    #     cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(204, 153, 255), thickness=2, lineType=cv2.LINE_AA)
+    #
+    # cv2.imshow("img copy", image_copy)
+
+    # digital_contours, detected_shapes = detect_shapes(img)
+    # cv2.imshow("shapes", digital_contours)
+
+    # removed_shapes, detected_lines = remove_shapes_from_image(img, detected_shapes)
+    # cv2.imshow("removed shapes", removed_shapes)
+
     # # # #
     # img_res, shapes = detect_shapes(img)
     # lines_img, detected_lines = remove_shapes_from_image(img, shapes)
@@ -2047,7 +2117,14 @@ if __name__ == '__main__':
     # writer.writerow([1, 2, 3, 4])
     # file.close()
 
-    copy_columns_csv()
+    # copy_columns_csv()
+
+    # text1 = ["anič", "žof"]
+    # text2 = ["žof", "anič"]
+    #
+    # cer_error = cer(text1, text2)
+    #
+    # print(cer_error)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
