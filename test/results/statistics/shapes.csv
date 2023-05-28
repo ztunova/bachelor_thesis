@@ -1,4 +1,4 @@
-image_name,spravne,nenajdene,nespravne klasifikovane,navyse,prerusovane
+image_name,spravne,nenajdene,nespravne_klasifikovane,navyse,prerusovane
 Arkadelphia.jpg,25 ,0,0,0,1
 ArkansasPost.jpg,15,0,0,0,2
 Aspen.png,20,0,0,2,2
@@ -73,5 +73,5 @@ Visalia.png,19,0,0,0,0
 WestCovina.png,17,0,0,0,0
 Whittier.png,13,0,4,0,0
 YubaCity.png,9,10,1,1,1
-"",,,,,
+total,1275,61,21,33,74
 ,,,,,
