@@ -35,7 +35,6 @@ ArkansasPost.jpg,x358y362,od,od,od
 ArkansasPost.jpg,x828y309,Stravnik,stravnik,stravnik
 ArkansasPost.jpg,x472y309,Kuchár,kuchár,kuchar
 ArkansasPost.jpg,x654y309,Vydava jedlo,vydava jedlo,vydava jedlo
-ArkansasPost.jpg,x662y208,,,
 ArkansasPost.jpg,x662y104,osoba,osoba,osoba
 ArkansasPost.jpg,x722y35,Adresa,adresa,adresa
 ArkansasPost.jpg,x593y35,Meno,meno,meno
@@ -48,15 +47,12 @@ Aspen.png,x140y475,ID,id,id
 Aspen.png,x944y456,plat,plat,plat
 Aspen.png,x137y404,adresa,adresa,adresa
 Aspen.png,x944y391,adresa,adresa,adresa
-Aspen.png,x211y415,,,
 Aspen.png,x683y342,kuchár,kuchár,kuchar
 Aspen.png,x316y342,stravník,stravník,stravnik
 Aspen.png,x944y320,meno,meno,meno
 Aspen.png,x137y326,meno,meno,meno
-Aspen.png,x491y247,,,
 Aspen.png,x702y223,pracuje,pracuje,pracuje
 Aspen.png,x888y205,Čas,čas,cas
-Aspen.png,x495y166,,,
 Aspen.png,x888y137,datum,datum,datum
 Aspen.png,x491y99,osoba,osoba,osoba
 Aspen.png,x888y62,deň,deň,den
@@ -98,16 +94,9 @@ Blytheville.png,x449y293,o,o,o
 Blytheville.png,x453y190,Osoba,osoba,osoba
 Blytheville.png,x439y79,Adresa,adresa,adresa
 Blytheville.png,x306y79,Meno,meno,meno
-Boulder.png,x80y450,,,
-Boulder.png,x40y446,,,
-Boulder.png,x533y366,,,
-Boulder.png,x713y379,,,
 Boulder.png,x857y280,Plat,plat,plat
-Boulder.png,x487y506,,,
 Boulder.png,x709y511,Obedy,obedy,obedy
 Boulder.png,x281y507,Jedáleň,jedáleň,jedalen
-Boulder.png,x253y368,,,
-Boulder.png,x420y349,,,
 Boulder.png,x242y214,Stravníci,stravníci,stravnici
 Boulder.png,x594y212,Kuchári,kuchári,kuchari
 Boulder.png,x858y160,Adresa,adresa,adresa
@@ -153,7 +142,6 @@ CentralCity.png,x350y65,Meno jedla,meno jedla,meno jedla
 CentralCity.png,x532y65,Mesiac,mesiac,mesiac
 CentralCity.png,x446y65,Den,den,den
 CentralCity.png,x623y60,Rok,rok,rok
-Chickasaw.png,x183y725,,,
 Chickasaw.png,x334y713,Jedlo,jedlo,jedlo
 Chickasaw.png,x183y709,Evidenčné číslo,evidenčné číslo,evidencne cislo
 Chickasaw.png,x599y647,Pracuje,pracuje,pracuje
@@ -183,7 +171,6 @@ ColoradoSprings.png,x532y335,Varí,varí,vari
 ColoradoSprings.png,x249y249,Menu,menu,menu
 ColoradoSprings.png,x79y249,Stravnik ID,stravnik id,stravnik id
 ColoradoSprings.png,x724y430,Kuchár,kuchár,kuchar
-ColoradoSprings.png,x649y300,,,
 ColoradoSprings.png,x750y292,Plat,plat,plat
 ColoradoSprings.png,x447y207,Stravnik,stravnik,stravnik
 ColoradoSprings.png,x649y78,ID,id,id
@@ -202,7 +189,6 @@ CrippleCreek.jpg,x255y286,o,o,o
 CrippleCreek.jpg,x660y210,Objednal jedlo,objednal jedlo,objednal jedlo
 CrippleCreek.jpg,x255y155,Clovek,clovek,clovek
 CrippleCreek.jpg,x877y144,Jedlo,jedlo,jedlo
-CrippleCreek.jpg,x885y87,,,
 CrippleCreek.jpg,x344y66,Adresa,adresa,adresa
 CrippleCreek.jpg,x144y66,Evidencne cislo,evidencne cislo,evidencne cislo
 CrippleCreek.jpg,x940y55,Cena,cena,cena
@@ -266,7 +252,6 @@ EstesPark.png,x919y241,deň,deň,den
 EstesPark.png,x524y226,kuchar_vari_jedlo,kuchar_vari_jedlo,kuchar_vari_jedlo
 EstesPark.png,x919y191,plat,plat,plat
 EstesPark.png,x736y191,Kuchari,kuchari,kuchari
-EstesPark.png,x356y193,,,
 EstesPark.png,x261y160,Deň,deň,den
 EstesPark.png,x89y160,jedalen_id,jedalen_id,jedalen_id
 EstesPark.png,x574y110,kuchar_id,kuchar_id,kuchar_id
@@ -320,7 +305,6 @@ Greeley.png,x181y613,č. v menu,č. v menu,c. v menu
 Greeley.png,x518y512,Názov dňa,názov dňa,nazov dna
 Greeley.png,x413y509,Dátum,dátum,datum
 Greeley.png,x463y425,Deň,deň,den
-Greeley.png,x571y407,,,
 Greeley.png,x661y367,Pracoval,pracoval,pracoval
 Greeley.png,x670y307,Pracovná doba,pracovná doba,pracovna doba
 Greeley.png,x470y289,Kuchár,kuchár,kuchar
@@ -366,8 +350,6 @@ Helena.png,x800y415,adresa,adresa,adresa
 Helena.png,x637y410,Stravník,stravník,stravnik
 Helena.png,x217y410,Kuchár,kuchár,kuchar
 Helena.png,x78y307,Plat,plat,plat
-Helena.png,x412y268,,,
-Helena.png,x408y179,,,
 Helena.png,x412y95,Osoba,osoba,osoba
 Hollywood.png,x134y854,Meno,meno,meno
 Hollywood.png,x268y817,ID,id,id
@@ -399,7 +381,6 @@ HuntingtonBeach.png,x481y682,názov,názov,nazov
 HuntingtonBeach.png,x443y598,jedlo,jedlo,jedlo
 HuntingtonBeach.png,x620y589,sa varí,sa varí,sa vari
 HuntingtonBeach.png,x741y544,názov,názov,nazov
-HuntingtonBeach.png,x239y463,,,
 HuntingtonBeach.png,x290y373,stravník,stravník,stravnik
 HuntingtonBeach.png,x789y313,ID,id,id
 HuntingtonBeach.png,x205y309,ID,id,id
@@ -521,14 +502,12 @@ Loveland.png,x258y352,Stravnik,stravnik,stravnik
 Loveland.png,x141y293,Pocet objednavok,pocet objednavok,pocet objednavok
 Loveland.png,x411y276,o,o,o
 Loveland.png,x640y241,plat,plat,plat
-Loveland.png,x411y222,,,
 Loveland.png,x410y152,osoba,osoba,osoba
 Loveland.png,x469y17,adresa,adresa,adresa
 Loveland.png,x411y16,meno,meno,meno
 Loveland.png,x352y16,ID,id,id
 Magnolia.png,x64y372,kuchar,kuchar,kuchar
 Magnolia.png,x28y304,plat,plat,plat
-Magnolia.png,x148y265,,,
 Magnolia.png,x256y172,stravník,stravník,stravnik
 Magnolia.png,x722y173,jedlo,jedlo,jedlo
 Magnolia.png,x899y173,Sa nachádza,sa nachádza,sa nachadza
@@ -550,7 +529,6 @@ Malibu.png,x357y490,Obed,obed,obed
 Malibu.png,x105y490,Jedáleň,jedáleň,jedalen
 Malibu.png,x240y490,Ponúka,ponúka,ponuka
 Malibu.png,x763y463,Pracovná doba,pracovná doba,pracovna doba
-Malibu.png,x413y444,,,
 Malibu.png,x258y418,Ponuka jedla,ponuka jedla,ponuka jedla
 Malibu.png,x547y417,Navaril,navaril,navaril
 Malibu.png,x439y390,Objednáva,objednáva,objednava
@@ -570,7 +548,6 @@ Marion.JPG,x896y373,Sa nachádza,sa nachádza,sa nachadza
 Marion.JPG,x512y373,Objednava,objednava,objednava
 Marion.JPG,x388y274,id stravnika,id stravnika,id stravnika
 Marion.JPG,x164y249,pracovna doba,pracovna doba,pracovna doba
-Marion.JPG,x276y236,,,
 Marion.JPG,x598y225,Pocet objednavok,pocet objednavok,pocet objednavok
 Marion.JPG,x896y200,Jedalen,jedalen,jedalen
 Marion.JPG,x462y200,ID kuchara,id kuchara,id kuchara
