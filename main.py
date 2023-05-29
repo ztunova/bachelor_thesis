@@ -1,3 +1,4 @@
+import argparse
 import copy
 import csv
 import json
@@ -956,7 +957,7 @@ def getAllImages():
         # digital_contours = recognize_text_no_statistics(image_name, digital_contours, pipline, detected_shapes, False, True, False)
 
         # Keras OCR with statistics
-        digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'keras')
+        # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'keras')
 
         # EasyOCR
         # digital_contours = recognize_text_no_statistics(image_name, digital_contours, text_reader, detected_shapes, True, False, False)
@@ -965,7 +966,7 @@ def getAllImages():
         # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'easy_ocr')
 
         # Tesseract OCR
-        # digital_contours = recognize_text_no_statistics(image_name, digital_contours, None, detected_shapes, False, False, True)
+        digital_contours = recognize_text_no_statistics(image_name, digital_contours, None, detected_shapes, False, False, True)
 
         # Tesseract OCR with statistics
         # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'tesseract_ocr')
@@ -1798,7 +1799,7 @@ def recognize_text_no_statistics(img_name, img, recognizer, shapes, easy_ocr, ke
             # opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
             # invert = 255 - opening
 
-            shape_text = pytesseract.image_to_string(gray, lang='slk', config='--tessdata-dir tessdata')
+            shape_text = pytesseract.image_to_string(gray, lang='slk', config='--tessdata-dir tessdata --psm 11')
             print(shape_text)
 
         pil_image = Image.fromarray(img)
@@ -2008,9 +2009,41 @@ def strip_accents(s):
                   if unicodedata.category(c) != 'Mn')
 
 
-if __name__ == '__main__':
+def csv_work():
+    original_texts = pandas.read_csv("test/results/statistics/original_texts.csv", nrows=572)
+    # print(original_texts['diakritika'].tolist())
+    #
+    ocr_texts = pandas.read_csv("test/results/statistics/ocr_statistic.csv", nrows=572)
+    ocr_texts = ocr_texts.fillna('')
+    cer_value = cer(original_texts['original_text'].tolist(), ocr_texts['easy_ocr'].tolist())
+    print(cer_value)
+    # print(original_texts)
+    # print(ocr_texts)
 
-    original_text_modify()
+    # data = pandas.read_csv("test/results/statistics/shapes.csv")
+    # names = pandas.DataFrame(data.image_name.unique(), columns=['image_name'])
+    # names.to_csv("test/results/statistics/shapes.csv", index=False)
+    # print(names.head())
+
+    # total_correct = data['spravne'].sum()
+    # not_found = data['nenajdene'].sum()
+    # not_classified = data['nespravne_klasifikovane'].sum()
+    # extra = data['navyse'].sum()
+    # print("correct: ", total_correct)
+    # print("not found: ", not_found)
+    # print("not classified: ", not_classified)
+    # print("extra: ", extra)
+    # print("prerusovane: ", data['prerusovane'].sum())
+
+
+if __name__ == '__main__':
+    print('Hello World!')
+
+    # parser = argparse.ArgumentParser(description='Process command line arguments.')
+    # parser.parse_args()
+
+    # csv_work()
+    # original_text_modify()
 
     # print(strip_accents("Žofka nevie čo robiť"))
 
@@ -2032,7 +2065,7 @@ if __name__ == '__main__':
     # # pipline = keras_ocr.pipeline.Pipeline()  # Creting a pipline
     # #
     # img = cv2.imread(
-    #     'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/Aurora.jpg')
+    #     'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized/EstesPark.png')
     # cv2.imshow("img orig", img)
     # image_copy = img.copy()
     # detect_horizontal_lines(img)
@@ -2119,12 +2152,12 @@ if __name__ == '__main__':
 
     # copy_columns_csv()
 
-    # text1 = ["anič", "žof"]
+    # text1 = ["", "žof"]
     # text2 = ["žof", "anič"]
     #
     # cer_error = cer(text1, text2)
     #
     # print(cer_error)
 
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
