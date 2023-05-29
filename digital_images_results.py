@@ -4,10 +4,10 @@ import webbrowser
 import cv2
 
 
-def show_results_html():
-    original_images_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized"
-    contours_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_digital_contours"
-    removed_shapes_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_removed_shapes"
+def show_results_html(original_images_dir, contours_dir, removed_shapes_dir):
+    # original_images_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized"
+    # contours_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_digital_contours"
+    # removed_shapes_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_removed_shapes"
 
     original_images_names = os.listdir(original_images_dir)
 

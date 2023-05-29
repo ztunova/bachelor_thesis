@@ -23,6 +23,7 @@ from output_lines_by_hist_script import lines_by_hist_html
 from outputs import showResultsHTML
 from numpy import linalg as LA
 from PIL import Image, ImageDraw, ImageFont
+from pathlib import Path
 from scipy.spatial import distance as dist
 
 
@@ -897,14 +898,19 @@ def saveImage(dst_dir, img_name, description, res_img):
     cv2.imwrite(result_path, res_img)
 
 
-def getAllImages():
+def getAllImages(folder_dir, digital_imgs_contour_dir, removed_shapes_dir, json_output_dir):
+
+    clear_directory(json_output_dir)
+    clear_directory(digital_imgs_contour_dir)
+    clear_directory(removed_shapes_dir)
+
     # folder_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
     # dst_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines"
     # input_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines_input"
 
     # folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
     # folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized"
-    folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized"
+    ## folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized"
 
     dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines"
     input_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines_input"
@@ -920,8 +926,8 @@ def getAllImages():
     hor_rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hor_rect_hist_closest_dst"
     ver_rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_ver_rect_hist_closest_dst"
 
-    digital_imgs_contour_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_digital_contours"
-    removed_shapes_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_removed_shapes"
+    ## digital_imgs_contour_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_digital_contours"
+    ## removed_shapes_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_removed_shapes"
 
     all_images = os.listdir(folder_dir)
     # print(all_images)
@@ -931,8 +937,6 @@ def getAllImages():
 
     # easyOCR
     text_reader = Reader(['sk'], gpu=False)
-
-    clear_directory('test/results/json_outputs')
 
     # clear content of file
     # statistics_file = open('test/results/statistics/ocr_statistic.csv', 'w')
@@ -954,7 +958,7 @@ def getAllImages():
         saveImage(removed_shapes_dir, image_name, "", removed_shapes)
 
         # Keras OCR without statistics
-        # digital_contours = recognize_text_no_statistics(image_name, digital_contours, pipline, detected_shapes, False, True, False)
+        digital_contours = recognize_text_no_statistics(image_name, digital_contours, pipline, detected_shapes, False, True, False)
 
         # Keras OCR with statistics
         # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'keras')
@@ -966,7 +970,7 @@ def getAllImages():
         # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'easy_ocr')
 
         # Tesseract OCR
-        digital_contours = recognize_text_no_statistics(image_name, digital_contours, None, detected_shapes, False, False, True)
+        # digital_contours = recognize_text_no_statistics(image_name, digital_contours, None, detected_shapes, False, False, True)
 
         # Tesseract OCR with statistics
         # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'tesseract_ocr')
@@ -974,7 +978,7 @@ def getAllImages():
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
 
         json_res = erd_data_to_json(detected_shapes, detected_lines)
-        write_json_to_file(json_res, image_name)
+        write_json_to_file(json_output_dir, json_res, image_name)
 
         # img_hlines, lines, input_img = detectLinesHough(img)
         # saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
@@ -1090,11 +1094,12 @@ def get_new_image_size(orig_height, orig_width):
     return int(new_height), int(new_width)
 
 
-def resize_all_images():
-    source_dst = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
-    result_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized"
+def resize_all_images(source_dst, result_dir):
+    # source_dst = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
+    # result_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized"
 
     all_images = os.listdir(source_dst)
+    clear_directory(result_dir)
 
     for img_name in all_images:
         img_path = source_dst + '/' + img_name
@@ -1948,12 +1953,13 @@ def erd_data_to_json(all_shapes, all_lines):
     return result.to_json()
 
 
-def write_json_to_file(json_data, name):
+def write_json_to_file(json_output_dir, json_data, name):
     start = len(name) - 6
     exten_index = name.find('.', start)
     name_no_extension = name[:exten_index]
 
-    file_name = "test/results/json_outputs/" + name_no_extension + ".json"
+    # file_name = "test/results/json_outputs/" + name_no_extension + ".json"
+    file_name = json_output_dir + name_no_extension + ".json"
     file = open(file_name, 'w+')
     file.write(json.dumps(json_data, indent=4))
     file.close()
@@ -2037,10 +2043,56 @@ def csv_work():
 
 
 if __name__ == '__main__':
-    print('Hello World!')
+    # text = input("vstup: ")
+    # test_img_input = input("test img dir: ")
+    # shapes_input = input("shapes dir: ")
+    # lines_input = input("lines dir: ")
+    # print(text)
+    #
+    # while True:
+    #     if text == 'x':
+    #         break
+    #
+    #     test_img_dir = Path(test_img_input)
+    #     shapes_dir = Path(shapes_input)
+    #     lines_dir = Path(lines_input)
+    #
+    #     if not test_img_dir.is_dir():
+    #         print("Test img dir not valid")
+    #     elif not shapes_dir.is_dir():
+    #         print('Shapes dir not valid')
+    #     elif not lines_dir.is_dir():
+    #         print('Lines dir not valid')
+    #
+    #     text = input("vstup: ")
+    #     print(text)
 
-    # parser = argparse.ArgumentParser(description='Process command line arguments.')
-    # parser.parse_args()
+
+    parser = argparse.ArgumentParser(description='Process command line arguments.')
+    parser.add_argument('--demo', action="store_true")
+    parser.add_argument('--imgs_path')
+    parser.add_argument('--resized_imgs_path')
+    parser.add_argument('--shapes_path')
+    parser.add_argument('--lines_path')
+    parser.add_argument('--json_path')
+    # # Read arguments from command line
+    args = parser.parse_args()
+    print("args: ", args)
+
+    default_input = 'demo/test_imgs'
+    default_resized = 'demo/resized_imgs'
+    default_shapes = 'demo/detected_shapes'
+    default_lines = 'demo/detected_lines'
+    default_json = 'test/results/json_outputs'
+
+    if args.demo:
+        print('demo true')
+        resize_all_images(default_input, default_resized)
+        getAllImages(default_resized, default_shapes, default_lines, default_json)
+        digital_images_results.show_results_html(default_resized, default_shapes, default_lines)
+    else:
+        print('demo false')
+
 
     # csv_work()
     # original_text_modify()
