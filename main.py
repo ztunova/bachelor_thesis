@@ -2070,11 +2070,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Process command line arguments.')
     parser.add_argument('--demo', action="store_true")
-    parser.add_argument('--imgs_path')
-    parser.add_argument('--resized_imgs_path')
-    parser.add_argument('--shapes_path')
-    parser.add_argument('--lines_path')
-    parser.add_argument('--json_path')
+    parser.add_argument('--imgs-path')
+    parser.add_argument('--resized-imgs-path')
+    parser.add_argument('--shapes-path')
+    parser.add_argument('--lines-path')
+    parser.add_argument('--json-path')
     # # Read arguments from command line
     args = parser.parse_args()
     print("args: ", args)
@@ -2083,7 +2083,7 @@ if __name__ == '__main__':
     default_resized = 'demo/resized_imgs'
     default_shapes = 'demo/detected_shapes'
     default_lines = 'demo/detected_lines'
-    default_json = 'test/results/json_outputs'
+    default_json = 'test/results/json_outputs/'
 
     if args.demo:
         print('demo true')
@@ -2091,7 +2091,49 @@ if __name__ == '__main__':
         getAllImages(default_resized, default_shapes, default_lines, default_json)
         digital_images_results.show_results_html(default_resized, default_shapes, default_lines)
     else:
-        print('demo false')
+        if args.imgs_path is not None:
+            images_dir = args.imgs_path
+            if not (os.path.exists(images_dir)) and not (os.path.isdir(images_dir)):
+                print("Invalid path to images")
+                raise SystemExit(1)
+        else:
+            images_dir = default_input
+
+        if args.resized_imgs_path is not None:
+            resized_dir = args.resized_imgs_path
+            if not (os.path.exists(resized_dir)) and not (os.path.isdir(resized_dir)):
+                print("Invalid path to resized images directory")
+                raise SystemExit(1)
+        else:
+            resized_dir = default_resized
+
+        if args.shapes_path is not None:
+            shapes_dir = args.shapes_path
+            if not (os.path.exists(shapes_dir)) and not (os.path.isdir(shapes_dir)):
+                print("Invalid path to detected shapes directory")
+                raise SystemExit(1)
+        else:
+            shapes_dir = default_shapes
+
+        if args.lines_path is not None:
+            lines_dir = args.lines_path
+            if not (os.path.exists(lines_dir)) and not (os.path.isdir(lines_dir)):
+                print("Invalid path to detected lines directory")
+                raise SystemExit(1)
+        else:
+            lines_dir = default_lines
+
+        if args.json_path is not None:
+            json_dir = args.json_path
+            if not (os.path.exists(json_dir)) and not (os.path.isdir(json_dir)):
+                print("Invalid path to JSON output directory")
+                raise SystemExit(1)
+        else:
+            json_dir = default_json
+
+        resize_all_images(images_dir, resized_dir)
+        getAllImages(resized_dir, shapes_dir, lines_dir, json_dir)
+        digital_images_results.show_results_html(resized_dir, shapes_dir, lines_dir)
 
 
     # csv_work()
