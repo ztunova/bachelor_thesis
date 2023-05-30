@@ -33,58 +33,6 @@ from shapes import *
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\zofka\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 
-def distancePointToLineSegment(line, point):
-    line_start = [line[0], line[1]]
-    line_end = [line[2], line[3]]
-
-    line_vector = [None, None]
-    line_vector[0] = line_end[0] - line_start[0]
-    line_vector[1] = line_end[1] - line_start[1]
-
-    line_end_point_vector = [None, None]
-    line_end_point_vector[0] = point[0] - line_end[0]
-    line_end_point_vector[1] = point[1] - line_end[1]
-
-    line_start_point_vector = [None, None]
-    line_start_point_vector[0] = point[0] - line_start[0]
-    line_start_point_vector[1] = point[1] - line_start[1]
-
-    # dot product of line vector and vector line_end to point
-    dot_linev_end_point = line_vector[0] * line_end_point_vector[0] + line_vector[1] * line_end_point_vector[1]
-    # dot product of line vector and vector from line_start to point
-    dot_linev_start_point = line_vector[0] * line_start_point_vector[0] + line_vector[1] * line_start_point_vector[1]
-
-    dst_point_to_line = 0
-
-    if dot_linev_end_point > 0:
-        # bod je niekde za koncovym bodom usecky (v smere vektoru usecky, dalej za koncom)
-        x = point[0] - line_end[0]
-        y = point[1] - line_end[1]
-        dst_point_to_line = math.sqrt(x * x + y * y)
-        print("za koncom")
-
-    elif dot_linev_start_point < 0:
-        # bod je pred zaciatocnym bodom usecky (proti smeru vektoru usecky, pred zaciatocnym bodom usecky)
-        x = point[0] - line_start[0]
-        y = point[1] - line_start[1]
-        dst_point_to_line = math.sqrt(x * x + y * y)
-        print("pred zaciatkom")
-
-    else:
-        # bod je niekde medzi koncovymi bodmi usecky
-        line_vec_x = line_vector[0]
-        line_vec_y = line_vector[1]
-        line_length = math.sqrt(line_vec_x * line_vec_x + line_vec_y * line_vec_y)
-
-        line_start_point_x = line_start_point_vector[0]
-        line_start_point_y = line_start_point_vector[1]
-
-        dst_point_to_line = abs(line_vec_x * line_start_point_y - line_start_point_x * line_vec_y) / line_length
-        print("medzi koncami usecky")
-
-    return dst_point_to_line
-
-
 def random_color():
     b = random.randint(0, 255)
     r = random.randint(0, 255)
