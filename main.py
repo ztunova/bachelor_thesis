@@ -34,7 +34,6 @@ def random_color():
 
 def reorder_rect_points_horizontal_rec(rect):
     max_x = []
-    reordered_rect = []
 
     max_x1 = max(rect, key=lambda x: x[0])
     max_x.append(max_x1)
@@ -87,7 +86,6 @@ def get_result_name(img_name, description):
 
 def save_image(dst_dir, img_name, description, res_img):
     result_name = get_result_name(img_name, description)
-    # print(result_name)
     all_images = os.listdir(dst_dir)
 
     result_path = dst_dir + '/' + result_name
@@ -98,7 +96,6 @@ def save_image(dst_dir, img_name, description, res_img):
 
 
 def get_all_images(orig_img_dir, folder_dir, digital_imgs_contour_dir, removed_shapes_dir, json_output_dir):
-
     clear_directory(json_output_dir)
     clear_directory(digital_imgs_contour_dir)
     clear_directory(removed_shapes_dir)
@@ -311,7 +308,6 @@ def shape_inside_shape_test(shape_outer, shape_inner):
 
 
 def draw_shapes(img, shapes):
-    # np.intp
     for shape in shapes:
         if shape.shape_name == "triangle":
             cv2.drawContours(image=img, contours=[shape.contour], contourIdx=-1, color=(255, 0, 0), thickness=2,
@@ -358,7 +354,6 @@ def find_closest_line(line, all_lines):
         point = point[0]
         min_dst = 100000
         closest_line = None
-        closest_point = None
         for next_line in all_lines:
             if next_line != line:
                 for next_point in next_line.edge_points:
@@ -369,7 +364,6 @@ def find_closest_line(line, all_lines):
                     if current_dst < min_dst:
                         min_dst = current_dst
                         closest_line = next_line
-                        closest_point = next_point
 
         if min_dst < 8:
             # cv2.line(img, closest_point, point, (0, 255, 255), 2)
@@ -446,8 +440,6 @@ def detect_lines(img, shapes):
     #                      lineType=cv2.LINE_AA)
 
     dilated = img_preprocessing(img)
-
-    hh, ww = img.shape[:2]
 
     contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
