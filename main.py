@@ -33,12 +33,6 @@ from shapes import *
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\zofka\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 
-def lineLength(line):
-    x1, y1, x2, y2 = line
-    # print(x1, y1, x2, y2)
-    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-
-
 def distancePointToLineSegment(line, point):
     line_start = [line[0], line[1]]
     line_end = [line[2], line[3]]
@@ -1153,7 +1147,7 @@ if __name__ == '__main__':
     default_json = 'test/results/json_outputs/'
 
     if args.demo:
-        print('demo true')
+        # print('demo true')
         resize_all_images(default_input, default_resized)
         getAllImages(default_input, default_resized, default_shapes, default_lines, default_json)
         digital_images_results.show_results_html(default_resized, default_shapes, default_lines)
