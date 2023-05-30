@@ -122,66 +122,6 @@ def draw_rectangles(draw_img, rect_points, horizontal):
     return draw_img
 
 
-def draw_connected_middle_points_max_length_vertical(draw_img, closest_rect, max_dst):
-    if closest_rect is None:
-        return draw_img
-
-    radius = 2
-    color_start = (255, 0, 0)
-    thickness = 2
-
-    for start_rec, end_rec in closest_rect.items():
-        start_rec_left_upper = start_rec[0]
-        start_rec_right_upper = start_rec[1]
-
-        end_rec_left_lower = end_rec[0][3]
-        end_rec_right_lower = end_rec[0][2]
-
-        start_point = get_middle_point_of_side(start_rec_left_upper, start_rec_right_upper)
-        end_point = get_middle_point_of_side(end_rec_left_lower, end_rec_right_lower)
-
-        # end_rec[1] = upravena metrika
-        # end_rec[2] = realna metrika
-        dst = end_rec[2]
-
-        if dst < max_dst:
-            draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
-            draw_img = cv2.circle(draw_img, end_point, radius, (255, 51, 255), thickness)
-            draw_img = cv2.line(draw_img, start_point, end_point, (255, 255, 0), thickness)
-
-    return draw_img
-
-
-def draw_connected_middle_points_max_length_horizontal(draw_img, closest_rect, max_dst):
-    if closest_rect is None:
-        return draw_img
-
-    radius = 2
-    color_start = (255, 0, 0)
-    thickness = 2
-
-    for start_rec, end_rec in closest_rect.items():
-        start_rec_right_upper = start_rec[1]
-        start_rec_right_lower = start_rec[2]
-
-        end_rec_left_upper = end_rec[0][0]
-        end_rec_left_lower = end_rec[0][3]
-
-        start_point = get_middle_point_of_side(start_rec_right_upper, start_rec_right_lower)
-        end_point = get_middle_point_of_side(end_rec_left_upper, end_rec_left_lower)
-
-        # end_rec[1] = upravena metrika
-        # end_rec[2] = realna metrika
-        dst = end_rec[2]
-
-        if dst < max_dst:
-            draw_img = cv2.circle(draw_img, start_point, radius, color_start, thickness)
-            draw_img = cv2.circle(draw_img, end_point, radius, (255, 51, 255), thickness)
-            draw_img = cv2.line(draw_img, start_point, end_point, (255, 51, 255), thickness)
-
-    return draw_img
-
-
 def draw_connected_middle_points_closest_horizontal_vertical(draw_img, closest_rect):
     if closest_rect is None:
         return draw_img
@@ -421,58 +361,58 @@ def plot_histogram_angle():
     pass
 
 
-def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
-    rect_hist_all_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_all"
-
-    longer_side = []
-
-    for rectangle in horizontal_rect_box:
-        rectangle_size = rectangle[1]
-        rec_width = rectangle_size[0]
-        rec_height = rectangle_size[1]
-        if rec_width > rec_height:
-            longer_side.append(rec_width)
-        elif rec_width == rec_height:
-            longer_side.append(rec_width)
-            longer_side.append(rec_height)
-        else:
-            longer_side.append(rec_height)
-
-    for rectangle in vertical_rect_box:
-        rectangle_size = rectangle[1]
-        rec_width = rectangle_size[0]
-        rec_height = rectangle_size[1]
-        if rec_width > rec_height:
-            longer_side.append(rec_width)
-        elif rec_width == rec_height:
-            longer_side.append(rec_width)
-            longer_side.append(rec_height)
-        else:
-            longer_side.append(rec_height)
-
-    # longer_side = reject_outliers(longer_side)
-
-    if len(horizontal_rect_box) > 0 or len(vertical_rect_box) > 0:
-        binwidth = 3
-        n, bins, _ = plt.hist(longer_side, bins=np.arange(min(longer_side), max(longer_side) + binwidth, binwidth))
-
-        plt.xlabel(f'min_len: {min(longer_side): .3f}, max_len: {max(longer_side): .3f}')
-        plt.ylabel('Frequency')
-        plt.title('Length of rect (longer side)')
-    else:
-        plt.plot([])
-
-    # plt.show()
-
-    name = getResultName(img_name, "hist_all")
-    save_dst = rect_hist_all_dir + '/' + name
-
-    all_images = os.listdir(rect_hist_all_dir)
-    if name in all_images:
-        os.remove(save_dst)
-
-    plt.savefig(save_dst)
-    plt.clf()
+# def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
+#     rect_hist_all_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_all"
+#
+#     longer_side = []
+#
+#     for rectangle in horizontal_rect_box:
+#         rectangle_size = rectangle[1]
+#         rec_width = rectangle_size[0]
+#         rec_height = rectangle_size[1]
+#         if rec_width > rec_height:
+#             longer_side.append(rec_width)
+#         elif rec_width == rec_height:
+#             longer_side.append(rec_width)
+#             longer_side.append(rec_height)
+#         else:
+#             longer_side.append(rec_height)
+#
+#     for rectangle in vertical_rect_box:
+#         rectangle_size = rectangle[1]
+#         rec_width = rectangle_size[0]
+#         rec_height = rectangle_size[1]
+#         if rec_width > rec_height:
+#             longer_side.append(rec_width)
+#         elif rec_width == rec_height:
+#             longer_side.append(rec_width)
+#             longer_side.append(rec_height)
+#         else:
+#             longer_side.append(rec_height)
+#
+#     # longer_side = reject_outliers(longer_side)
+#
+#     if len(horizontal_rect_box) > 0 or len(vertical_rect_box) > 0:
+#         binwidth = 3
+#         n, bins, _ = plt.hist(longer_side, bins=np.arange(min(longer_side), max(longer_side) + binwidth, binwidth))
+#
+#         plt.xlabel(f'min_len: {min(longer_side): .3f}, max_len: {max(longer_side): .3f}')
+#         plt.ylabel('Frequency')
+#         plt.title('Length of rect (longer side)')
+#     else:
+#         plt.plot([])
+#
+#     # plt.show()
+#
+#     name = getResultName(img_name, "hist_all")
+#     save_dst = rect_hist_all_dir + '/' + name
+#
+#     all_images = os.listdir(rect_hist_all_dir)
+#     if name in all_images:
+#         os.remove(save_dst)
+#
+#     plt.savefig(save_dst)
+#     plt.clf()
 
 
 def reorder_rect_points_vertical_rec(rect):
@@ -838,7 +778,7 @@ def saveImage(dst_dir, img_name, description, res_img):
     cv2.imwrite(result_path, res_img)
 
 
-def getAllImages(folder_dir, digital_imgs_contour_dir, removed_shapes_dir, json_output_dir):
+def getAllImages(orig_img_dir, folder_dir, digital_imgs_contour_dir, removed_shapes_dir, json_output_dir):
 
     clear_directory(json_output_dir)
     clear_directory(digital_imgs_contour_dir)
@@ -898,22 +838,22 @@ def getAllImages(folder_dir, digital_imgs_contour_dir, removed_shapes_dir, json_
         saveImage(removed_shapes_dir, image_name, "", removed_shapes)
 
         # Keras OCR without statistics
-        digital_contours = recognize_text_no_statistics(image_name, digital_contours, pipline, detected_shapes, False, True, False)
+        digital_contours = recognize_text_no_statistics(orig_img_dir, folder_dir, image_name, digital_contours, pipline, detected_shapes, False, True, False)
 
         # Keras OCR with statistics
-        # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'keras')
+        # digital_contours, statistic_data = recognize_text_with_statistics(orig_img_dir, folder_dir, image_name, digital_contours, pipline, text_reader, detected_shapes, 'keras')
 
         # EasyOCR
-        # digital_contours = recognize_text_no_statistics(image_name, digital_contours, text_reader, detected_shapes, True, False, False)
+        # digital_contours = recognize_text_no_statistics(orig_img_dir, folder_dir, image_name, digital_contours, text_reader, detected_shapes, True, False, False)
 
         # Easy OCR with statistics
-        # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'easy_ocr')
+        # digital_contours, statistic_data = recognize_text_with_statistics(orig_img_dir, folder_dir, image_name, digital_contours, pipline, text_reader, detected_shapes, 'easy_ocr')
 
         # Tesseract OCR
-        # digital_contours = recognize_text_no_statistics(image_name, digital_contours, None, detected_shapes, False, False, True)
+        # digital_contours = recognize_text_no_statistics(orig_img_dir, folder_dir, image_name, digital_contours, None, detected_shapes, False, False, True)
 
         # Tesseract OCR with statistics
-        # digital_contours, statistic_data = recognize_text_with_statistics(image_name, digital_contours, pipline, text_reader, detected_shapes, 'tesseract_ocr')
+        # digital_contours, statistic_data = recognize_text_with_statistics(orig_img_dir, folder_dir, image_name, digital_contours, pipline, text_reader, detected_shapes, 'tesseract_ocr')
 
         saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
 
@@ -1633,9 +1573,9 @@ def order_points_new(points):
     return np.array([tl, tr, br, bl], dtype="intp")
 
 
-def point_in_original_image(reordered_points, img_name):
-    orig_img_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1'
-    resized_img_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized'
+def point_in_original_image(orig_img_dir, resized_img_dir, reordered_points, img_name):
+    # orig_img_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1'
+    # resized_img_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized'
 
     orig_img_path = orig_img_dir + '/' + img_name
     resized_img_path = resized_img_dir + '/' + img_name
@@ -1662,7 +1602,7 @@ def point_in_original_image(reordered_points, img_name):
     return orig_img, reordered_orig_points
 
 
-def recognize_text_no_statistics(img_name, img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
+def recognize_text_no_statistics(orig_img_path, resized_img_path, img_name, img, recognizer, shapes, easy_ocr, keras, tesseract_ocr):
     black = (0, 0, 0)
     unicode_font = ImageFont.truetype("fonts/DejaVuSans.ttf", 15)
 
@@ -1681,7 +1621,7 @@ def recognize_text_no_statistics(img_name, img, recognizer, shapes, easy_ocr, ke
         top_left, top_right, bottom_right, bottom_left = reordered_points
 
         # OCR on original image
-        orig_img, reordered_orig_points = point_in_original_image(reordered_points, img_name)
+        orig_img, reordered_orig_points = point_in_original_image(orig_img_path, resized_img_path, reordered_points, img_name)
         top_left_orig, top_right_orig, bottom_right_orig, bottom_left_orig = reordered_orig_points
 
         if top_left_orig[1] <= top_right_orig[1]:
@@ -1735,7 +1675,7 @@ def recognize_text_no_statistics(img_name, img, recognizer, shapes, easy_ocr, ke
     return img
 
 
-def recognize_text_with_statistics(img_name, img, recognizer_keras, recognizer_easy_ocr, shapes, result_model):
+def recognize_text_with_statistics(orig_img_path, resized_img_path, img_name, img, recognizer_keras, recognizer_easy_ocr, shapes, result_model):
     black = (0, 0, 0)
     unicode_font = ImageFont.truetype("fonts/DejaVuSans.ttf", 15)
 
@@ -1757,7 +1697,7 @@ def recognize_text_with_statistics(img_name, img, recognizer_keras, recognizer_e
         top_left, top_right, bottom_right, bottom_left = reordered_points
 
         # OCR on original image
-        orig_img, reordered_orig_points = point_in_original_image(reordered_points, img_name)
+        orig_img, reordered_orig_points = point_in_original_image(orig_img_path, resized_img_path, reordered_points, img_name)
         top_left_orig, top_right_orig, bottom_right_orig, bottom_left_orig = reordered_orig_points
 
         if top_left_orig[1] <= top_right_orig[1]:
@@ -1978,7 +1918,7 @@ if __name__ == '__main__':
     if args.demo:
         print('demo true')
         resize_all_images(default_input, default_resized)
-        getAllImages(default_resized, default_shapes, default_lines, default_json)
+        getAllImages(default_input, default_resized, default_shapes, default_lines, default_json)
         digital_images_results.show_results_html(default_resized, default_shapes, default_lines)
     else:
         if args.imgs_path is not None:
@@ -2022,5 +1962,5 @@ if __name__ == '__main__':
             json_dir = default_json
 
         resize_all_images(images_dir, resized_dir)
-        getAllImages(resized_dir, shapes_dir, lines_dir, json_dir)
+        getAllImages(images_dir, resized_dir, shapes_dir, lines_dir, json_dir)
         digital_images_results.show_results_html(resized_dir, shapes_dir, lines_dir)
