@@ -466,36 +466,6 @@ def enlarge_contour(shape, img_size, hull):
     return mask
 
 
-def find_closest_shape(shape, all_shapes):
-    min_dst = 100000
-    closest_shape = None
-
-    shape_center = find_shape_center(shape.contour)
-    for next_shape in all_shapes:
-        if shape == next_shape:
-            continue
-
-        next_shape_center = find_shape_center(next_shape.contour)
-
-        dst = dst_of_points(shape_center, next_shape_center)
-
-        if dst < min_dst:
-            min_dst = dst
-            closest_shape = next_shape
-
-    return closest_shape
-
-
-def connect_shapes(img, all_shapes):
-    for shape in all_shapes:
-        closest_shape = find_closest_shape(shape, all_shapes)
-        shape_centre = find_shape_center(shape.contour)
-        closest_shape_centre = find_shape_center(closest_shape.contour)
-        cv2.line(img, shape_centre, closest_shape_centre, (255, 255, 0), 1)
-
-    return img
-
-
 def find_closest_line(line, all_lines):
     for point in line.edge_points:
         point = point[0]
