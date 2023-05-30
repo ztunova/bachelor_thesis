@@ -135,69 +135,6 @@ def clear_hist_data(counts, bins, bin_width):
     return cleared_bins
 
 
-def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, img_name):
-    # rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_area"
-
-    distances = []
-    used_colors = None
-    cleared_bins = None
-
-    for value in closest_rectangles.values():
-        # value[1] = upravena metrika, [2] realna metrika
-        dst = value[2]
-        distances.append(dst)
-
-    binwidth = 5
-    fig, ax = plt.subplots(figsize=(16, 4), facecolor='w')
-    plt.ylabel('Frequency')
-
-    # cnts = number of samples in each bin
-    # values = lower bounds of bins
-    # bars = rectangle definition of each histogram bar
-    if len(distances) > 0:
-        distances = reject_outliers(distances)
-
-        # cnts, values, bars = ax.hist(distances, edgecolor='k',
-        #                              bins=np.arange(min(distances), max(distances) + binwidth, binwidth))
-
-        cnts, values, bars = ax.hist(distances, edgecolor='k', bins='auto')
-        binwidth = values[1] - values[0]
-        plt.xlabel(f'bin width: {binwidth: .3f}, min_dst: {min(distances): .3f}, max_dst: {max(distances): .3f}')
-
-        number_of_bars = np.count_nonzero(cnts)
-
-        colors = ['aqua', 'red', 'blue', 'orange', 'green', 'purple', 'maroon', 'yellow', 'lime']
-
-        used_colors = []
-        for i, (cnt, value, bar) in enumerate(zip(cnts, values, bars)):
-            bar.set_facecolor(colors[i % len(colors)])
-            if cnt > 0:
-                used_colors.append(colors[i % len(colors)])
-
-        cleared_bins = clear_hist_data(cnts, values, binwidth)
-
-    else:
-        plt.plot([])
-
-    name = getResultName(img_name, "hist_dst")
-    save_dst = rect_hist_closest_dst_dir + '/' + name
-
-    all_images = os.listdir(rect_hist_closest_dst_dir)
-    if name in all_images:
-        os.remove(save_dst)
-
-    plt.savefig(save_dst)
-    plt.close(fig)
-
-    # plt.show()
-
-    return used_colors, cleared_bins, binwidth
-
-
-def plot_histogram_angle():
-    pass
-
-
 # def plot_histogram(horizontal_rect_box, vertical_rect_box, img_name):
 #     rect_hist_all_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_all"
 #
