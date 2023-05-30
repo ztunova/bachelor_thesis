@@ -122,64 +122,6 @@ def draw_rectangles(draw_img, rect_points, horizontal):
     return draw_img
 
 
-def draw_connected_middle_points_closest_horizontal_histogram_color(draw_img, closest_rect, color, bin_start, bin_end):
-    radius = 2
-    thickness = 2
-
-    for start_rec, end_rec in closest_rect.items():
-        if bin_start <= end_rec[1] < bin_end:
-            start_rec_right_upper = start_rec[1]
-            start_rec_right_lower = start_rec[2]
-
-            end_rec_left_upper = end_rec[0][0]
-            end_rec_left_lower = end_rec[0][3]
-
-            start_point = get_middle_point_of_side(start_rec_right_upper, start_rec_right_lower)
-            end_point = get_middle_point_of_side(end_rec_left_upper, end_rec_left_lower)
-
-            draw_img = cv2.circle(draw_img, start_point, radius, color, thickness)
-            # if start_point[0] < end_point[0]:
-            draw_img = cv2.circle(draw_img, end_point, radius, color, thickness)
-            draw_img = cv2.line(draw_img, start_point, end_point, color, thickness)
-
-    # cv2.imshow("connected", draw_img)
-
-    return draw_img
-
-
-def draw_connected_middle_points_histogram_colors(draw_img, closest_rect, colors, bins, bin_width):
-    # rgb
-    # bgr
-    all_colors = {
-        'aqua': (255, 255, 0),
-        'red': (0, 0, 255),
-        'blue': (255, 0, 0),
-        'orange': (0, 128, 255),
-        'green': (0, 128, 0),
-        'purple': (128, 0, 128),
-        'maroon': (0, 0, 128),
-        'yellow': (0, 255, 255),
-        'lime': (0, 255, 0)
-    }
-
-    if colors is None:
-        draw_connected_middle_points_closest_horizontal(draw_img, closest_rect)
-
-    if bins is None:
-        return draw_img
-
-    for i in range(len(bins)):
-        bin_start = bins[i]
-        bin_end = bin_start + bin_width
-        color = colors[i]
-        bgr_color = all_colors[color]
-        # print(bin_start, " ", bin_end, " ", color)
-        draw_img = draw_connected_middle_points_closest_horizontal_histogram_color(draw_img, closest_rect, bgr_color,
-                                                                                   bin_start, bin_end)
-
-    return draw_img
-
-
 def clear_hist_data(counts, bins, bin_width):
     cleared_bins = []
 
