@@ -1,16 +1,11 @@
 import argparse
-import copy
 import csv
-import json
-import math
 import os
 import random
 import shutil
-import webbrowser
 
 import cv2
 import keras_ocr
-import matplotlib.pyplot as plt
 import math
 import numpy as np
 import pandas
@@ -19,11 +14,7 @@ import unicodedata
 
 import digital_images_results
 from jiwer import cer
-from output_lines_by_hist_script import lines_by_hist_html
-from outputs import showResultsHTML
-from numpy import linalg as LA
 from PIL import Image, ImageDraw, ImageFont
-from pathlib import Path
 from scipy.spatial import distance as dist
 
 
