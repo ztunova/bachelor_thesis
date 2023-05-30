@@ -135,16 +135,6 @@ def clear_hist_data(counts, bins, bin_width):
     return cleared_bins
 
 
-# larger m => less outliers removed
-def reject_outliers(data, m=6.):
-    data = np.array(data)
-
-    d = np.abs(data - np.median(data))
-    mdev = np.median(d)
-    s = d / (mdev if mdev else 1.)
-    return data[s < m].tolist()
-
-
 def histogram_closest_distances(rect_hist_closest_dst_dir, closest_rectangles, img_name):
     # rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_rect_hist_area"
 
