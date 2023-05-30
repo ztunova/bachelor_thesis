@@ -173,45 +173,6 @@ def dst_of_points(start_point, end_point):
     return dst
 
 
-def detectLinesHough(img):
-    img_copy = img.copy()
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
-
-    thresholded = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 2)
-    bw_swap = cv2.bitwise_not(thresholded)
-
-    dilated = cv2.dilate(bw_swap, np.ones((4, 4), dtype=np.uint8))  # 3,3
-    # cv2.imshow("dilated", dilated)
-    eroded = cv2.erode(dilated, np.ones((4, 4), dtype=np.uint8))  # aj 2,2 alebo 3,3
-    # cv2.imshow("eroded", eroded)
-
-    edged = eroded
-
-    # edged = cv2.Canny(blurred, 10, 100)
-    # # edged = cv2.dilate(edged, np.ones((3, 3), dtype=np.uint8))
-    # edged = cv2.dilate(edged, np.ones((10, 10), dtype=np.uint8))
-    # edged = cv2.erode(edged, np.ones((10, 10), dtype=np.uint8))
-
-    rho = 0.7  # distance resolution in pixels of the Hough grid
-    theta = 3 * np.pi / 180  # The resolution of the parameter theta in radians: 1 degree
-    threshold = 15  # minimum number of votes (intersections in Hough grid cell)
-    min_line_length = 10  # minimum number of pixels making up a line
-    max_line_gap = 5  # maximum gap in pixels between connectable line segments
-
-    lines = cv2.HoughLinesP(edged, rho, theta, threshold, np.array([]), min_line_length, max_line_gap)
-
-    img_copy = drawLines(img_copy, lines)
-
-    # cv2.imshow("Edged image", edged)
-    # cv2.imshow("Lines", img_copy)
-
-    # doHistogram(lines)
-    return img_copy, lines, edged
-    # return drawLines(img, lines)
-
-
 def getResultName(img_name, description):
     if description == '':
         return img_name
