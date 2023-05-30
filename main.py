@@ -257,38 +257,6 @@ def getAllImages(orig_img_dir, folder_dir, digital_imgs_contour_dir, removed_sha
         write_json_to_file(json_output_dir, json_res, image_name)
 
 
-def lines_by_hist_bins(bins, bin_width, closest_data, img, boundary, dir, name):
-    for i in range(boundary):
-        max_length = bins[i] + bin_width
-
-        for start_rec, end_rec in closest_data.items():
-            dst = end_rec[1]
-            if dst < max_length:
-                start_rec_right_upper = start_rec[1]
-                start_rec_right_lower = start_rec[2]
-
-                end_rec_left_upper = end_rec[0][0]
-                end_rec_left_lower = end_rec[0][3]
-
-                start_point = get_middle_point_of_side(start_rec_right_upper, start_rec_right_lower)
-                end_point = get_middle_point_of_side(end_rec_left_upper, end_rec_left_lower)
-
-                img = cv2.circle(img, end_point, 2, (255, 51, 255), 2)
-                img = cv2.line(img, start_point, end_point, (255, 51, 255), 2)
-
-    # cv2.imshow("limited by bin", img)
-
-    # dst = dir + '/' + name
-
-    # cv2.imwrite(dst, img)
-    saveImage(dir, name, str(boundary), img)
-
-
-def depict_all_bins_separetly(bins, binwidth, closest, img, dir, name):
-    for i in range(1, len(bins)):
-        lines_by_hist_bins(bins, binwidth, closest, img, i, dir, name)
-
-
 def get_new_image_size(orig_height, orig_width):
     new_longer_side_px = 1000
 
