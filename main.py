@@ -308,60 +308,6 @@ def img_preprocessing(img):
     return result_img
 
 
-def shape_approximation(img):
-    image_copy = img.copy()
-    dilated = img_preprocessing(img)
-
-    contours, _ = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-    for cnt in contours:
-        approx = cv2.approxPolyDP(cnt, 0.025 * cv2.arcLength(cnt, True), True)
-
-        if len(approx) == 3:
-            M_cnt = cv2.moments(cnt)
-            M_approx = cv2.moments(approx)
-            if M_cnt['m00'] != 0.0:
-                x_cnt = int(M_cnt['m10'] / M_cnt['m00'])
-                y_cnt = int(M_cnt['m01'] / M_cnt['m00'])
-                cv2.circle(image_copy, (x_cnt, y_cnt), 5, (0, 0, 255), -1)
-
-            if M_approx['m00'] != 0.0:
-                x_approx = int(M_approx['m10'] / M_approx['m00'])
-                y_approx = int(M_approx['m01'] / M_approx['m00'])
-                cv2.circle(image_copy, (x_approx, y_approx), 5, (0, 255, 0), -1)
-
-            x_diff = abs(x_cnt - x_approx)
-            y_diff = abs(y_cnt - y_approx)
-            if x_diff < 5 and y_diff < 5:
-                cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(255, 0, 0), thickness=2,
-                                 lineType=cv2.LINE_AA)
-
-        # elif len(approx) == 4:
-        #     M_cnt = cv2.moments(cnt)
-        #     M_approx = cv2.moments(approx)
-        #     if M_cnt['m00'] != 0.0:
-        #         x_cnt = int(M_cnt['m10'] / M_cnt['m00'])
-        #         y_cnt = int(M_cnt['m01'] / M_cnt['m00'])
-        #         cv2.circle(image_copy, (x_cnt, y_cnt), 5, (0, 0, 255), -1)
-        #
-        #     if M_approx['m00'] != 0.0:
-        #         x_approx = int(M_approx['m10'] / M_approx['m00'])
-        #         y_approx = int(M_approx['m01'] / M_approx['m00'])
-        #         cv2.circle(image_copy, (x_approx, y_approx), 5, (0, 255, 0), -1)
-        #
-        #     x_diff = abs(x_cnt - x_approx)
-        #     y_diff = abs(y_cnt - y_approx)
-        #     if x_diff < 5 and y_diff < 5:
-        #         cv2.drawContours(image=image_copy, contours=[cnt], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-
-        # cv2.drawContours(image=image_copy, contours=[approx], contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-
-        # elif 6 < len(approx) < 15:
-        #     cv2.drawContours(image=image_copy, contours=[approx], contourIdx=-1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_AA)
-
-    return image_copy
-
-
 def get_vectors_from_rect_points(box):
     reordered_box = reorder_rect_points_horizontal_rec(box)
     reordered_box = np.asarray(reordered_box)
