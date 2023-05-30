@@ -41,18 +41,6 @@ def random_color():
     return b, g, r
 
 
-def drawLines(img_copy, lines):
-    if lines is not None:
-        for line in lines:
-            x1, y1, x2, y2 = line[0]
-            b = random.randint(0, 255)
-            r = random.randint(0, 255)
-            g = random.randint(0, 255)
-            cv2.line(img_copy, (x1, y1), (x2, y2), (b, g, r), 2)
-
-    return img_copy
-
-
 def draw_rectangles(draw_img, rect_points, horizontal):
     if rect_points is not None:
         for rect in rect_points:
