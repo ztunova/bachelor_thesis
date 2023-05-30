@@ -201,28 +201,7 @@ def getAllImages(orig_img_dir, folder_dir, digital_imgs_contour_dir, removed_sha
     clear_directory(digital_imgs_contour_dir)
     clear_directory(removed_shapes_dir)
 
-    # # folder_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
-    # # dst_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines"
-    # # input_dir = "C:/Users/HP/Desktop/zofka/FEI_STU/bakalarka/dbs_ru1_hlines_input"
-    #
-    # # folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
-    # # folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized"
-    # ## folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized"
-    #
-    # dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines"
-    # input_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hlines_input"
-    #
-    # horizontal_lines_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_horizontalLines"
-    # horizontal_input_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_horizontalLines_input"
-    #
-    # vertical_lines_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_verticalLines"
-    # vertical_input_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_verticalLines_input"
-    #
-    # horizontal_vertical_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_horizontal_vertical"
-    #
-    # hor_rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_hor_rect_hist_closest_dst"
-    # ver_rect_hist_closest_dst_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_ver_rect_hist_closest_dst"
-
+    ## folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized"
     ## digital_imgs_contour_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_digital_contours"
     ## removed_shapes_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_removed_shapes"
 
@@ -276,49 +255,6 @@ def getAllImages(orig_img_dir, folder_dir, digital_imgs_contour_dir, removed_sha
 
         json_res = erd_data_to_json(detected_shapes, detected_lines)
         write_json_to_file(json_output_dir, json_res, image_name)
-
-        # img_hlines, lines, input_img = detectLinesHough(img)
-        # saveImage(dst_dir, image_name, 'hough_lines', img_hlines)
-        # saveImage(input_dir, image_name, 'input', input_img)
-
-        # horizontal_lines, horizontal_lines_input, horiz_data = detect_horizontal_lines(img)
-        # closest_horizontal = find_closest_horizontal_rect(horiz_data[0])
-
-        # horizontal_lines_connected = draw_connected_middle_points_closest_horizontal(horizontal_lines.copy(), closest_horizontal)
-        # horizontal_lines_connected = draw_connected_middle_points_max_length_horizontal(horizontal_lines.copy(), closest_horizontal, 30)
-        # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines)
-        # saveImage(horizontal_lines_dir, image_name, 'horizontal_lines', horizontal_lines_connected)
-        # saveImage(horizontal_input_dir, image_name, 'horizontal_input', horizontal_lines_input)
-
-        # vertical_lines, vertical_lines_input, vertical_data = detect_vertical_lines(img)
-        # closest_vertical = find_closest_vertical_rect(vertical_data[0])
-
-        # vertical_lines_connected = draw_connected_middle_points_closest_vertical(vertical_lines, closest_vertical)
-        # vertical_lines_connected = draw_connected_middle_points_max_length_vertical(vertical_lines.copy(), closest_vertical, 30)
-        # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines)
-        # saveImage(vertical_lines_dir, image_name, 'vertical_lines', vertical_lines_connected)
-        # saveImage(vertical_input_dir, image_name, 'vertical_input', vertical_lines_input)
-
-        # horizontal_vertical, _, _ = detect_vertical_lines(img, horizontal_lines)
-        # hor_ver_connected = draw_connected_middle_points_max_length_horizontal(horizontal_vertical, closest_horizontal, 30)
-        # hor_ver_connected = draw_connected_middle_points_max_length_vertical(hor_ver_connected, closest_vertical, 30)
-        # closest_hor_ver = find_closest_vertical_to_horizontal_rec(horiz_data[0], vertical_data[0])
-        # horizontal_vertical = draw_connected_middle_points_closest_horizontal_vertical(horizontal_vertical, closest_hor_ver)
-        # saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', horizontal_vertical)
-        # saveImage(horizontal_vertical_dir, image_name, 'horizontal_vertical', hor_ver_connected)
-
-        # hor_rect_box = horiz_data[1]
-        # ver_rect_box = vertical_data[1]
-        # plot_histogram(hor_rect_box, ver_rect_box, image_name)
-        # plot_histogram_area(hor_rect_box, ver_rect_box, image_name)
-
-        # colors, bins, binwidth = histogram_closest_distances(hor_rect_hist_closest_dst_dir, closest_horizontal, image_name)
-        # hor_lines_colors = draw_connected_middle_points_histogram_colors(horizontal_lines, closest_horizontal, colors, bins, binwidth)
-        # saveImage(horizontal_lines_dir, image_name, 'hstColors', hor_lines_colors)
-
-        # histogram_closest_distances(ver_rect_hist_closest_dst_dir, closest_vertical, image_name)
-
-        # print(image_name)
 
 
 def lines_by_hist_bins(bins, bin_width, closest_data, img, boundary, dir, name):
