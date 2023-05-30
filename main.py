@@ -84,7 +84,7 @@ def dst_of_points(start_point, end_point):
     return dst
 
 
-def getResultName(img_name, description):
+def get_result_name(img_name, description):
     if description == '':
         return img_name
 
@@ -94,8 +94,8 @@ def getResultName(img_name, description):
     return result_name
 
 
-def saveImage(dst_dir, img_name, description, res_img):
-    result_name = getResultName(img_name, description)
+def save_image(dst_dir, img_name, description, res_img):
+    result_name = get_result_name(img_name, description)
     # print(result_name)
     all_images = os.listdir(dst_dir)
 
@@ -106,7 +106,7 @@ def saveImage(dst_dir, img_name, description, res_img):
     cv2.imwrite(result_path, res_img)
 
 
-def getAllImages(orig_img_dir, folder_dir, digital_imgs_contour_dir, removed_shapes_dir, json_output_dir):
+def get_all_images(orig_img_dir, folder_dir, digital_imgs_contour_dir, removed_shapes_dir, json_output_dir):
 
     clear_directory(json_output_dir)
     clear_directory(digital_imgs_contour_dir)
@@ -142,7 +142,7 @@ def getAllImages(orig_img_dir, folder_dir, digital_imgs_contour_dir, removed_sha
         digital_contours, detected_shapes = detect_shapes(img)
 
         removed_shapes, detected_lines = remove_shapes_from_image(img, detected_shapes)
-        saveImage(removed_shapes_dir, image_name, "", removed_shapes)
+        save_image(removed_shapes_dir, image_name, "", removed_shapes)
 
         # Keras OCR without statistics
         digital_contours = recognize_text_no_statistics(orig_img_dir, folder_dir, image_name, digital_contours, pipline, detected_shapes, False, True, False)
@@ -162,7 +162,7 @@ def getAllImages(orig_img_dir, folder_dir, digital_imgs_contour_dir, removed_sha
         # Tesseract OCR with statistics
         # digital_contours, statistic_data = recognize_text_with_statistics(orig_img_dir, folder_dir, image_name, digital_contours, pipline, text_reader, detected_shapes, 'tesseract_ocr')
 
-        saveImage(digital_imgs_contour_dir, image_name, "", digital_contours)
+        save_image(digital_imgs_contour_dir, image_name, "", digital_contours)
 
         json_res = erd_data_to_json(detected_shapes, detected_lines)
         write_json_to_file(json_output_dir, json_res, image_name)
@@ -197,7 +197,7 @@ def resize_all_images(source_dst, result_dir):
 
         # !!! cv2. resize has order of new values: (width, height)
         resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
-        saveImage(result_dir, img_name, '', resized_img)
+        save_image(result_dir, img_name, '', resized_img)
 
 
 def img_preprocessing(img):
@@ -1066,7 +1066,7 @@ if __name__ == '__main__':
     if args.demo:
         # print('demo true')
         resize_all_images(default_input, default_resized)
-        getAllImages(default_input, default_resized, default_shapes, default_lines, default_json)
+        get_all_images(default_input, default_resized, default_shapes, default_lines, default_json)
         digital_images_results.show_results_html(default_resized, default_shapes, default_lines)
     else:
         if args.imgs_path is not None:
@@ -1110,5 +1110,5 @@ if __name__ == '__main__':
             json_dir = default_json
 
         resize_all_images(images_dir, resized_dir)
-        getAllImages(images_dir, resized_dir, shapes_dir, lines_dir, json_dir)
+        get_all_images(images_dir, resized_dir, shapes_dir, lines_dir, json_dir)
         digital_images_results.show_results_html(resized_dir, shapes_dir, lines_dir)
