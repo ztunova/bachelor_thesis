@@ -73,14 +73,6 @@ def reorder_rect_points_horizontal_rec(rect):
     return [min_x_min_y, max_x_min_y, max_x_max_y, min_x_max_y]
 
 
-def get_middle_point_of_side(upper_point, lower_point):
-    upper_x, upper_y = upper_point
-    lower_x, lower_y = lower_point
-    middle_x = int((upper_x + lower_x) / 2)
-    middle_y = int((upper_y + lower_y) / 2)
-    return [middle_x, middle_y]
-
-
 def dst_of_points(start_point, end_point):
     x_start, y_start = start_point
     x_end, y_end = end_point
