@@ -122,70 +122,6 @@ def draw_rectangles(draw_img, rect_points, horizontal):
     return draw_img
 
 
-def reorder_rect_points_vertical_rec(rect):
-    min_y = []
-    reordered_rect = []
-
-    min_y1 = min(rect, key=lambda rec: rec[1])
-    min_y.append(min_y1)
-    index = np.where(np.all(rect == min_y1, axis=1))
-    if len(index[0]) > 1:
-        index = index[0][0]
-    rect = np.delete(rect, index, axis=0)
-    min_y2 = min(rect, key=lambda rec: rec[1])
-    min_y.append(min_y2)
-    index = np.where(np.all(rect == min_y2, axis=1))
-    max_y = np.delete(rect, index, axis=0)
-
-    if max_y[0][0] <= max_y[1][0]:
-        min_x_max_y = max_y[0].tolist()
-        max_x_max_y = max_y[1].tolist()
-    else:
-        max_x_max_y = max_y[0].tolist()
-        min_x_max_y = max_y[1].tolist()
-
-    if min_y1[0] <= min_y2[0]:
-        min_x_min_y = min_y1.tolist()
-        max_x_min_y = min_y2.tolist()
-    else:
-        min_x_min_y = min_y2.tolist()
-        max_x_min_y = min_y1.tolist()
-
-    return [min_x_min_y, max_x_min_y, max_x_max_y, min_x_max_y]
-
-
-def reorder_rect_points_horizontal_rec(rect):
-    max_x = []
-    reordered_rect = []
-
-    max_x1 = max(rect, key=lambda x: x[0])
-    max_x.append(max_x1)
-    index = np.where(np.all(rect == max_x1, axis=1))
-    if len(index[0]) > 1:
-        index = index[0][0]
-    rect = np.delete(rect, index, axis=0)
-    max_x2 = max(rect, key=lambda x: x[0])
-    max_x.append(max_x2)
-    index = np.where(np.all(rect == max_x2, axis=1))
-    min_x = np.delete(rect, index, axis=0)
-
-    if min_x[0][1] <= min_x[1][1]:
-        min_x_min_y = min_x[0].tolist()
-        min_x_max_y = min_x[1].tolist()
-    else:
-        min_x_min_y = min_x[1].tolist()
-        min_x_max_y = min_x[0].tolist()
-
-    if max_x1[1] <= max_x2[1]:
-        max_x_min_y = max_x1.tolist()
-        max_x_max_y = max_x2.tolist()
-    else:
-        max_x_min_y = max_x2.tolist()
-        max_x_max_y = max_x1.tolist()
-
-    return [min_x_min_y, max_x_min_y, max_x_max_y, min_x_max_y]
-
-
 def get_middle_point_of_side(upper_point, lower_point):
     upper_x, upper_y = upper_point
     lower_x, lower_y = lower_point
@@ -333,10 +269,6 @@ def find_closest_horizontal_rect(all_hor_rect):
         closest_results[key] = [value, min_dst, real_dst]
 
     return closest_results
-
-
-def connect_closest_horizontal_rect(all_hor_rect):
-    pass
 
 
 def detect_horizontal_lines(img, copy=None):
