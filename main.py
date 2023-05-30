@@ -927,7 +927,7 @@ def write_json_to_file(json_output_dir, json_data, name):
 
 
 def write_statistics_to_csv(row):
-    with open('test/results/statistics/ocr_statistic.csv', 'a', newline='', encoding='utf-8') as f:
+    with open('results/statistics/ocr_statistic.csv', 'a', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(row)
 
@@ -945,7 +945,7 @@ def clear_directory(folder):
 
 
 def copy_columns_csv():
-    data = pandas.read_csv("test/results/statistics/ocr_statistic.csv")
+    data = pandas.read_csv("results/statistics/ocr_statistic.csv")
 
     img_names = data['image_name'].tolist()
     ids = data['id'].tolist()
@@ -953,14 +953,14 @@ def copy_columns_csv():
     header = ['image_name', 'id', 'original_text']
     csv_columns = list(zip(img_names, ids))
 
-    with open('test/results/statistics/original_texts.csv', 'a', newline='', encoding='utf-8') as f:
+    with open('results/statistics/original_texts.csv', 'a', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(header)
         writer.writerows(csv_columns)
 
 
 def original_text_modify():
-    data = pandas.read_csv("test/results/statistics/original_texts.csv")
+    data = pandas.read_csv("results/statistics/original_texts.csv")
     data = data.fillna('')
     data['lowercase'] = data['original_text'].str.lower()
     data['diakritika'] = data['lowercase'].map(lambda x: strip_accents(x))
@@ -975,10 +975,10 @@ def strip_accents(s):
 
 
 def csv_work():
-    original_texts = pandas.read_csv("test/results/statistics/original_texts.csv", nrows=572)
+    original_texts = pandas.read_csv("results/statistics/original_texts.csv", nrows=572)
     # print(original_texts['diakritika'].tolist())
     #
-    ocr_texts = pandas.read_csv("test/results/statistics/ocr_statistic.csv", nrows=572)
+    ocr_texts = pandas.read_csv("results/statistics/ocr_statistic.csv", nrows=572)
     ocr_texts = ocr_texts.fillna('')
     cer_value = cer(original_texts['original_text'].tolist(), ocr_texts['easy_ocr'].tolist())
     print(cer_value)
@@ -1011,13 +1011,13 @@ if __name__ == '__main__':
     parser.add_argument('--json-path')
     # # Read arguments from command line
     args = parser.parse_args()
-    print("args: ", args)
+    # print("args: ", args)
 
     default_input = 'demo/test_imgs'
     default_resized = 'demo/resized_imgs'
     default_shapes = 'demo/detected_shapes'
     default_lines = 'demo/detected_lines'
-    default_json = 'test/results/json_outputs/'
+    default_json = 'results/json_outputs/'
 
     if args.demo:
         # print('demo true')
