@@ -173,34 +173,6 @@ def dst_of_points(start_point, end_point):
     return dst
 
 
-# weight on horizontal direction -> prioritized rectangles on vertical axis
-def weighted_dst_vertical(start_point, end_point):
-    x_start, y_start = start_point
-    x_end, y_end = end_point
-
-    x_diff = x_end - x_start
-    y_diff = y_end - y_start
-
-    weight = 5
-    weighted_dst = math.sqrt((x_diff * weight) ** 2 + y_diff ** 2)
-
-    return weighted_dst
-
-
-# weight on vertical direction => prioritized rectangles on horizontal axis
-def weighted_dst_horizontal(start_point, end_point):
-    x_start, y_start = start_point
-    x_end, y_end = end_point
-
-    x_diff = x_end - x_start
-    y_diff = y_end - y_start
-
-    weight = 5
-    weighted_dst = math.sqrt(x_diff ** 2 + (y_diff * weight) ** 2)
-
-    return weighted_dst
-
-
 def detect_horizontal_lines(img, copy=None):
     all_rect_points = []
     all_rect_box = []  # (center(x,y), (width, height), angle of rotation)
