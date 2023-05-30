@@ -41,17 +41,6 @@ def random_color():
     return b, g, r
 
 
-def draw_rectangles(draw_img, rect_points, horizontal):
-    if rect_points is not None:
-        for rect in rect_points:
-            if horizontal:
-                cv2.drawContours(draw_img, [rect], 0, (0, 255, 0), 2)
-            else:
-                cv2.drawContours(draw_img, [rect], 0, (0, 0, 255), 2)
-
-    return draw_img
-
-
 def reorder_rect_points_horizontal_rec(rect):
     max_x = []
     reordered_rect = []
