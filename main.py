@@ -122,38 +122,6 @@ def draw_rectangles(draw_img, rect_points, horizontal):
     return draw_img
 
 
-def reorder_rect_points_vertical_rec(rect):
-    min_y = []
-    reordered_rect = []
-
-    min_y1 = min(rect, key=lambda rec: rec[1])
-    min_y.append(min_y1)
-    index = np.where(np.all(rect == min_y1, axis=1))
-    if len(index[0]) > 1:
-        index = index[0][0]
-    rect = np.delete(rect, index, axis=0)
-    min_y2 = min(rect, key=lambda rec: rec[1])
-    min_y.append(min_y2)
-    index = np.where(np.all(rect == min_y2, axis=1))
-    max_y = np.delete(rect, index, axis=0)
-
-    if max_y[0][0] <= max_y[1][0]:
-        min_x_max_y = max_y[0].tolist()
-        max_x_max_y = max_y[1].tolist()
-    else:
-        max_x_max_y = max_y[0].tolist()
-        min_x_max_y = max_y[1].tolist()
-
-    if min_y1[0] <= min_y2[0]:
-        min_x_min_y = min_y1.tolist()
-        max_x_min_y = min_y2.tolist()
-    else:
-        min_x_min_y = min_y2.tolist()
-        max_x_min_y = min_y1.tolist()
-
-    return [min_x_min_y, max_x_min_y, max_x_max_y, min_x_max_y]
-
-
 def reorder_rect_points_horizontal_rec(rect):
     max_x = []
     reordered_rect = []
