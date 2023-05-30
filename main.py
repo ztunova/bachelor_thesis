@@ -103,12 +103,7 @@ def get_all_images(orig_img_dir, folder_dir, digital_imgs_contour_dir, removed_s
     clear_directory(digital_imgs_contour_dir)
     clear_directory(removed_shapes_dir)
 
-    ## folder_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized"
-    ## digital_imgs_contour_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_digital_contours"
-    ## removed_shapes_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs_ru1_removed_shapes"
-
     all_images = os.listdir(folder_dir)
-    # print(all_images)
 
     # keras OCR
     pipline = keras_ocr.pipeline.Pipeline()
@@ -173,9 +168,6 @@ def get_new_image_size(orig_height, orig_width):
 
 
 def resize_all_images(source_dst, result_dir):
-    # source_dst = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1"
-    # result_dir = "C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_resized"
-
     all_images = os.listdir(source_dst)
     clear_directory(result_dir)
 
@@ -193,20 +185,13 @@ def resize_all_images(source_dst, result_dir):
 
 def img_preprocessing(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # cv2.imshow("gray", gray)
     blurred = cv2.GaussianBlur(gray, (7, 7), 0)
-    # cv2.imshow("blured", blurred)
     threshold = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 3)
-    # cv2.imshow("thresh", threshold)
 
     bw_swap = cv2.bitwise_not(threshold)
-    # cv2.imshow("bw swap", bw_swap)
     dilated = cv2.dilate(bw_swap, np.ones((3, 3), dtype=np.uint8))  # 2, 2
-    # cv2.imshow("dilated", dilated)
-    eroded = cv2.erode(dilated, np.ones((2, 2), dtype=np.uint8))  # 2, 2
 
-    result_img = dilated  # dilated
-    # cv2.imshow('res', result_img)
+    result_img = dilated
     return result_img
 
 
@@ -569,12 +554,6 @@ def detect_shapes(img):
             y_diff = abs(y_cnt - y_approx)
             if x_diff < 5 and y_diff < 5:
                 rect = cv2.minAreaRect(cnt)
-                rect_width = rect[1][0]
-                rect_heigh = rect[1][1]
-                rect_area = rect_width * rect_heigh
-
-                box = cv2.boxPoints(rect)
-                box = np.intp(box)
 
                 triangle_shape = Shape(cnt, cnt_hierarchy, "triangle", rect)
                 all_shapes.append(triangle_shape)
@@ -713,9 +692,6 @@ def order_points_new(points):
 
 
 def point_in_original_image(orig_img_dir, resized_img_dir, reordered_points, img_name):
-    # orig_img_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1'
-    # resized_img_dir = 'C:/Users/zofka/OneDrive/Dokumenty/FEI_STU/bakalarka/dbs2022_riadna_uloha1_digital_resized'
-
     orig_img_path = orig_img_dir + '/' + img_name
     resized_img_path = resized_img_dir + '/' + img_name
 
@@ -952,7 +928,6 @@ def write_json_to_file(json_output_dir, json_data, name):
     exten_index = name.find('.', start)
     name_no_extension = name[:exten_index]
 
-    # file_name = "test/results/json_outputs/" + name_no_extension + ".json"
     file_name = json_output_dir + name_no_extension + ".json"
     file = open(file_name, 'w+')
     file.write(json.dumps(json_data, indent=4))
@@ -994,11 +969,9 @@ def copy_columns_csv():
 
 def original_text_modify():
     data = pandas.read_csv("test/results/statistics/original_texts.csv")
-    # print(data['original_text'].str.lower())
     data = data.fillna('')
     data['lowercase'] = data['original_text'].str.lower()
     data['diakritika'] = data['lowercase'].map(lambda x: strip_accents(x))
-    # print("------------------")
     print(data.head())
     data.to_csv("test/results/statistics/original_texts.csv", index=False)
 
