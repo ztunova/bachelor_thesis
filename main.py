@@ -21,6 +21,9 @@ from scipy.spatial import distance as dist
 from easyocr import Reader
 from shapes import *
 
+
+# If you don't have tesseract executable in your PATH, include the following:
+# pytesseract.pytesseract.tesseract_cmd = r'<full_path_to_your_tesseract_executable>'
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\zofka\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 
@@ -976,12 +979,16 @@ def strip_accents(s):
 
 def csv_work():
     original_texts = pandas.read_csv("results/statistics/original_texts.csv", nrows=572)
-    # print(original_texts['diakritika'].tolist())
-    #
-    ocr_texts = pandas.read_csv("results/statistics/ocr_statistic.csv", nrows=572)
-    ocr_texts = ocr_texts.fillna('')
-    cer_value = cer(original_texts['original_text'].tolist(), ocr_texts['easy_ocr'].tolist())
-    print(cer_value)
+    print(original_texts.head())
+    original_texts['count'] = original_texts['original_text'].str.len()
+    print(original_texts.head())
+    total = original_texts['count'].sum()
+    print("Total: ", total)
+
+    # ocr_texts = pandas.read_csv("results/statistics/ocr_statistic.csv", nrows=572)
+    # ocr_texts = ocr_texts.fillna('')
+    # cer_value = cer(original_texts['original_text'].tolist(), ocr_texts['easy_ocr'].tolist())
+    # print(cer_value)
     # print(original_texts)
     # print(ocr_texts)
 
