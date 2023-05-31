@@ -923,7 +923,7 @@ def write_json_to_file(json_output_dir, json_data, name):
     exten_index = name.find('.', start)
     name_no_extension = name[:exten_index]
 
-    file_name = json_output_dir + name_no_extension + ".json"
+    file_name = json_output_dir + '/' + name_no_extension + ".json"
     file = open(file_name, 'w+')
     file.write(json.dumps(json_data, indent=4))
     file.close()
@@ -1027,7 +1027,7 @@ if __name__ == '__main__':
     default_resized = 'demo/resized_imgs'
     default_shapes = 'demo/detected_shapes'
     default_lines = 'demo/detected_lines'
-    default_json = 'results/json_outputs/'
+    default_json = 'results/json_outputs'
 
     if args.demo:
         # print('demo true')
