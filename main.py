@@ -1009,13 +1009,16 @@ def csv_work():
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Process command line arguments.')
-    parser.add_argument('--demo', action="store_true")
-    parser.add_argument('--imgs-path')
-    parser.add_argument('--resized-imgs-path')
-    parser.add_argument('--shapes-path')
-    parser.add_argument('--lines-path')
-    parser.add_argument('--json-path')
+    parser = argparse.ArgumentParser(description='Digitalization of ERD app. '
+                                                 'If any of the following path is not given, default will be used.'
+                                                 ' It is located in subdirectory /demo in root directory of project.'
+                                                 ' HTML file is located in root directory of project.')
+    parser.add_argument('--demo', action="store_true", help="run demo app")
+    parser.add_argument('--imgs-path', help="path to folder containing input images")
+    parser.add_argument('--resized-imgs-path', help="path to folder where resized images will be stored")
+    parser.add_argument('--shapes-path', help="path to folder where images with detected shapes will be stored")
+    parser.add_argument('--lines-path', help="path to folder where images with line detection results will be stored")
+    parser.add_argument('--json-path', help="path to folder where json files will be stored")
     # # Read arguments from command line
     args = parser.parse_args()
     # print("args: ", args)
