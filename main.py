@@ -978,12 +978,12 @@ def strip_accents(s):
 
 
 def csv_work():
-    original_texts = pandas.read_csv("results/statistics/original_texts.csv", nrows=572)
-    print(original_texts.head())
-    original_texts['count'] = original_texts['original_text'].str.len()
-    print(original_texts.head())
-    total = original_texts['count'].sum()
-    print("Total: ", total)
+    # original_texts = pandas.read_csv("results/statistics/original_texts.csv", nrows=572)
+    # print(original_texts.head())
+    # original_texts['count'] = original_texts['original_text'].str.len()
+    # print(original_texts.head())
+    # total = original_texts['count'].sum()
+    # print("Total: ", total)
 
     # ocr_texts = pandas.read_csv("results/statistics/ocr_statistic.csv", nrows=572)
     # ocr_texts = ocr_texts.fillna('')
@@ -992,19 +992,18 @@ def csv_work():
     # print(original_texts)
     # print(ocr_texts)
 
-    # data = pandas.read_csv("test/results/statistics/shapes.csv")
-    # names = pandas.DataFrame(data.image_name.unique(), columns=['image_name'])
-    # names.to_csv("test/results/statistics/shapes.csv", index=False)
-    # print(names.head())
+    data = pandas.read_csv("results/statistics/shapes.csv")
 
-    # total_correct = data['spravne'].sum()
+    total = data['ciary_mal_najst'].sum()
+    correct = data['spravne_ciary'].sum()
+    wrong = data['chybne_ciary'].sum()
     # not_found = data['nenajdene'].sum()
     # not_classified = data['nespravne_klasifikovane'].sum()
-    # extra = data['navyse'].sum()
-    # print("correct: ", total_correct)
-    # print("not found: ", not_found)
-    # print("not classified: ", not_classified)
-    # print("extra: ", extra)
+    extra = data['navyse_ciary'].sum()
+    print("total: ", total)
+    print("correct: ", correct)
+    print("wrong: ", wrong)
+    print("extra: ", extra)
     # print("prerusovane: ", data['prerusovane'].sum())
 
 
